@@ -10,19 +10,20 @@ func _ready():
 	await get_tree().process_frame
 	
 	var all_buttons = [
-		$VBoxContainer/Button_Settings,
-		$VBoxContainer/Button_Sound,
-		$VBoxContainer/Button_Music,
-		$VBoxContainer/Button_Info,
-		$TextureButton_Play,
-		$HBoxContainer_Nav/TextureButton_Nav1,
-		$HBoxContainer_Nav/TextureButton_Nav2,
-		$HBoxContainer_Nav/TextureButton_Nav3,
-		$HBoxContainer_Nav/TextureButton_Nav4,
+		get_node_or_null("VBoxContainer/Button_Settings"),
+		get_node_or_null("VBoxContainer/Button_Sound"),
+		get_node_or_null("VBoxContainer/Button_Music"),
+		get_node_or_null("VBoxContainer/Button_Info"),
+		get_node_or_null("TextureButton_Play"),
+		get_node_or_null("HBoxContainer_Nav/TextureButton_Nav1"),
+		get_node_or_null("HBoxContainer_Nav/TextureButton_Nav2"),
+		get_node_or_null("HBoxContainer_Nav/TextureButton_Nav3"),
+		get_node_or_null("HBoxContainer_Nav/TextureButton_Nav4"),
 	]
 	
 	for btn in all_buttons:
-		btn.pivot_offset = btn.size / 2
+		if btn != null:
+			btn.pivot_offset = btn.size / 2
 
 func _on_button_settings_pressed():
 	$SoundClick.play()

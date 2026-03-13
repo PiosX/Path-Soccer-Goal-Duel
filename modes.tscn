@@ -1,3 +1,229 @@
-[gd_scene format=3 uid="uid://byrn2uqkb5in7"]
+[gd_scene load_steps=15 format=3 uid="uid://byrn2uqkb5in7"]
 
-[node name="Node2D" type="CanvasLayer"]
+[ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_y1mll"]
+[ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_4hpvc"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="3_0f1nr"]
+[ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="4_u2qc3"]
+[ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="5_4bqew"]
+[ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="6_s2ogs"]
+[ext_resource type="Texture2D" uid="uid://xm4x8apb7b3q" path="res://ui/common/info.png" id="7_gkgc0"]
+[ext_resource type="Texture2D" uid="uid://do1t6sxlplhlx" path="res://ui/common/top-bar.png" id="8_8uwg4"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="9_xqpib"]
+[ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="10_562ot"]
+[ext_resource type="Texture2D" uid="uid://dshgnnpr53ck1" path="res://ui/common/play-btn.png" id="11_bwv47"]
+[ext_resource type="Texture2D" uid="uid://rvtdcfucieib" path="res://ui/common/modes-btn.png" id="12_j5ynj"]
+[ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="13_yycpp"]
+[ext_resource type="Texture2D" uid="uid://c668nr1y6pa5g" path="res://ui/common/scores-btn.png" id="14_oaivy"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+z_index = -1
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -66.6667
+offset_right = 66.6667
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_y1mll")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="Control" type="Control" parent="MarginContainer"]
+layout_mode = 2
+script = ExtResource("2_4hpvc")
+
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
+stream = ExtResource("3_0f1nr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
+layout_mode = 2
+offset_right = 80.0
+offset_bottom = 86.0
+theme_override_constants/separation = 10
+
+[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_u2qc3")
+stretch_mode = 0
+
+[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+visible = false
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_4bqew")
+
+[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+visible = false
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_s2ogs")
+
+[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+visible = false
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_gkgc0")
+
+[node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
+custom_minimum_size = Vector2(224, 62)
+layout_mode = 2
+anchors_preset = 0
+offset_left = 218.0
+offset_top = 8.0
+offset_right = 442.0
+offset_bottom = 70.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer"]
+custom_minimum_size = Vector2(224, 70)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
+offset_right = 112.0
+offset_bottom = 70.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -112.0
+offset_top = -35.0
+offset_right = 112.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_8uwg4")
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("9_xqpib")
+theme_override_font_sizes/font_size = 44
+text = "LEVEL 01"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Nickname" type="Label" parent="MarginContainer/Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -58.0
+offset_top = 78.0
+offset_right = 58.0
+offset_bottom = 107.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("9_xqpib")
+theme_override_font_sizes/font_size = 28
+text = "MASTER YI"
+
+[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("9_xqpib")
+theme_override_font_sizes/font_size = 36
+text = "1251"
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
+layout_mode = 2
+texture = ExtResource("10_562ot")
+stretch_mode = 5
+
+[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 38
+alignment = 1
+
+[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("11_bwv47")
+
+[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("12_j5ynj")
+
+[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("13_yycpp")
+
+[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("14_oaivy")
+
+[connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Sound" to="MarginContainer/Control" method="_on_button_sound_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Sound" to="MarginContainer/Control" method="_on_button_sound_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Sound" to="MarginContainer/Control" method="_on_button_sound_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Music" to="MarginContainer/Control" method="_on_button_music_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Music" to="MarginContainer/Control" method="_on_button_music_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Music" to="MarginContainer/Control" method="_on_button_music_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Info" to="MarginContainer/Control" method="_on_button_info_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Info" to="MarginContainer/Control" method="_on_button_info_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Info" to="MarginContainer/Control" method="_on_button_info_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav1" to="MarginContainer/Control" method="_on_nav1_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav1" to="MarginContainer/Control" method="_on_nav1_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav1" to="MarginContainer/Control" method="_on_nav1_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav2" to="MarginContainer/Control" method="_on_nav2_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav2" to="MarginContainer/Control" method="_on_nav2_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav2" to="MarginContainer/Control" method="_on_nav2_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav3" to="MarginContainer/Control" method="_on_nav3_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav3" to="MarginContainer/Control" method="_on_nav3_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav3" to="MarginContainer/Control" method="_on_nav3_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav4" to="MarginContainer/Control" method="_on_nav4_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav4" to="MarginContainer/Control" method="_on_nav4_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/HBoxContainer_Nav/TextureButton_Nav4" to="MarginContainer/Control" method="_on_nav4_pressed"]
