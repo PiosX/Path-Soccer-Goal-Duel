@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://3njdugae47p5"]
+[gd_scene load_steps=29 format=3 uid="uid://3njdugae47p5"]
 
 [ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_p0at6"]
 [ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_c8dfh"]
@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://do1t6sxlplhlx" path="res://ui/common/top-bar.png" id="4_mt8ix"]
 [ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="5_a6g3j"]
 [ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="6_posyw"]
-[ext_resource type="Script" uid="uid://bvxrwwbmxckln" path="res://scripts/shop.gd" id="7_5lclc"]
+[ext_resource type="Script" uid="uid://bvxrwwbmxckln" path="res://scenes/shop.gd" id="7_5lclc"]
 [ext_resource type="Texture2D" uid="uid://d2wbaysxheoo7" path="res://ui/modes/panel2.png" id="8_11hi1"]
 [ext_resource type="Texture2D" uid="uid://csjbnrkodm51s" path="res://ui/common/arrow.png" id="9_k40kd"]
 [ext_resource type="Texture2D" uid="uid://ndq3ief3nlgp" path="res://ui/shop/collection.png" id="10_posyw"]
@@ -18,29 +18,14 @@
 [ext_resource type="Texture2D" uid="uid://la1pg6cjgob2" path="res://ui/shop/equip.png" id="15_ovj2c"]
 [ext_resource type="Texture2D" uid="uid://dkbqfk7i7crho" path="res://ui/shop/pay-200.png" id="16_dfcnn"]
 [ext_resource type="Texture2D" uid="uid://doxx1b47d5n8q" path="res://ui/modes/next-btn.png" id="16_lrmib"]
-[ext_resource type="Texture2D" uid="uid://bkphgjtl7240k" path="res://ui/shop/rarity2.png" id="17_p0at6"]
-[ext_resource type="Texture2D" uid="uid://c5ntfdb17jur1" path="res://ui/shop/rarity3.png" id="18_c8dfh"]
-[ext_resource type="Texture2D" uid="uid://u38pkqp5beny" path="res://ui/shop/premium.png" id="21_ccf1r"]
 [ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="21_utc20"]
 [ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="22_l5j5x"]
-[ext_resource type="Texture2D" uid="uid://en8gnjmyajha" path="res://ui/shop/pre1.png" id="22_mt8ix"]
 [ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="23_hrjy7"]
-[ext_resource type="Texture2D" uid="uid://c0sgrmnt1rfap" path="res://ui/shop/intersect.png" id="23_posyw"]
 [ext_resource type="Texture2D" uid="uid://xm4x8apb7b3q" path="res://ui/common/info.png" id="24_8ssnr"]
-[ext_resource type="Texture2D" uid="uid://hj5mwpm0t5nw" path="res://ui/shop/coin1.png" id="24_xogfe"]
-[ext_resource type="Texture2D" uid="uid://xj1up00c2s12" path="res://ui/shop/premium-btn.png" id="25_11hi1"]
 [ext_resource type="Texture2D" uid="uid://dshgnnpr53ck1" path="res://ui/common/play-btn.png" id="25_i0ljg"]
 [ext_resource type="Texture2D" uid="uid://rvtdcfucieib" path="res://ui/common/modes-btn.png" id="26_scnmg"]
-[ext_resource type="Texture2D" uid="uid://ccc76ld3nf2qi" path="res://ui/shop/coin2.png" id="26_xogfe"]
-[ext_resource type="Texture2D" uid="uid://dxjm7iw7xhfk5" path="res://ui/shop/pre2.png" id="27_11hi1"]
 [ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="27_pyijp"]
 [ext_resource type="Texture2D" uid="uid://c668nr1y6pa5g" path="res://ui/common/scores-btn.png" id="28_76u24"]
-[ext_resource type="Texture2D" uid="uid://bv7xameban64j" path="res://ui/shop/coin3.png" id="28_ovj2c"]
-[ext_resource type="Texture2D" uid="uid://bpwjiheddt325" path="res://ui/shop/coin4.png" id="29_dfcnn"]
-[ext_resource type="Texture2D" uid="uid://cl44u8jwp8fy8" path="res://ui/shop/pre3.png" id="30_3mj5r"]
-[ext_resource type="Texture2D" uid="uid://c8yi12wtxgg74" path="res://ui/shop/coin5-6.png" id="31_l0cfq"]
-[ext_resource type="Texture2D" uid="uid://c6gohwiofrlng" path="res://ui/shop/pre4.png" id="32_3t6hu"]
-[ext_resource type="Texture2D" uid="uid://clm18581aibaj" path="res://ui/shop/noads.png" id="33_jphf3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x07n"]
 bg_color = Color(0.0313726, 0.72549, 1, 1)
@@ -308,7 +293,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -322,7 +307,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("14_k40kd")
+texture = ExtResource("14_k40kd")
 
 [node name="Control_Skin2" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -350,7 +335,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin2"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin2"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -364,7 +349,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("15_ovj2c")
+texture = ExtResource("15_ovj2c")
 
 [node name="Control_Skin3" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -392,7 +377,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin3"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin3"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -406,7 +391,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin4" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -434,7 +419,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin4"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin4"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -448,7 +433,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin5" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -476,7 +461,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin5"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin5"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -490,7 +475,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin6" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -518,7 +503,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin6"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin6"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -532,7 +517,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin7" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -543,7 +528,7 @@ size_flags_horizontal = 4
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("17_p0at6")
+texture = ExtResource("12_xogfe")
 
 [node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin7"]
 layout_mode = 1
@@ -560,7 +545,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin7"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin7"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -574,7 +559,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin8" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -585,7 +570,7 @@ size_flags_horizontal = 4
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("17_p0at6")
+texture = ExtResource("12_xogfe")
 
 [node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin8"]
 layout_mode = 1
@@ -602,7 +587,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin8"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin8"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -616,7 +601,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin9" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -627,7 +612,7 @@ size_flags_horizontal = 4
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("17_p0at6")
+texture = ExtResource("12_xogfe")
 
 [node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin9"]
 layout_mode = 1
@@ -644,7 +629,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin9"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin9"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -658,7 +643,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin10" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -669,7 +654,7 @@ size_flags_horizontal = 4
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("18_c8dfh")
+texture = ExtResource("12_xogfe")
 
 [node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin10"]
 layout_mode = 1
@@ -686,7 +671,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin10"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin10"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -700,7 +685,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin11" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -711,7 +696,7 @@ size_flags_horizontal = 4
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("18_c8dfh")
+texture = ExtResource("12_xogfe")
 
 [node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin11"]
 layout_mode = 1
@@ -728,7 +713,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin11"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin11"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -742,7 +727,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin12" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1"]
 custom_minimum_size = Vector2(128, 136)
@@ -753,7 +738,7 @@ size_flags_horizontal = 4
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("18_c8dfh")
+texture = ExtResource("12_xogfe")
 
 [node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin12"]
 layout_mode = 1
@@ -770,7 +755,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin12"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page1/Control_Skin12"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -784,7 +769,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="GridContainer_Page2" type="GridContainer" parent="MarginContainer/Control/Control_Shop/Control_Collection"]
 visible = false
@@ -826,7 +811,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -840,7 +825,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("14_k40kd")
 
 [node name="Control_Skin2" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -868,7 +853,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin2"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin2"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -882,7 +867,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("15_ovj2c")
 
 [node name="Control_Skin3" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -910,7 +895,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin3"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin3"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -924,7 +909,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin4" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -952,7 +937,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin4"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin4"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -966,7 +951,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin5" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -994,7 +979,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin5"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin5"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1008,7 +993,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin6" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1036,7 +1021,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin6"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin6"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1050,7 +1035,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin7" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1078,7 +1063,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin7"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin7"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1092,7 +1077,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin8" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1120,7 +1105,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin8"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin8"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1134,7 +1119,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin9" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1162,7 +1147,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin9"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin9"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1176,7 +1161,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin10" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1204,7 +1189,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin10"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin10"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1218,7 +1203,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin11" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1246,7 +1231,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin11"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin11"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1260,7 +1245,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="Control_Skin12" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2"]
 custom_minimum_size = Vector2(128, 136)
@@ -1288,7 +1273,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_11hi1")
 
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin12"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Collection/GridContainer_Page2/Control_Skin12"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -1302,7 +1287,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("16_dfcnn")
+texture = ExtResource("16_dfcnn")
 
 [node name="HBoxContainer_Nav2" type="HBoxContainer" parent="MarginContainer/Control/Control_Shop/Control_Collection"]
 layout_mode = 1
@@ -1377,7 +1362,7 @@ size_flags_horizontal = 3
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top"]
 layout_mode = 2
-texture = ExtResource("21_ccf1r")
+texture = ExtResource("10_posyw")
 
 [node name="Control2" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top"]
 layout_mode = 2
@@ -1389,12 +1374,12 @@ size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("11_dfcnn")
 
-[node name="GridContainer_Premium" type="GridContainer" parent="MarginContainer/Control/Control_Shop/Control_Premium"]
+[node name="GridContainer_Page1" type="GridContainer" parent="MarginContainer/Control/Control_Shop/Control_Premium"]
 layout_mode = 2
-offset_left = 41.0
-offset_top = 320.0
-offset_right = 619.0
-offset_bottom = 876.0
+offset_left = 52.0
+offset_top = 315.0
+offset_right = 608.0
+offset_bottom = 777.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
@@ -1402,768 +1387,1052 @@ theme_override_constants/h_separation = 22
 theme_override_constants/v_separation = 26
 columns = 4
 
-[node name="Control_PremItem" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("22_mt8ix")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Cheapest"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("24_xogfe")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.0196078, 0.643137, 0.909804, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "x200"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("14_k40kd")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem/TextureButton_Buy"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "0.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_PremItem2" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin2" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin2"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("22_mt8ix")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Small"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin2"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("26_xogfe")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.0196078, 0.643137, 0.909804, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "x450"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin2"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("15_ovj2c")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem2/TextureButton_Buy"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "1.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_PremItem3" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin3" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin3"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("27_11hi1")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Standard"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin3"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("28_ovj2c")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.352941, 0.180392, 0.839216, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "x900"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin3"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("16_dfcnn")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem3/TextureButton_Buy"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "2.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_PremItem4" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin4" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin4"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("27_11hi1")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Popular"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin4"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("29_dfcnn")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.352941, 0.180392, 0.839216, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "x2000"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin4"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("16_dfcnn")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem4/TextureButton_Buy"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "4.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_PremItem5" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin5" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin5"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("30_3mj5r")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Mega"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin5"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("31_l0cfq")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.780392, 0.572549, 0, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "x4500"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin5"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("16_dfcnn")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5/TextureButton_Buy"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "9.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_PremItem6" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin6" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin6"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("30_3mj5r")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Ultimate"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin6"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("31_l0cfq")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.780392, 0.572549, 0, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "x10000"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin6"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("16_dfcnn")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem6/TextureButton_Buy"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "19.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_PremItem7" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium"]
-custom_minimum_size = Vector2(128, 265)
+[node name="Control_Skin7" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
 layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7"]
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin7"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-texture = ExtResource("32_3t6hu")
+texture = ExtResource("12_xogfe")
 
-[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 44.0
-grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 26
-text = "Special"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Control_Icon" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -55.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TextureRect_Rays" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7/Control_Icon"]
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin7"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -49.0
-offset_top = -49.5
-offset_right = 49.0
-offset_bottom = 49.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("23_posyw")
+texture = ExtResource("13_11hi1")
 
-[node name="TextureRect_Icon" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7/Control_Icon"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -24.5
-offset_right = 20.0
-offset_bottom = 24.5
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("33_jphf3")
-
-[node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = 27.5
-offset_right = 22.0
-offset_bottom = 50.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.121569, 0.643137, 0.388235, 1)
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "NO ADS"
-
-[node name="TextureButton_Buy" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7"]
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin7"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
-offset_top = -65.0
-offset_right = 48.0
-offset_bottom = -21.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("25_11hi1")
+texture = ExtResource("16_dfcnn")
 
-[node name="Label_Price" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem7/TextureButton_Buy"]
+[node name="Control_Skin8" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin8"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin8"]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -3.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_a6g3j")
-theme_override_font_sizes/font_size = 22
-text = "1.99$"
-horizontal_alignment = 1
-vertical_alignment = 1
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin8"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin9" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin9"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin9"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin9"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin10" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin10"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin10"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin10"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin11" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin11"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin11"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin11"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin12" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin12"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin12"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page1/Control_Skin12"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="GridContainer_Page2" type="GridContainer" parent="MarginContainer/Control/Control_Shop/Control_Premium"]
+visible = false
+layout_mode = 2
+offset_left = 52.0
+offset_top = 315.0
+offset_right = 608.0
+offset_bottom = 777.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 22
+theme_override_constants/v_separation = 26
+columns = 4
+
+[node name="Control_Skin" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("14_k40kd")
+
+[node name="Control_Skin2" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin2"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin2"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin2"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("15_ovj2c")
+
+[node name="Control_Skin3" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin3"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin3"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin3"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin4" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin4"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin4"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin4"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin5" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin5"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin5"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin5"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin6" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin6"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin6"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin6"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin7" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin7"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin7"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin7"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin8" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin8"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin8"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin8"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin9" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin9"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin9"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin9"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin10" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin10"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin10"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin10"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin11" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin11"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin11"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin11"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="Control_Skin12" type="Control" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2"]
+custom_minimum_size = Vector2(128, 136)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="TextureRect_Rarity" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin12"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("12_xogfe")
+
+[node name="TextureRect_Skin" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin12"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -52.0
+offset_right = 44.0
+offset_bottom = 36.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_11hi1")
+
+[node name="TextureButton_Buy" type="TextureRect" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Page2/Control_Skin12"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -24.0
+offset_right = 49.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture = ExtResource("16_dfcnn")
+
+[node name="HBoxContainer_Nav2" type="HBoxContainer" parent="MarginContainer/Control/Control_Shop/Control_Premium"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -217.0
+offset_top = 195.0
+offset_right = 217.0
+offset_bottom = 277.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 72
+
+[node name="TextureButton_Previous" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("15_jphf3")
+
+[node name="TextureButton_Next" type="TextureButton" parent="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("16_lrmib")
 
 [node name="HBoxContainer_Dots" type="HBoxContainer" parent="MarginContainer/Control/Control_Shop"]
 layout_mode = 1
@@ -2275,6 +2544,12 @@ texture_normal = ExtResource("28_76u24")
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_campaign_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_campaign_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Shop" method="_on_previous_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Shop" method="_on_previous_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Shop" method="_on_previous_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Shop" method="_on_next_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Shop" method="_on_next_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Shop" method="_on_next_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_pressed"]

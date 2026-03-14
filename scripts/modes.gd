@@ -265,12 +265,14 @@ func _on_find_game_pressed():
 	search_panel.visible = true
 	is_searching = true
 	search_timer = 0.0
+	TimerManager.start_search()
 
 func _on_cancel_pressed():
 	sound_click.play()
 	is_searching = false
 	search_panel.visible = false
 	btn_find.visible = true
+	TimerManager.stop_search()
 
 # ————— HOVER STRZAŁKI —————
 

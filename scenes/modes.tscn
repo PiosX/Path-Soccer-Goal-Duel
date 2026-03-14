@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="4_xglpk"]
 [ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="5_0x07n"]
 [ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="6_xgm05"]
-[ext_resource type="Script" uid="uid://c5gokha7qlvwd" path="res://scenes/modes.gd" id="7_jf2v4"]
+[ext_resource type="Script" uid="uid://c5gokha7qlvwd" path="res://scripts/modes.gd" id="7_jf2v4"]
 [ext_resource type="Texture2D" uid="uid://xm4x8apb7b3q" path="res://ui/common/info.png" id="7_xkyu4"]
 [ext_resource type="Texture2D" uid="uid://do1t6sxlplhlx" path="res://ui/common/top-bar.png" id="8_1qo73"]
 [ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="9_r2yq1"]
@@ -145,7 +145,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 44
-text = "LEVEL 01"
+text = "Modes"
 horizontal_alignment = 1
 vertical_alignment = 1
 
