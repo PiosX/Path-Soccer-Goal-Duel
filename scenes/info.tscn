@@ -1,33 +1,28 @@
-[gd_scene load_steps=21 format=3 uid="uid://c7x0xp8hcphp"]
+[gd_scene load_steps=21 format=3 uid="uid://0eycpjkwkxd2"]
 
-[ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_fa8ql"]
-[ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_g03uh"]
-[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="3_sj1qt"]
-[ext_resource type="Texture2D" uid="uid://do1t6sxlplhlx" path="res://ui/common/top-bar.png" id="4_cy4rl"]
-[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="5_tpyks"]
-[ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="6_dpcy5"]
-[ext_resource type="Script" uid="uid://calgpjnqyubmm" path="res://scripts/scores.gd" id="7_jkse3"]
-[ext_resource type="Texture2D" uid="uid://j1vixsk3hqsg" path="res://ui/scores/card-bg.png" id="7_jpuvk"]
-[ext_resource type="Texture2D" uid="uid://cs3qwis68kban" path="res://ui/scores/scores-title.png" id="8_alw61"]
-[ext_resource type="Texture2D" uid="uid://c8fa5g1xswxgu" path="res://ui/modes/prev-btn.png" id="19_kiyi1"]
-[ext_resource type="Texture2D" uid="uid://doxx1b47d5n8q" path="res://ui/modes/next-btn.png" id="20_dvkql"]
-[ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="35_ftu38"]
-[ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="36_5taht"]
-[ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="37_ey0e4"]
-[ext_resource type="Texture2D" uid="uid://xm4x8apb7b3q" path="res://ui/common/info.png" id="38_n2xmb"]
-[ext_resource type="Texture2D" uid="uid://dshgnnpr53ck1" path="res://ui/common/play-btn.png" id="39_5me50"]
-[ext_resource type="Texture2D" uid="uid://rvtdcfucieib" path="res://ui/common/modes-btn.png" id="40_47mcb"]
-[ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="41_u5efx"]
-[ext_resource type="Texture2D" uid="uid://c668nr1y6pa5g" path="res://ui/common/scores-btn.png" id="42_n62kv"]
+[ext_resource type="Script" uid="uid://ct2esgluvx66k" path="res://scripts/info.gd" id="1_h3pe7"]
+[ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_ro675"]
+[ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_h3pe7"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="3_efmte"]
+[ext_resource type="Texture2D" uid="uid://do1t6sxlplhlx" path="res://ui/common/top-bar.png" id="4_oq0du"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="5_txr6y"]
+[ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="6_d0uon"]
+[ext_resource type="Texture2D" uid="uid://ca0cml8inppof" path="res://ui/info/title-ver.png" id="7_7ytsi"]
+[ext_resource type="Texture2D" uid="uid://wt4e3lub74s4" path="res://ui/info/title-privacy.png" id="8_bsc3n"]
+[ext_resource type="Texture2D" uid="uid://bsg565fqkie6l" path="res://ui/info/open.png" id="9_sii4c"]
+[ext_resource type="Texture2D" uid="uid://d2iddynkp277x" path="res://ui/info/title-contact.png" id="10_ro675"]
+[ext_resource type="Texture2D" uid="uid://cihmp1c11ujed" path="res://ui/info/title-credits.png" id="11_h3pe7"]
+[ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="12_7btgp"]
+[ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="13_f7js3"]
+[ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="14_t77mh"]
+[ext_resource type="Texture2D" uid="uid://xm4x8apb7b3q" path="res://ui/common/info.png" id="15_ascja"]
+[ext_resource type="Texture2D" uid="uid://dshgnnpr53ck1" path="res://ui/common/play-btn.png" id="16_6uer7"]
+[ext_resource type="Texture2D" uid="uid://rvtdcfucieib" path="res://ui/common/modes-btn.png" id="17_7frwq"]
+[ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="18_mpmey"]
+[ext_resource type="Texture2D" uid="uid://c668nr1y6pa5g" path="res://ui/common/scores-btn.png" id="19_hr3he"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_51ay8"]
-bg_color = Color(0.184314, 0.501961, 0.929412, 1)
-corner_radius_top_left = 1000
-corner_radius_top_right = 1000
-corner_radius_bottom_right = 1000
-corner_radius_bottom_left = 1000
-
-[node name="CanvasLayer" type="CanvasLayer"]
+[node name="Control" type="CanvasLayer"]
+script = ExtResource("1_h3pe7")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 z_index = -1
@@ -39,7 +34,7 @@ offset_left = -66.6667
 offset_right = 66.6667
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_fa8ql")
+texture = ExtResource("1_ro675")
 expand_mode = 3
 stretch_mode = 6
 
@@ -57,10 +52,10 @@ theme_override_constants/margin_bottom = 30
 [node name="Control" type="Control" parent="MarginContainer"]
 layout_mode = 2
 mouse_filter = 2
-script = ExtResource("2_g03uh")
+script = ExtResource("2_h3pe7")
 
 [node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
-stream = ExtResource("3_sj1qt")
+stream = ExtResource("3_efmte")
 
 [node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
 custom_minimum_size = Vector2(224, 62)
@@ -100,7 +95,7 @@ offset_right = 112.0
 offset_bottom = 35.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("4_cy4rl")
+texture = ExtResource("4_oq0du")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
@@ -111,9 +106,9 @@ anchor_bottom = 1.0
 offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_tpyks")
+theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 44
-text = "Scores"
+text = "Info"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -127,7 +122,7 @@ offset_top = 78.0
 offset_right = 58.0
 offset_bottom = 107.0
 grow_horizontal = 2
-theme_override_fonts/font = ExtResource("5_tpyks")
+theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 28
 text = "MASTER YI"
 
@@ -144,135 +139,167 @@ theme_override_constants/separation = 8
 
 [node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("5_tpyks")
+theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 36
 text = "1251"
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
 layout_mode = 2
-texture = ExtResource("6_dpcy5")
+texture = ExtResource("6_d0uon")
 stretch_mode = 5
 
-[node name="Control_Scores" type="Control" parent="MarginContainer/Control"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/Control"]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -22.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("7_jkse3")
-
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Scores"]
-layout_mode = 1
-anchors_preset = 8
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -319.0
-offset_top = -327.0
-offset_right = 319.0
-offset_bottom = 381.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("7_jpuvk")
-stretch_mode = 5
-
-[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/Control_Scores"]
-layout_mode = 2
-offset_left = 11.0
+offset_left = -300.0
 offset_top = 170.0
-offset_right = 649.0
-offset_bottom = 256.0
+offset_right = 300.0
+offset_bottom = 990.0
 grow_horizontal = 2
-mouse_filter = 2
-alignment = 1
-
-[node name="Control" type="Control" parent="MarginContainer/Control/Control_Scores/HBoxContainer_Top"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/Control_Scores/HBoxContainer_Top"]
-layout_mode = 2
-texture = ExtResource("8_alw61")
-
-[node name="Control2" type="Control" parent="MarginContainer/Control/Control_Scores/HBoxContainer_Top"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Panel_Subtitle" type="Panel" parent="MarginContainer/Control/Control_Scores"]
-custom_minimum_size = Vector2(434, 46)
-layout_mode = 2
-offset_left = 102.0
-offset_top = 312.0
-offset_right = 536.0
-offset_bottom = 358.0
-size_flags_horizontal = 4
-size_flags_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_51ay8")
-
-[node name="Label_Subtitle" type="Label" parent="MarginContainer/Control/Control_Scores/Panel_Subtitle"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_fonts/font = ExtResource("5_tpyks")
-theme_override_font_sizes/font_size = 36
-text = "Players 1-100"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/Control/Control_Scores"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 359.0
-offset_bottom = -359.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 30
-theme_override_constants/margin_bottom = 30
-
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/Control/Control_Scores/MarginContainer"]
-layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer_Players" type="VBoxContainer" parent="MarginContainer/Control/Control_Scores/MarginContainer/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 20
 
-[node name="HBoxContainer_Nav2" type="HBoxContainer" parent="MarginContainer/Control/Control_Scores"]
+[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-offset_left = 30.0
-offset_top = 858.0
-offset_right = 608.0
-offset_bottom = 940.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 8
-theme_override_constants/separation = 72
+size_flags_horizontal = 3
+mouse_filter = 2
 alignment = 1
 
-[node name="TextureButton_Previous" type="TextureButton" parent="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2"]
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top"]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("19_kiyi1")
+size_flags_horizontal = 3
+mouse_filter = 2
 
-[node name="TextureButton_Next" type="TextureButton" parent="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top"]
 layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_7ytsi")
+
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 30
+text = "Version 1.0.0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Privacy_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_bsc3n")
+
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Label_Privacy_Text" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 30
+text = "Our privacy policy is available at:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureButton_Privacy" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("20_dvkql")
+texture_normal = ExtResource("9_sii4c")
+
+[node name="Contact_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("10_ro675")
+
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Label_Studio" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 30
+text = "Red Moon Games
+rd.moon.games@gmail.com"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Credits_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("11_h3pe7")
+
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Label_Credits" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 30
+text = "UI Assets:
+By Tahorin Binta Jaman
+figma.com/community/file/1065913909118984412
+Font:
+Digitalt (Digitalt.ttf)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label_Footer" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 20
+text = "© 2026 Red Moon Games. All rights reserved."
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
 layout_mode = 2
@@ -285,26 +312,26 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("35_ftu38")
+texture_normal = ExtResource("12_7btgp")
 stretch_mode = 0
 
 [node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("36_5taht")
+texture_normal = ExtResource("13_f7js3")
 
 [node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("37_ey0e4")
+texture_normal = ExtResource("14_t77mh")
 
 [node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("38_n2xmb")
+texture_normal = ExtResource("15_ascja")
 
 [node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control"]
 layout_mode = 1
@@ -320,29 +347,26 @@ alignment = 1
 [node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("39_5me50")
+texture_normal = ExtResource("16_6uer7")
 
 [node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("40_47mcb")
+texture_normal = ExtResource("17_7frwq")
 
 [node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("41_u5efx")
+texture_normal = ExtResource("18_mpmey")
 
 [node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-texture_normal = ExtResource("42_n62kv")
+texture_normal = ExtResource("19_hr3he")
 
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Scores" method="_on_previous_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Scores" method="_on_previous_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Scores" method="_on_previous_pressed"]
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Scores" method="_on_next_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Scores" method="_on_next_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/Control/Control_Scores/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Scores" method="_on_next_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_pressed"]

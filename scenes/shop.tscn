@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://3njdugae47p5"]
+[gd_scene load_steps=45 format=3 uid="uid://3njdugae47p5"]
 
 [ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_p0at6"]
 [ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_c8dfh"]
@@ -38,6 +38,7 @@
 [ext_resource type="Texture2D" uid="uid://bv7xameban64j" path="res://ui/shop/coin3.png" id="28_ovj2c"]
 [ext_resource type="Texture2D" uid="uid://bpwjiheddt325" path="res://ui/shop/coin4.png" id="29_dfcnn"]
 [ext_resource type="Texture2D" uid="uid://cl44u8jwp8fy8" path="res://ui/shop/pre3.png" id="30_3mj5r"]
+[ext_resource type="Texture2D" uid="uid://8jkt3a4c3h6s" path="res://ui/shop/coin5.png" id="31_jphf3"]
 [ext_resource type="Texture2D" uid="uid://c8yi12wtxgg74" path="res://ui/shop/coin5-6.png" id="31_l0cfq"]
 [ext_resource type="Texture2D" uid="uid://c6gohwiofrlng" path="res://ui/shop/pre4.png" id="32_3t6hu"]
 [ext_resource type="Texture2D" uid="uid://clm18581aibaj" path="res://ui/shop/noads.png" id="33_jphf3"]
@@ -1897,7 +1898,7 @@ offset_right = 20.0
 offset_bottom = 24.5
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("31_l0cfq")
+texture = ExtResource("31_jphf3")
 
 [node name="Label_Desc" type="Label" parent="MarginContainer/Control/Control_Shop/Control_Premium/GridContainer_Premium/Control_PremItem5"]
 layout_mode = 1

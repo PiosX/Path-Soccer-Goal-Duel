@@ -120,6 +120,8 @@ func _scale_button(btn: Control, target_scale: float):
 
 func _on_button_info_pressed() -> void:
 	$SoundClick.play() 
+	await _play_and_wait()
+	get_tree().change_scene_to_file("res://scenes/info.tscn")
 
 # ————— PLAY BUTTON —————
 
