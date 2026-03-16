@@ -296,7 +296,7 @@ vertical_alignment = 1
 [node name="Label_Footer" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 text = "© 2026 Red Moon Games. All rights reserved."
 horizontal_alignment = 1
 vertical_alignment = 1
