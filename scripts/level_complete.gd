@@ -1,0 +1,110 @@
+extends Control
+
+# ————— DANE (ustaw przed instancjonowaniem) —————
+var level_name = "LEVEL 1"
+var score = 12500
+var reward = 200
+
+# ————— WĘZŁY —————
+@onready var sound_click = $"../SoundClick"
+@onready var overlay = $ColorRect_Overlay
+@onready var popup = $Control_Popup
+@onready var rays = $Control_Popup/TextureRect_Rays
+@onready var label_level = $Control_Popup/Label_LevelName
+@onready var label_complete = $Control_Popup/Label_Complete
+@onready var label_score = $Control_Popup/VBoxContainer/VBoxContainer/Panel_ScoreBG/Label_Score
+@onready var label_amount = $Control_Popup/VBoxContainer/VBoxContainer2/HBoxContainer_Reward/Label_Amount
+@onready var btn_next = $Control_Popup/TextureButton_Next
+
+# ————— FONT —————
+var font = preload("res://fonts/Digitalt.ttf")
+var tex_rays = preload("res://ui/common/intersect-win.png")
+
+func _ready():
+	# Ustaw teksturę promieni
+	rays.texture = tex_rays
+	rays.pivot_offset = rays.size / 2
+	
+	# Ustaw dane
+	label_level.text = level_name
+	label_score.text = "0"
+	label_amount.text = "0"
+	
+	# Ukryj na start
+	overlay.modulate.a = 0.0
+	popup.scale = Vector2(0.0, 0.0)
+	popup.pivot_offset = popup.size / 2
+	rays.modulate.a = 0.0
+	
+	# Pivot przycisku
+	await get_tree().process_frame
+	popup.pivot_offset = popup.size / 2
+	rays.pivot_offset = rays.size / 2
+	btn_next.pivot_offset = btn_next.size / 2
+	
+	_run_intro()
+
+func _run_intro():
+	# KROK 1 — overlay fade in (0.3s)
+	var tween1 = create_tween()
+	tween1.tween_property(overlay, "modulate:a", 0.7, 0.3)
+	await tween1.finished
+
+	# KROK 2 — popup wyskakuje z bounce (0.5s)
+	var tween2 = create_tween()
+	tween2.tween_property(popup, "scale", Vector2(1.0, 1.0), 0.5)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await tween2.finished
+
+	# KROK 3 — promienie się pojawiają i zaczynają kręcić
+	_start_rays_rotation()
+	var tween3 = create_tween()
+	tween3.tween_property(rays, "modulate:a", 1.0, 0.4)
+	await tween3.finished
+
+	# KROK 4 — licznik score (1.5s)
+	await get_tree().create_timer(0.2).timeout
+	_animate_counter(label_score, 0, score, 1.5)
+	await get_tree().create_timer(0.5).timeout
+
+	# KROK 5 — licznik reward (1.5s)
+	_animate_counter(label_amount, 0, reward, 1.5)
+
+# ————— ROTACJA PROMIENI —————
+
+func _start_rays_rotation():
+	var tween = create_tween()
+	tween.set_loops()
+	tween.tween_property(rays, "rotation_degrees", 360.0, 6.0)\
+		.set_trans(Tween.TRANS_LINEAR)
+	tween.tween_callback(func(): rays.rotation_degrees = 0.0)
+
+# ————— ANIMOWANY LICZNIK —————
+
+func _animate_counter(label: Label, from: int, to: int, duration: float):
+	var tween = create_tween()
+	tween.tween_method(
+		func(v: float): label.text = str(int(v)),
+		float(from), float(to), duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+# ————— PRZYCISK NEXT —————
+
+func _on_next_pressed():
+	sound_click.play()
+	queue_free()
+
+func _on_next_mouse_entered():
+	_scale_button(btn_next, 0.9)
+
+func _on_next_mouse_exited():
+	_scale_button(btn_next, 1.0)
+
+# ————— HELPER —————
+
+func _scale_button(btn: Control, target_scale: float):
+	if btn == null:
+		return
+	var tween = create_tween()
+	tween.tween_property(btn, "scale", Vector2(target_scale, target_scale), 0.1)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
