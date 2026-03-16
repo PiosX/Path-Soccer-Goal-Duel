@@ -1,0 +1,129 @@
+[gd_scene load_steps=8 format=3 uid="uid://cp8j3ar6rysv0"]
+
+[ext_resource type="Script" uid="uid://etg13hthr3n" path="res://scripts/rating.gd" id="1_4vm60"]
+[ext_resource type="Texture2D" uid="uid://bmsrk7vy5fr86" path="res://ui/rating/rating-bg.png" id="2_4vm60"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="3_313av"]
+[ext_resource type="Texture2D" uid="uid://skc7wbisei8o" path="res://ui/rating/ratings.png" id="4_313av"]
+[ext_resource type="Texture2D" uid="uid://deqf07nwoad20" path="res://ui/rating/yes-btn.png" id="5_8jlxh"]
+[ext_resource type="Texture2D" uid="uid://nim8y4lexm3c" path="res://ui/rating/no-btn.png" id="6_jehr0"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="6_sfvo8"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4vm60")
+
+[node name="ColorRect_Overlay" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Control_Popup" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect_BG" type="TextureRect" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -191.0
+offset_top = -252.0
+offset_right = 191.0
+offset_bottom = 252.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_4vm60")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 175.0
+offset_bottom = 42.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+
+[node name="Label_Title" type="Label" parent="Control/Control_Popup/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.184314, 0.501961, 0.929412, 1)
+theme_override_fonts/font = ExtResource("3_313av")
+theme_override_font_sizes/font_size = 32
+text = "love the game ?"
+horizontal_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Control/Control_Popup/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("4_313av")
+
+[node name="Label_Title2" type="Label" parent="Control/Control_Popup/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.184314, 0.501961, 0.929412, 1)
+theme_override_fonts/font = ExtResource("3_313av")
+theme_override_font_sizes/font_size = 32
+text = "give us a star rating"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -136.0
+offset_top = -132.0
+offset_right = 136.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 56
+
+[node name="TextureButton_Yes" type="TextureButton" parent="Control/Control_Popup/HBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_8jlxh")
+
+[node name="TextureButton_No" type="TextureButton" parent="Control/Control_Popup/HBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_jehr0")
+
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_sfvo8")
+
+[connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/TextureButton_No" to="Control" method="_on_no_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/TextureButton_No" to="Control" method="_on_no_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/HBoxContainer/TextureButton_No" to="Control" method="_on_no_pressed"]
