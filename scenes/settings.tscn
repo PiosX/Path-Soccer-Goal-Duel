@@ -1,0 +1,224 @@
+[gd_scene load_steps=12 format=3 uid="uid://05oy6ld5blp1"]
+
+[ext_resource type="Script" uid="uid://s87jh78vhxrk" path="res://scripts/settings_popup.gd" id="1_4ppmf"]
+[ext_resource type="Texture2D" uid="uid://ctqo8t0t5oy08" path="res://ui/settings/bg-settings.png" id="2_gis3k"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="3_gjs24"]
+[ext_resource type="Texture2D" uid="uid://iuteidhaqn6s" path="res://ui/settings/close-btn.png" id="4_83j8s"]
+[ext_resource type="Texture2D" uid="uid://bjq3s08mvkw3g" path="res://ui/settings/checked.png" id="4_gjs24"]
+[ext_resource type="Texture2D" uid="uid://cgx4ohxagvakp" path="res://ui/settings/unchecked.png" id="5_gjs24"]
+[ext_resource type="Texture2D" uid="uid://cwhlhl1nvglym" path="res://ui/settings/shop-btn.png" id="6_am25x"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="6_uhhto"]
+[ext_resource type="Texture2D" uid="uid://slmmuikmf5ey" path="res://ui/settings/restart-btn.png" id="7_4ppmf"]
+[ext_resource type="Texture2D" uid="uid://fu18sig7ulkr" path="res://ui/settings/leave-btn.png" id="8_uhhto"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_83j8s"]
+bg_color = Color(0.184314, 0.501961, 0.929412, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4ppmf")
+
+[node name="ColorRect_Overlay" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Control_Popup" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect_BG" type="TextureRect" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_gis3k")
+
+[node name="Panel_Header" type="Panel" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -182.0
+offset_top = 10.0
+offset_right = 182.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_83j8s")
+
+[node name="Label_Settings" type="Label" parent="Control/Control_Popup/Panel_Header"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("3_gjs24")
+theme_override_font_sizes/font_size = 36
+text = "Settings"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureButton_Close" type="TextureButton" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -81.0
+offset_top = 2.0
+offset_right = -19.0
+offset_bottom = 64.0
+grow_horizontal = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_83j8s")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 85.0
+offset_right = 100.0
+offset_bottom = 166.0
+grow_horizontal = 2
+theme_override_constants/separation = 102
+
+[node name="VBoxContainer_Sound" type="VBoxContainer" parent="Control/Control_Popup/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label_Sound" type="Label" parent="Control/Control_Popup/HBoxContainer/VBoxContainer_Sound"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.376471, 0.811765, 1, 1)
+theme_override_fonts/font = ExtResource("3_gjs24")
+theme_override_font_sizes/font_size = 32
+text = "Sound"
+horizontal_alignment = 1
+
+[node name="TextureButton_Sound" type="TextureButton" parent="Control/Control_Popup/HBoxContainer/VBoxContainer_Sound"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_gjs24")
+texture_pressed = ExtResource("4_gjs24")
+
+[node name="VBoxContainer_Music" type="VBoxContainer" parent="Control/Control_Popup/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label_Music" type="Label" parent="Control/Control_Popup/HBoxContainer/VBoxContainer_Music"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.376471, 0.811765, 1, 1)
+theme_override_fonts/font = ExtResource("3_gjs24")
+theme_override_font_sizes/font_size = 32
+text = "Music"
+horizontal_alignment = 1
+
+[node name="TextureButton_Music" type="TextureButton" parent="Control/Control_Popup/HBoxContainer/VBoxContainer_Music"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_gjs24")
+texture_pressed = ExtResource("4_gjs24")
+
+[node name="TextureButton_Shop" type="TextureButton" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -312.0
+offset_right = 92.0
+offset_bottom = -230.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_am25x")
+
+[node name="TextureButton_Restart" type="TextureButton" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -212.0
+offset_right = 92.0
+offset_bottom = -130.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_4ppmf")
+
+[node name="TextureButton_Leave" type="TextureButton" parent="Control/Control_Popup"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.5
+offset_top = -112.0
+offset_right = 90.5
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_uhhto")
+
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_uhhto")
+
+[connection signal="mouse_entered" from="Control/Control_Popup/TextureButton_Close" to="Control" method="_on_close_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/TextureButton_Close" to="Control" method="_on_close_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/TextureButton_Close" to="Control" method="_on_close_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/VBoxContainer_Sound/TextureButton_Sound" to="Control" method="_on_sound_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/VBoxContainer_Sound/TextureButton_Sound" to="Control" method="_on_sound_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/HBoxContainer/VBoxContainer_Sound/TextureButton_Sound" to="Control" method="_on_sound_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/VBoxContainer_Music/TextureButton_Music" to="Control" method="_on_music_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/VBoxContainer_Music/TextureButton_Music" to="Control" method="_on_music_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/HBoxContainer/VBoxContainer_Music/TextureButton_Music" to="Control" method="_on_music_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/TextureButton_Shop" to="Control" method="_on_shop_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/TextureButton_Shop" to="Control" method="_on_shop_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/TextureButton_Shop" to="Control" method="_on_shop_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/TextureButton_Restart" to="Control" method="_on_restart_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/TextureButton_Restart" to="Control" method="_on_restart_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/TextureButton_Restart" to="Control" method="_on_restart_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/TextureButton_Leave" to="Control" method="_on_leave_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/TextureButton_Leave" to="Control" method="_on_leave_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/TextureButton_Leave" to="Control" method="_on_leave_pressed"]
