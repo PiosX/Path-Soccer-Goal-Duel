@@ -1,3 +1,256 @@
-[gd_scene format=3 uid="uid://dq2w2t6ad6ww7"]
+[gd_scene load_steps=11 format=3 uid="uid://c2i6i30oh4q38"]
 
-[node name="Game" type="Node2D"]
+[ext_resource type="Texture2D" uid="uid://bluck1ol2yq6m" path="res://ui/game/background.png" id="1_u5sy4"]
+[ext_resource type="Script" uid="uid://ds8jqy5dwmje3" path="res://scripts/game.gd" id="2_gee14"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="3_5newe"]
+[ext_resource type="Texture2D" uid="uid://do1t6sxlplhlx" path="res://ui/common/top-bar.png" id="4_37s47"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="5_bt5mj"]
+[ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="6_e1j6l"]
+[ext_resource type="Script" uid="uid://cg0wnplr1ov0i" path="res://scripts/board.gd" id="8_gee14"]
+[ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="12_sgl2t"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u5sy4"]
+bg_color = Color(1, 1, 1, 1)
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+shadow_color = Color(0, 0, 0, 0.15)
+shadow_size = 1
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gee14"]
+bg_color = Color(0.996078, 0.294118, 0.376471, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+z_index = -1
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -66.6667
+offset_right = 66.6667
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_u5sy4")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="Control" type="Control" parent="MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_gee14")
+
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
+stream = ExtResource("3_5newe")
+
+[node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
+custom_minimum_size = Vector2(224, 62)
+layout_mode = 2
+anchors_preset = 0
+offset_left = 218.0
+offset_top = 8.0
+offset_right = 442.0
+offset_bottom = 70.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer"]
+custom_minimum_size = Vector2(224, 70)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
+offset_right = 112.0
+offset_bottom = 70.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -112.0
+offset_top = -35.0
+offset_right = 112.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_37s47")
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 44
+text = "Level 01"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 36
+text = "1251"
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
+layout_mode = 2
+texture = ExtResource("6_e1j6l")
+stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
+layout_mode = 2
+offset_right = 80.0
+offset_bottom = 86.0
+theme_override_constants/separation = 10
+
+[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("12_sgl2t")
+stretch_mode = 0
+
+[node name="ScrollContainer" type="Control" parent="MarginContainer/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BoardContainer" type="Control" parent="MarginContainer/Control/ScrollContainer"]
+layout_mode = 2
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("8_gee14")
+
+[node name="HBoxContainer_Players" type="HBoxContainer" parent="MarginContainer/Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="VBoxContainer_Player1" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players"]
+layout_mode = 2
+size_flags_horizontal = 2
+theme_override_constants/separation = 6
+
+[node name="Player1_Rank" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 24
+text = "Rank: 37"
+
+[node name="Player1_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0235294, 0.764706, 0.964706, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 36
+text = "Player 1012"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players"]
+layout_mode = 2
+alignment = 1
+
+[node name="Turn" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 20
+text = "Your turn: 15s"
+horizontal_alignment = 1
+
+[node name="Panel_Timer" type="Panel" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer"]
+custom_minimum_size = Vector2(250, 28)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_u5sy4")
+
+[node name="Panel_Color" type="Panel" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer/Panel_Timer"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 4.0
+offset_top = -10.0
+offset_right = 204.0
+offset_bottom = 10.0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_gee14")
+
+[node name="VBoxContainer_Player2" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="Player2_Rank" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 24
+text = "Rank: 4723"
+horizontal_alignment = 2
+
+[node name="Player2_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.996078, 0.294118, 0.376471, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("5_bt5mj")
+theme_override_font_sizes/font_size = 36
+text = "Player 2204"
+horizontal_alignment = 2
+
+[connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_pressed"]

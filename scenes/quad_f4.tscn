@@ -1,0 +1,58 @@
+[gd_scene load_steps=3 format=3 uid="uid://duqe1v5voiwb0"]
+
+[ext_resource type="Texture2D" uid="uid://jt43en3vlgbc" path="res://ui/game/f4.png" id="1_3aanu"]
+[ext_resource type="Texture2D" uid="uid://dqemrpnmx7tpl" path="res://ui/game/f4-v.png" id="2_30f75"]
+
+[node name="Control_Quad" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 90.0
+offset_bottom = 90.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -31.5
+offset_top = -45.0
+offset_right = 31.5
+offset_bottom = 45.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="TextureRect_T" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("1_3aanu")
+flip_v = true
+
+[node name="TextureRect_B" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("1_3aanu")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -31.5
+offset_right = 45.0
+offset_bottom = 31.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="TextureRect_L" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_30f75")
+
+[node name="TextureRect_R" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_30f75")
+flip_h = true

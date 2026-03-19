@@ -15,7 +15,8 @@ var score = 0
 
 func _ready():
 	label_level.text = level_name
-	label_score.text = str(score)
+	label_score.text = "0"
+	label_score.modulate.a = 0.0
 	
 	overlay.modulate.a = 0.0
 	popup.scale = Vector2(0.0, 0.0)
@@ -39,6 +40,18 @@ func _run_intro():
 	tween2.tween_property(popup, "scale", Vector2(1.0, 1.0), 0.5)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await tween2.finished
+	# Pokaż i policz score
+	label_score.modulate.a = 1.0
+	_animate_counter(label_score, 0, score, 1.2)
+
+# ————— LICZNIK —————
+
+func _animate_counter(label: Label, from: int, to: int, duration: float):
+	var tween = create_tween()
+	tween.tween_method(
+		func(v: float): label.text = str(int(v)),
+		float(from), float(to), duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 # ————— PRZYCISKI —————
 

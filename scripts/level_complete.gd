@@ -29,6 +29,9 @@ func _ready():
 	label_level.text = level_name
 	label_score.text = "0"
 	label_amount.text = "0"
+	# Ukryj żeby nie mignął stary wynik przed animacją
+	label_score.modulate.a = 0.0
+	label_amount.modulate.a = 0.0
 	
 	# Ukryj na start
 	overlay.modulate.a = 0.0
@@ -64,10 +67,12 @@ func _run_intro():
 
 	# KROK 4 — licznik score (1.5s)
 	await get_tree().create_timer(0.2).timeout
+	label_score.modulate.a = 1.0
 	_animate_counter(label_score, 0, score, 1.5)
 	await get_tree().create_timer(0.5).timeout
 
 	# KROK 5 — licznik reward (1.5s)
+	label_amount.modulate.a = 1.0
 	_animate_counter(label_amount, 0, reward, 1.5)
 
 # ————— ROTACJA PROMIENI —————
