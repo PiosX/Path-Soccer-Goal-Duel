@@ -39,16 +39,27 @@ var combo_count: int = 0           # ile ruchów z rzędu w tej turze
 var combo_label: Label = null      # etykieta COMBO nad piłką
 
 # ————— TRYB GRY —————
-# Zmień na false żeby grać hot-seat 2 graczy
-const VS_AI: bool = true
-const AI_PLAYER: int = 2           # AI gra jako gracz 2
-const AI_DEPTH: int = 3            # głębokość minimax
-var ai_thinking: bool = false      # blokada inputu podczas myślenia AI
+var VS_AI: bool = false             # ustaw z zewnątrz przed _ready
+const AI_PLAYER: int = 2
+const AI_DEPTH: int = 3
+var ai_thinking: bool = false
+
+# ————— TIMER (tryb 2 graczy) —————
+const TURN_TIME: float = 15.0
+var turn_timer: float = TURN_TIME
+var timer_running: bool = false
+var timer_node: Timer = null       # Godot Timer do tickowania
 
 # ————— WĘZŁY UI —————
 var ball_node: Sprite2D
 var dot_nodes: Array = []   # [{node, gx, gy}]
 var active_moves: Array = []
+
+# ————— WĘZŁY TIMERA (pobierane z drzewa sceny nadrzędnej) —————
+var ui_turn_label: Label = null        # Label "Turn" / "15s"
+var ui_panel_timer: Panel = null       # Panel z paskiem
+var ui_panel_color: Panel = null       # Kolorowy pasek
+var ui_timer_container: Control = null # Cały kontener timera (do hide/show)
 
 var field_w: float
 var field_h: float
@@ -213,6 +224,7 @@ func _setup_game():
 	score = 0
 	combo_count = 0
 
+	_init_timer_ui()
 	_refresh_active_dots()
 
 # ——————————————————————————————————————————
@@ -370,17 +382,24 @@ func _do_move(target: Vector2i):
 	bounce_active = node_has_any_trail(target)
 	if bounce_active:
 		combo_count += 1
-		score += combo_count * 10  # 10 za 1. odbicie, 20 za 2., 30 za 3. itd.
+		score += combo_count * 10
 		_show_combo(target, false)
+		# Odbicie — ten sam gracz gra dalej, przedłuż timer o 3s (max do TURN_TIME)
+		if not VS_AI:
+			turn_timer = minf(turn_timer + 3.0, TURN_TIME)
 	else:
 		combo_count = 0
 		_hide_combo()
 		current_player = 2 if current_player == 1 else 1
+		# Zmiana tury — restart timera
+		if not VS_AI:
+			_start_turn_timer()
 
 	var moves = get_valid_moves(ball_grid_pos)
 
 	# ————— ŚLEPY ZAUŁEK — cofnij piłkę —————
 	if moves.is_empty():
+		_stop_turn_timer()
 		await get_tree().create_timer(0.15).timeout
 		_flash_trail_red(trail_line)
 		await get_tree().create_timer(0.5).timeout
@@ -388,6 +407,7 @@ func _do_move(target: Vector2i):
 		return
 
 	_refresh_active_dots()
+	_check_cutoff()
 
 	# AI rusza gdy to jego kolej
 	if VS_AI and current_player == AI_PLAYER:
@@ -435,6 +455,8 @@ func _rollback_until_moves() -> void:
 				_hide_active_dots()
 				await get_tree().create_timer(0.2).timeout
 				_ai_take_turn()
+			else:
+				_start_turn_timer()
 			return
 
 func _flash_trail_red(line: Line2D):
@@ -519,17 +541,11 @@ func _game_over(winner: int):
 func _show_popup_win():
 	ai_thinking = true
 	var popup = scene_complete.instantiate()
-	# Root sceny to CanvasLayer, Control jest jego dzieckiem
+	# Ustaw przed add_child — _ready odczyta i animuje od 0 do tych wartości
 	var ctrl = popup.get_node("Control")
 	ctrl.score = score
 	ctrl.reward = score / 100
 	get_tree().root.add_child(popup)
-	# Po jednej klatce _ready wykonało się i ustawiło "0" — nadpisz właściwymi wartościami
-	await get_tree().process_frame
-	var lbl = popup.get_node_or_null("Control/Control_Popup/VBoxContainer/VBoxContainer/Panel_ScoreBG/Label_Score")
-	if lbl: lbl.text = str(score)
-	var lbl2 = popup.get_node_or_null("Control/Control_Popup/VBoxContainer/VBoxContainer2/HBoxContainer_Reward/Label_Amount")
-	if lbl2: lbl2.text = str(score / 100)
 
 func _show_popup_fail():
 	ai_thinking = true
@@ -537,9 +553,6 @@ func _show_popup_fail():
 	var ctrl = popup.get_node("Control")
 	ctrl.score = score
 	get_tree().root.add_child(popup)
-	await get_tree().process_frame
-	var lbl = popup.get_node_or_null("Control/Control_Popup/VBoxContainer/VBoxContainer/Panel_ScoreBG/Label_Score")
-	if lbl: lbl.text = str(score)
 
 # ——————————————————————————————————————————
 #  AI — MINIMAX
@@ -592,6 +605,7 @@ func _do_move_silent(target: Vector2i):
 		return
 
 	await get_tree().create_timer(0.12).timeout
+	_check_cutoff()
 
 	if current_player == AI_PLAYER:
 		await get_tree().create_timer(0.12).timeout
@@ -730,6 +744,162 @@ func _is_goal_pure(pos: Vector2i) -> bool:
 	if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
 		return true
 	return false
+
+# ——————————————————————————————————————————
+#  DETEKCJA ODCIĘCIA
+# ——————————————————————————————————————————
+
+# BFS od pozycji piłki — czy można dotrzeć do dowolnego węzła bramki górnej (y<0) lub dolnej (y>ROWS)
+func _can_reach_goal(target_is_top: bool) -> bool:
+	var visited: Dictionary = {}
+	var queue: Array = [ball_grid_pos]
+	visited[ball_grid_pos] = true
+	while not queue.is_empty():
+		var pos: Vector2i = queue.pop_front()
+		# Sprawdź czy to węzeł bramki szukanej strony
+		if target_is_top and pos.y < 0:
+			return true
+		if not target_is_top and pos.y > ROWS:
+			return true
+		# Sąsiedzi po wolnych krawędziach
+		for dx in [-1, 0, 1]:
+			for dy in [-1, 0, 1]:
+				if dx == 0 and dy == 0: continue
+				var nb = Vector2i(pos.x + dx, pos.y + dy)
+				if visited.has(nb): continue
+				if not is_valid_node(nb.x, nb.y): continue
+				if used_edges.has(edge_key(pos, nb)): continue
+				if is_wall_edge(pos, nb): continue
+				visited[nb] = true
+				queue.append(nb)
+	return false
+
+# Sprawdź po każdym ruchu czy któraś bramka jest odcięta
+func _check_cutoff():
+	var can_top = _can_reach_goal(true)    # czy piłka może dotrzeć do górnej bramki (AI)
+	var can_bot = _can_reach_goal(false)   # czy piłka może dotrzeć do dolnej bramki (gracz)
+	if can_top and can_bot:
+		return  # obie osiągalne — gra trwa
+	# Odcięcie — piłka może iść tylko w jedną stronę
+	if not can_top and not can_bot:
+		# Totalnie uwięziona — przegrywa ten kto ostatnio ruszał
+		var loser = current_player
+		if loser == 1:
+			_show_popup_fail()
+		else:
+			_show_popup_win()
+		return
+	if not can_top:
+		# Nie można dotrzeć do górnej bramki (bramka AI) — gracz 1 przegrywa
+		_show_popup_fail()
+	else:
+		# Nie można dotrzeć do dolnej bramki (bramka gracza) — AI/gracz2 przegrywa = gracz wygrywa
+		_show_popup_win()
+
+# ——————————————————————————————————————————
+#  TIMER (tryb gracz vs gracz)
+# ——————————————————————————————————————————
+
+func _init_timer_ui():
+	# Szukamy węzłów w scenie nadrzędnej (BoardContainer jest dzieckiem ScrollContainer itd.)
+	var root = get_tree().root
+	ui_turn_label     = _find_node_by_name(root, "Turn")
+	ui_panel_timer    = _find_node_by_name(root, "Panel_Timer")
+	ui_panel_color    = _find_node_by_name(root, "Panel_Color")
+	ui_timer_container = ui_panel_timer  # kontener to sam Panel_Timer
+
+	if VS_AI:
+		# Tryb AI — ukryj cały timer
+		if ui_panel_timer: ui_panel_timer.get_parent().visible = false
+		if ui_turn_label: ui_turn_label.visible = false
+		timer_running = false
+	else:
+		# Tryb 2 graczy — pokaż i wystartuj
+		if ui_panel_timer: ui_panel_timer.get_parent().visible = true
+		if ui_turn_label: ui_turn_label.visible = true
+		_start_turn_timer()
+
+func _find_node_by_name(node: Node, target_name: String) -> Node:
+	if node.name == target_name:
+		return node
+	for child in node.get_children():
+		var found = _find_node_by_name(child, target_name)
+		if found:
+			return found
+	return null
+
+func _start_turn_timer():
+	if VS_AI:
+		return
+	turn_timer = TURN_TIME
+	timer_running = true
+	_update_timer_ui(TURN_TIME)
+	_set_timer_color()
+
+func _stop_turn_timer():
+	timer_running = false
+
+func _process(delta: float):
+	if not timer_running or VS_AI:
+		return
+	turn_timer -= delta
+	if turn_timer <= 0.0:
+		turn_timer = 0.0
+		timer_running = false
+		_on_timer_expired()
+		return
+	_update_timer_ui(turn_timer)
+
+func _update_timer_ui(time_left: float):
+	if ui_turn_label and is_instance_valid(ui_turn_label):
+		if current_player == 1:
+			ui_turn_label.text = "YOUR TURN: %ds" % int(ceil(time_left))
+		else:
+			ui_turn_label.text = "RIVAL TURN: %ds" % int(ceil(time_left))
+	if ui_panel_color and is_instance_valid(ui_panel_color):
+		# Stały offset 4px od lewej, max szerokość 242px
+		const BAR_MAX_W = 242.0
+		const BAR_OFFSET_X = 4.0
+		const BAR_OFFSET_Y = 4.0
+		var ratio = clampf(time_left / TURN_TIME, 0.0, 1.0)
+		ui_panel_color.position.x = BAR_OFFSET_X
+		ui_panel_color.position.y = BAR_OFFSET_Y
+		ui_panel_color.size.x = BAR_MAX_W * ratio
+		# Kolor gracza
+		var col: Color
+		if current_player == 1:
+			col = Color("#06c3f6")
+		else:
+			col = Color("#fe4b60")
+		# Migotanie gdy mało czasu (< 4s)
+		if time_left < 4.0:
+			var flash = abs(sin(time_left * 6.0))
+			col.a = lerpf(0.3, 1.0, flash)
+		else:
+			col.a = 1.0
+		# Aktualizuj tylko kolor w istniejącym stylu — nie twórz nowego co klatkę
+		var style = ui_panel_color.get_theme_stylebox("panel")
+		if style is StyleBoxFlat:
+			style.bg_color = col
+		else:
+			var new_style = StyleBoxFlat.new()
+			new_style.bg_color = col
+			new_style.corner_radius_top_left = 1000
+			new_style.corner_radius_top_right = 1000
+			new_style.corner_radius_bottom_left = 1000
+			new_style.corner_radius_bottom_right = 1000
+			ui_panel_color.add_theme_stylebox_override("panel", new_style)
+
+func _set_timer_color():
+	_update_timer_ui(turn_timer)
+
+func _on_timer_expired():
+	# Czas minął — przekaż turę przeciwnikowi
+	combo_count = 0
+	_hide_combo()
+	current_player = 2 if current_player == 1 else 1
+	_refresh_active_dots()
+	_start_turn_timer()
 
 # ——————————————————————————————————————————
 #  COMBO LABEL
