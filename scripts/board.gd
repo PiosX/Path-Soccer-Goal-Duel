@@ -39,7 +39,7 @@ var combo_count: int = 0           # ile ruchów z rzędu w tej turze
 var combo_label: Label = null      # etykieta COMBO nad piłką
 
 # ————— TRYB GRY —————
-var VS_AI: bool = false             # ustaw z zewnątrz przed _ready
+var VS_AI: bool = true             # ustaw z zewnątrz przed _ready
 const AI_PLAYER: int = 2
 const AI_DEPTH: int = 3
 var ai_thinking: bool = false
@@ -413,8 +413,11 @@ func _do_move(target: Vector2i):
 	if VS_AI and current_player == AI_PLAYER:
 		ai_thinking = true
 		_hide_active_dots()
-		await get_tree().create_timer(0.2).timeout
+		# Czekaj aż animacja piłki się skończy (ok 0.25s) zanim AI zacznie liczyć
+		await get_tree().create_timer(0.28).timeout
 		_ai_take_turn()
+
+var _just_rolled_back: bool = false  # blokuje _check_cutoff tuż po rollbacku
 
 # Cofa ruchy dopóki jest pozycja z możliwymi ruchami
 func _rollback_until_moves() -> void:
@@ -447,6 +450,7 @@ func _rollback_until_moves() -> void:
 		if not moves.is_empty():
 			# Wejście w zaułek = strata tury — oddaj grę przeciwnikowi
 			current_player = 2 if current_player == 1 else 1
+			_just_rolled_back = true
 			ai_thinking = false
 			_refresh_active_dots()
 			# Jeśli po zmianie tury gra AI — niech ruszy
@@ -559,7 +563,19 @@ func _show_popup_fail():
 # ——————————————————————————————————————————
 
 func _ai_take_turn():
-	var best = _minimax_root(ball_grid_pos, used_edges.duplicate(), AI_PLAYER, AI_DEPTH)
+	# Uruchom minimax w wątku żeby nie blokować animacji
+	var pos_snap = ball_grid_pos
+	var edges_snap = used_edges.duplicate()
+	var result_holder = [null]
+	var thread = Thread.new()
+	thread.start(func():
+		result_holder[0] = _minimax_root(pos_snap, edges_snap, AI_PLAYER, AI_DEPTH)
+	)
+	# Czekaj na wątek bez blokowania głównego wątku
+	while thread.is_alive():
+		await get_tree().process_frame
+	thread.wait_to_finish()
+	var best = result_holder[0]
 	if best == null:
 		ai_thinking = false
 		_refresh_active_dots()
@@ -605,7 +621,6 @@ func _do_move_silent(target: Vector2i):
 		return
 
 	await get_tree().create_timer(0.12).timeout
-	_check_cutoff()
 
 	if current_player == AI_PLAYER:
 		await get_tree().create_timer(0.12).timeout
@@ -623,10 +638,25 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 	if moves.is_empty():
 		return null
 
-	var best_score = -INF
-	var best_move = moves[0]
-
+	# Rozdziel ruchy na: bezpieczne (po nich są dalsze ruchy) i zaułki
+	var safe_moves = []
+	var deadend_moves = []
 	for move in moves:
+		var test_edges = edges.duplicate()
+		test_edges[edge_key(pos, move)] = true
+		var after = _get_moves_pure(move, test_edges)
+		if after.is_empty():
+			deadend_moves.append(move)
+		else:
+			safe_moves.append(move)
+
+	# Oceniaj tylko bezpieczne jeśli istnieją, wpadnij do zaułków tylko gdy nie ma innego wyjścia
+	var eval_moves = safe_moves if not safe_moves.is_empty() else deadend_moves
+
+	var best_score = -INF
+	var best_move = eval_moves[0]
+
+	for move in eval_moves:
 		var new_edges = edges.duplicate()
 		new_edges[edge_key(pos, move)] = true
 
@@ -634,6 +664,10 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 		var next_player = player if bounce else (2 if player == 1 else 1)
 
 		var score = _minimax(move, new_edges, next_player, depth - 1, -INF, INF, false)
+
+		# Dodatkowa kara w root za zaułki (na wypadek gdybyśmy musieli oceniać deadend_moves)
+		if move in deadend_moves:
+			score -= 150.0
 
 		if score > best_score:
 			best_score = score
@@ -659,8 +693,10 @@ func _minimax(pos: Vector2i, edges: Dictionary, player: int, depth: int, alpha: 
 
 	var moves = _get_moves_pure(pos, edges)
 	if moves.is_empty():
-		# Brak ruchów = przegrana tego gracza
-		return -10000.0 - depth if maximizing else 10000.0 + depth
+		# Brak ruchów = zaułek = strata tury (nie przegrana!)
+		# Przeciwnik przejmuje ruch z tej samej pozycji
+		# Kara: tracimy turę = -200 dla AI, +200 dla gracza
+		return -200.0 if maximizing else 200.0
 
 	if maximizing:
 		var best = -INF
@@ -688,27 +724,68 @@ func _minimax(pos: Vector2i, edges: Dictionary, player: int, depth: int, alpha: 
 				break
 		return best
 
-# Heurystyka z perspektywy AI (gracz 2 atakuje DÓŁ — większe y, bramka gracza)
+# Heurystyka z perspektywy AI — tylko tanie obliczenia, bez BFS
 func _heuristic(pos: Vector2i, edges: Dictionary) -> float:
 	var goal_center_x = float(GOAL_COL_START) + float(GOAL_COLS) / 2.0
 
-	# Układ: górna bramka y<0 = bramka AI (AI jej broni, nie chce tu wchodzić)
-	#        dolna bramka y>ROWS = bramka gracza (AI chce tu wejść = strzelić gola)
-	# AI chce MINIMALIZOWAĆ y (iść do góry = do bramki gracza NIE, do dołu = do bramki gracza TAK)
-	# Poprawka: AI atakuje DOLNĄ bramkę (y=ROWS+1), broni GÓRNEJ (y=-1)
-	# dist_to_attack = odległość od dolnej bramki gracza — AI chce ją minimalizować
+	# Pozycja: AI atakuje dolną bramkę (duże y), broni górnej
 	var dist_to_attack = abs(pos.x - goal_center_x) * 0.5 + float(ROWS - pos.y)
-
-	# dist_to_defend = odległość od górnej bramki AI — AI chce być daleko od niej (duże y)
 	var dist_to_defend = abs(pos.x - goal_center_x) * 0.5 + float(pos.y)
+	var position_score = (dist_to_defend - dist_to_attack) * 12.0
 
-	var free_moves = _get_moves_pure(pos, edges).size()
+	# Mobilność — ile ruchów z obecnej pozycji (O(8), bardzo tanie)
+	var my_moves = _get_moves_pure(pos, edges)
+	var mobility = float(my_moves.size())
 
-	# AI (maximizing=true) chce dużego score: bliżej bramki gracza = mniej dist_to_attack
-	# dist_to_defend duże (AI daleko od własnej bramki) = dobrze
-	# Wynik: chcemy dist_to_defend - dist_to_attack jak największe
-	# = duże pos.y (blisko dolnej bramki gracza) — POPRAWNE
-	return (dist_to_defend - dist_to_attack) * 15.0 + free_moves * 3.0
+	# Kara za zaułki wśród dostępnych ruchów (sprawdź ile ruchów zostaje po każdym)
+	# Ograniczamy do max 4 ruchów żeby nie robić 8x8=64 sprawdzeń
+	var deadend_penalty = 0.0
+	var check_count = mini(my_moves.size(), 4)
+	for i in range(check_count):
+		var move = my_moves[i]
+		var test_edges = edges.duplicate()
+		test_edges[edge_key(pos, move)] = true
+		var after_count = _count_moves_pure(move, test_edges)
+		if after_count == 0:
+			deadend_penalty += 10.0
+		elif after_count == 1:
+			deadend_penalty += 3.0
+
+	return position_score + mobility * 4.0 - deadend_penalty
+
+# Szybkie liczenie ruchów bez tworzenia tablicy
+func _count_moves_pure(pos: Vector2i, edges: Dictionary) -> int:
+	var count = 0
+	for dx in [-1, 0, 1]:
+		for dy in [-1, 0, 1]:
+			if dx == 0 and dy == 0: continue
+			var nb = Vector2i(pos.x + dx, pos.y + dy)
+			if not is_valid_node(nb.x, nb.y): continue
+			if edges.has(edge_key(pos, nb)): continue
+			if is_wall_edge(pos, nb): continue
+			count += 1
+	return count
+
+
+func _bfs_reachable_pure(start: Vector2i, edges: Dictionary) -> int:
+	var visited: Dictionary = {}
+	var queue: Array = [start]
+	visited[start] = true
+	var count = 0
+	while not queue.is_empty():
+		var pos: Vector2i = queue.pop_front()
+		count += 1
+		for dx in [-1, 0, 1]:
+			for dy in [-1, 0, 1]:
+				if dx == 0 and dy == 0: continue
+				var nb = Vector2i(pos.x + dx, pos.y + dy)
+				if visited.has(nb): continue
+				if not is_valid_node(nb.x, nb.y): continue
+				if edges.has(edge_key(pos, nb)): continue
+				if is_wall_edge(pos, nb): continue
+				visited[nb] = true
+				queue.append(nb)
+	return count
 
 # ————— Czyste funkcje (bez side effects, na kopii stanu) —————
 
@@ -776,6 +853,10 @@ func _can_reach_goal(target_is_top: bool) -> bool:
 
 # Sprawdź po każdym ruchu czy któraś bramka jest odcięta
 func _check_cutoff():
+	# Nie sprawdzaj tuż po rollbacku — zostawiona linia mogłaby fałszywie blokować
+	if _just_rolled_back:
+		_just_rolled_back = false
+		return
 	var can_top = _can_reach_goal(true)    # czy piłka może dotrzeć do górnej bramki (AI)
 	var can_bot = _can_reach_goal(false)   # czy piłka może dotrzeć do dolnej bramki (gracz)
 	if can_top and can_bot:
