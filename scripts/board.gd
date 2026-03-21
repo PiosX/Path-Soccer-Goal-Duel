@@ -67,6 +67,7 @@ var _drag_start_scroll: Vector2 = Vector2.ZERO
 var _scroll_container: ScrollContainer = null
 var dot_nodes: Array = []   # [{node, gx, gy}]
 var active_moves: Array = []
+var _touch_moved: bool = false  # odróżnia drag od tapa na mobilce
 
 # ————— WĘZŁY TIMERA (pobierane z drzewa sceny nadrzędnej) —————
 var ui_turn_label: Label = null        # Label "Turn" / "15s"
@@ -100,17 +101,8 @@ func edge_key(a: Vector2i, b: Vector2i) -> String:
 func is_valid_node(gx: int, gy: int) -> bool:
 	if gx >= 0 and gx <= COLS and gy >= 0 and gy <= ROWS:
 		return _node_accessible(gx, gy)
-	# bramka górna
 	if gy == -1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
 		return true
-	# bramka dolna
-	if gy == ROWS + 1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
-		return true
-	return false
-	# bramka górna
-	if gy == -1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
-		return true
-	# bramka dolna
 	if gy == ROWS + 1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
 		return true
 	return false
@@ -123,67 +115,76 @@ func _cell_is_wall(row: int, col: int) -> bool:
 
 # Czy krawędź jest niedozwolona (leży wzdłuż ściany lub przez nią)
 func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
-	# Lewa ściana (x=0): żaden ruch z/do x=0 równolegle do ściany
+	# Lewa/prawa ściana — ruch równoległy wzdłuż niej
 	if a.x == 0 and b.x == 0: return true
-	# Prawa ściana (x=COLS)
 	if a.x == COLS and b.x == COLS: return true
-	# Górna ściana (y=0) poza bramką — blokuj ruch poziomy wzdłuż niej
+
+	# Górna/dolna linia boiska — ruch poziomy wzdłuż niej poza zakresem bramki
 	if a.y == 0 and b.y == 0:
 		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
 		if not (mn >= GOAL_COL_START and mx <= GOAL_COL_START + GOAL_COLS):
 			return true
-	# Dolna ściana (y=ROWS) poza bramką
 	if a.y == ROWS and b.y == ROWS:
 		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
 		if not (mn >= GOAL_COL_START and mx <= GOAL_COL_START + GOAL_COLS):
 			return true
-	# ── Blokuj krawędzie wzdłuż granicy obstacle i przez obstacle ───────────
-	# Węzeł (gx,gy) leży na styku 4 komórek: (gy-1,gx-1),(gy-1,gx),(gy,gx-1),(gy,gx).
-	if abs(a.x - b.x) == 1 and a.y == b.y:
-		# Poziomy ruch: krawędź między wierszami a.y-1 i a.y
-		# Blokuj gdy OBIE komórki po jednej stronie są ścianą/obstacle
-		var top_l = _cell_is_wall(a.y - 1, mini(a.x, b.x))
-		var top_r = _cell_is_wall(a.y - 1, maxi(a.x, b.x) - 1)
-		if top_l and top_r: return true
-		var bot_l = _cell_is_wall(a.y, mini(a.x, b.x))
-		var bot_r = _cell_is_wall(a.y, maxi(a.x, b.x) - 1)
-		if bot_l and bot_r: return true
-	elif a.x == b.x and abs(a.y - b.y) == 1:
-		# Pionowy ruch: krawędź między kolumnami a.x-1 i a.x
-		var lft_t = _cell_is_wall(mini(a.y, b.y),     a.x - 1)
-		var lft_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x - 1)
-		if lft_t and lft_b: return true
-		var rgt_t = _cell_is_wall(mini(a.y, b.y),     a.x)
-		var rgt_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x)
-		if rgt_t and rgt_b: return true
-	elif abs(a.x - b.x) == 1 and abs(a.y - b.y) == 1:
-		# Przekątna: blokuj jeśli oba boczne węzły są na ścianie/granicy obstacle
-		var side_a = Vector2i(b.x, a.y)
-		var side_b = Vector2i(a.x, b.y)
-		if not is_valid_node(side_a.x, side_a.y) or not is_valid_node(side_b.x, side_b.y):
-			return true
-		if _node_on_wall_or_obstacle(side_a) and _node_on_wall_or_obstacle(side_b):
-			return true
-	# Blokuj ruch wzdłuż bocznej ściany bramki
+
+	# Ruch pionowy wzdłuż słupka bramki (między polem a wnętrzem bramki)
 	if a.x == b.x and abs(a.y - b.y) == 1:
 		var bx = a.x
-		if bx == GOAL_COL_START:
-			var min_y = mini(a.y, b.y); var max_y = maxi(a.y, b.y)
-			if (min_y == -1 and max_y == 0) or (min_y == ROWS and max_y == ROWS + 1):
+		if bx == GOAL_COL_START or bx == GOAL_COL_START + GOAL_COLS:
+			var miny = mini(a.y, b.y); var maxy = maxi(a.y, b.y)
+			if (miny == -1 and maxy == 0) or (miny == ROWS and maxy == ROWS + 1):
 				return true
-		if bx == GOAL_COL_START + GOAL_COLS:
-			var min_y = mini(a.y, b.y); var max_y = maxi(a.y, b.y)
-			if (min_y == -1 and max_y == 0) or (min_y == ROWS and max_y == ROWS + 1):
+
+	# Przekątna: blokuj gdy oba boczne węzły są na ścianie/obstacle
+	# (używamy poprawionej _node_on_wall_or_obstacle która wyklucza interior bramki)
+	if abs(a.x - b.x) == 1 and abs(a.y - b.y) == 1:
+		var side_a = Vector2i(b.x, a.y)
+		var side_b = Vector2i(a.x, b.y)
+		if not is_valid_node(side_a.x, side_a.y) and not is_valid_node(side_b.x, side_b.y):
+			return true
+		if is_valid_node(side_a.x, side_a.y) and is_valid_node(side_b.x, side_b.y):
+			if _node_on_wall_or_obstacle(side_a) and _node_on_wall_or_obstacle(side_b):
 				return true
+		# Jeden nieistniejący + drugi na ścianie = blokuj
+		if not is_valid_node(side_a.x, side_a.y) and is_valid_node(side_b.x, side_b.y) and _node_on_wall_or_obstacle(side_b):
+			return true
+		if not is_valid_node(side_b.x, side_b.y) and is_valid_node(side_a.x, side_a.y) and _node_on_wall_or_obstacle(side_a):
+			return true
+
+	# Poziomy/pionowy ruch wzdłuż granicy obstacle
+	var a_is_goal = (a.y < 0 or a.y > ROWS)
+	var b_is_goal = (b.y < 0 or b.y > ROWS)
+	if not a_is_goal and not b_is_goal:
+		if abs(a.x - b.x) == 1 and a.y == b.y:
+			if a.y == 0 or a.y == ROWS:
+				pass  # już obsłużone wyżej (linie 123-130)
+			else:
+				var top_l = _cell_is_wall(a.y - 1, mini(a.x, b.x))
+				var top_r = _cell_is_wall(a.y - 1, maxi(a.x, b.x) - 1)
+				if top_l and top_r: return true
+				var bot_l = _cell_is_wall(a.y, mini(a.x, b.x))
+				var bot_r = _cell_is_wall(a.y, maxi(a.x, b.x) - 1)
+				if bot_l and bot_r: return true
+		elif a.x == b.x and abs(a.y - b.y) == 1:
+			var lft_t = _cell_is_wall(mini(a.y, b.y),     a.x - 1)
+			var lft_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x - 1)
+			if lft_t and lft_b: return true
+			var rgt_t = _cell_is_wall(mini(a.y, b.y),     a.x)
+			var rgt_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x)
+			if rgt_t and rgt_b: return true
+
 	return false
 
 # Czy węzeł (gx,gy) leży na ścianie boiska lub na granicy obstacle
 func _node_on_wall_or_obstacle(n: Vector2i) -> bool:
-	# Na ścianie zewnętrznej
-	if n.x == 0 or n.x == COLS or n.y == 0 or n.y == ROWS:
-		return true
-	# Na granicy obstacle: węzeł (gx,gy) sąsiaduje z komórką obstacle
-	# Węzeł leży na styku komórek (gy-1,gx-1),(gy-1,gx),(gy,gx-1),(gy,gx)
+	# Na ścianie zewnętrznej — ale węzły na linii y=0 lub y=ROWS WEWNĄTRZ bramki
+	# (między słupkami, nie wliczając słupków) to otwarte wejście, nie ściana
+	var in_goal_interior = (n.x > GOAL_COL_START and n.x < GOAL_COL_START + GOAL_COLS)
+	if n.x == 0 or n.x == COLS: return true
+	if (n.y == 0 or n.y == ROWS) and not in_goal_interior: return true
+	# Na granicy obstacle
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = n.y + dr; var cc = n.x + dc
@@ -226,13 +227,12 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 			var nb = Vector2i(pos.x + dx, pos.y + dy)
 			if used_edges.has(edge_key(pos, nb)):
 				count += 1
-	# Ściany boiska
 	if pos.x == 0: count += 1
 	if pos.x == COLS: count += 1
-	if pos.y == 0: count += 1
-	if pos.y == ROWS: count += 1
-	# Każda przylegająca komórka obstacle liczy jako bariera
-	# Węzeł (gx,gy) sąsiaduje z komórkami (gy-1,gx-1),(gy-1,gx),(gy,gx-1),(gy,gx)
+	# y=0/y=ROWS: ściana wszędzie poza wnętrzem bramki (między słupkami exclusive)
+	var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
+	if pos.y == 0 and not in_goal_interior: count += 1
+	if pos.y == ROWS and not in_goal_interior: count += 1
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = pos.y + dr; var cc = pos.x + dc
@@ -391,12 +391,14 @@ func _draw_grid_dots():
 			else:
 				dot = _make_dot_invisible(grid_to_pixel(gx, gy))
 			dot_nodes.append({"node": dot, "gx": gx, "gy": gy})
-	# Węzły bramek — niewidoczne (logika gry)
+	# Węzły bramek — widoczne tylko gdy aktywne
 	for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
-		var dot = _make_dot_invisible(grid_to_pixel(gx, -1))
+		var dot = _make_dot(grid_to_pixel(gx, -1), false)
+		dot.set_meta("goal_node", true)
 		dot_nodes.append({"node": dot, "gx": gx, "gy": -1})
 	for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
-		var dot = _make_dot_invisible(grid_to_pixel(gx, ROWS + 1))
+		var dot = _make_dot(grid_to_pixel(gx, ROWS + 1), false)
+		dot.set_meta("goal_node", true)
 		dot_nodes.append({"node": dot, "gx": gx, "gy": ROWS + 1})
 
 # Czy węzeł (gx,gy) powinien mieć widoczną kropkę.
@@ -407,7 +409,11 @@ func _dot_inside_field(gx: int, gy: int) -> bool:
 	var count = 0
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
-			if _cell_active(gy + dr, gx + dc):
+			var r = gy + dr
+			var c = gx + dc
+			if r < 0 or r >= ROWS or c < 0 or c >= COLS:
+				count += 1
+			elif not _is_obstacle(r, c):
 				count += 1
 	return count >= 2
 
@@ -445,7 +451,7 @@ func _on_dot_draw(dot: Node2D):
 	if is_active:
 		dot.draw_circle(Vector2.ZERO, 10.0 * ps, Color(1.0, 0.9, 0.0, 0.55 * ps))
 		dot.draw_circle(Vector2.ZERO, 5.5 * ps, Color(1.0, 0.95, 0.2, 0.95))
-	else:
+	elif not dot.get_meta("goal_node", false):
 		dot.draw_circle(Vector2.ZERO, 4.0, DOT_COLOR)
 
 func _refresh_active_dots():
@@ -510,49 +516,58 @@ func _kill_all_tweens():
 # ——————————————————————————————————————————
 
 func _input(event: InputEvent):
-	# ── Drag boiska (dotyk lub PPM) ────────────────────────────────────────
+	# ── Drag boiska ────────────────────────────────────────────────────────
 	if _scroll_container:
-		var is_touch = event is InputEventScreenTouch
-		var is_rmb   = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT
-		var is_drag_touch = event is InputEventScreenDrag
+		var is_rmb        = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT
 		var is_drag_mouse = event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_RIGHT)
-		
-		if (is_touch and not event.pressed) or (is_rmb and not event.pressed):
+		var is_touch      = event is InputEventScreenTouch
+		var is_drag_touch = event is InputEventScreenDrag
+
+		if is_rmb and event.pressed and not ai_thinking:
+			_drag_active = true
+			_drag_start_mouse = event.position
+			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
+		if is_rmb and not event.pressed:
 			_drag_active = false
-		
-		if is_touch and event.pressed:
-			_drag_active = true
-			_drag_start_mouse = event.position
-			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
-		elif is_rmb and event.pressed and not ai_thinking:
-			_drag_active = true
-			_drag_start_mouse = event.position
-			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
-		
-		if _drag_active and (is_drag_touch or is_drag_mouse):
-			var cur_pos = event.position
-			var delta = _drag_start_mouse - cur_pos
+		if _drag_active and is_drag_mouse:
+			var delta = _drag_start_mouse - event.position
 			_scroll_container.scroll_horizontal = int(_drag_start_scroll.x + delta.x)
 			_scroll_container.scroll_vertical   = int(_drag_start_scroll.y + delta.y)
 			get_viewport().set_input_as_handled()
 			return
 
+		if is_touch and event.pressed:
+			_drag_active = true
+			_touch_moved = false
+			_drag_start_mouse = event.position
+			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
+			return
+		if is_drag_touch and _drag_active:
+			var delta = _drag_start_mouse - event.position
+			if delta.length() > 8.0:
+				_touch_moved = true
+			_scroll_container.scroll_horizontal = int(_drag_start_scroll.x + delta.x)
+			_scroll_container.scroll_vertical   = int(_drag_start_scroll.y + delta.y)
+			get_viewport().set_input_as_handled()
+			return
+		if is_touch and not event.pressed:
+			_drag_active = false
+			if not _touch_moved and not ai_thinking:
+				_try_move(get_global_transform().affine_inverse() * event.position)
+			_touch_moved = false
+			get_viewport().set_input_as_handled()
+			return
+
 	var pressed = false
 	var click_pos = Vector2.ZERO
-
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		pressed = true
 		click_pos = event.position
-	elif event is InputEventScreenTouch and event.pressed:
+	elif event is InputEventScreenTouch and event.pressed and not _scroll_container:
 		pressed = true
 		click_pos = event.position
-
-	if not pressed:
-		return
-
-	if ai_thinking:
-		return
-
+	if not pressed: return
+	if ai_thinking: return
 	_try_move(get_global_transform().affine_inverse() * click_pos)
 
 func _try_move(local_pos: Vector2):
@@ -1022,9 +1037,9 @@ func _node_has_trail_pure(pos: Vector2i, edges: Dictionary) -> bool:
 				count += 1
 	if pos.x == 0: count += 1
 	if pos.x == COLS: count += 1
-	if pos.y == 0: count += 1
-	if pos.y == ROWS: count += 1
-	# Przeszkody przy węźle liczą jak ściany
+	var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
+	if pos.y == 0 and not in_goal_interior: count += 1
+	if pos.y == ROWS and not in_goal_interior: count += 1
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = pos.y + dr; var cc = pos.x + dc
