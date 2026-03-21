@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c03kuln8tkg35"]
+
+[ext_resource type="Script" uid="uid://dmrh3dco21u5s" path="res://scripts/level_editor.gd" id="1_ci1mn"]
+
+[node name="LevelEditor" type="CanvasLayer"]
+script = ExtResource("1_ci1mn")

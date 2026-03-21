@@ -11,13 +11,19 @@ var scene_failed  = preload("res://scenes/level_failed.tscn")
 
 # ————— WYMIARY —————
 const QUAD_SIZE = 90.0
-const COLS = 6
-const ROWS = 8
-const GOAL_COL_START = 2
-const GOAL_COLS = 2
+var COLS: int = 6
+var ROWS: int = 8
+var GOAL_COL_START: int = 2
+var GOAL_COLS: int = 2
+
+# ————— DANE POZIOMU —————
+var level_data: Dictionary = {}
+var obstacle_cells: Array = []   # [{row,col}] w układzie board (bez bramek)
+var pre_lines_data: Array = []   # [{r1,c1,r2,c2}] węzły siatki
 const BORDER = 8.0
 const PADDING = 9.0
 const RADIUS = 30.0
+const CORNER_RADIUS = 22.0  # zaokrąglenie bordera boiska (takie jak w bramkach)
 const FIELD_COLOR = Color("#448B47")
 const BORDER_COLOR = Color.WHITE
 const GAP = 9.0
@@ -27,6 +33,7 @@ const DOT_COLOR       = Color(1.0, 1.0, 1.0, 0.5)
 const DOT_ACTIVE_COLOR = Color(1.0, 0.9, 0.0, 1.0)
 const TRAIL_P1_COLOR  = Color("#FFFFFF")
 const TRAIL_P2_COLOR  = Color("#FFD700")
+const PRE_LINE_COLOR  = Color("#aa44ff")  # fioletowe linie startowe
 
 # ————— STAN GRY —————
 var ball_grid_pos: Vector2i        # bieżąca pozycja piłki w siatce
@@ -52,6 +59,12 @@ var timer_node: Timer = null       # Godot Timer do tickowania
 
 # ————— WĘZŁY UI —————
 var ball_node: Sprite2D
+
+# ————— DRAG BOISKA —————
+var _drag_active: bool = false
+var _drag_start_mouse: Vector2 = Vector2.ZERO
+var _drag_start_scroll: Vector2 = Vector2.ZERO
+var _scroll_container: ScrollContainer = null
 var dot_nodes: Array = []   # [{node, gx, gy}]
 var active_moves: Array = []
 
@@ -83,10 +96,10 @@ func edge_key(a: Vector2i, b: Vector2i) -> String:
 		return "%d,%d|%d,%d" % [a.x, a.y, b.x, b.y]
 	return "%d,%d|%d,%d" % [b.x, b.y, a.x, a.y]
 
-# Czy węzeł jest w bounds (pole + bramki)
+# Czy węzeł jest w bounds (pole + bramki), z uwzględnieniem przeszkód
 func is_valid_node(gx: int, gy: int) -> bool:
 	if gx >= 0 and gx <= COLS and gy >= 0 and gy <= ROWS:
-		return true
+		return _node_accessible(gx, gy)
 	# bramka górna
 	if gy == -1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
 		return true
@@ -94,6 +107,19 @@ func is_valid_node(gx: int, gy: int) -> bool:
 	if gy == ROWS + 1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
 		return true
 	return false
+	# bramka górna
+	if gy == -1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
+		return true
+	# bramka dolna
+	if gy == ROWS + 1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
+		return true
+	return false
+
+# Czy komórka (row,col) jest przeszkodą lub poza boiskiem
+func _cell_is_wall(row: int, col: int) -> bool:
+	if row < 0 or row >= ROWS or col < 0 or col >= COLS:
+		return true  # poza boiskiem = ściana
+	return _is_obstacle(row, col)
 
 # Czy krawędź jest niedozwolona (leży wzdłuż ściany lub przez nią)
 func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
@@ -111,33 +137,59 @@ func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
 		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
 		if not (mn >= GOAL_COL_START and mx <= GOAL_COL_START + GOAL_COLS):
 			return true
-	# Blokuj przekątne przez narożniki ścian
-	if abs(a.x - b.x) == 1 and abs(a.y - b.y) == 1:
+	# ── Blokuj krawędzie wzdłuż granicy obstacle i przez obstacle ───────────
+	# Węzeł (gx,gy) leży na styku 4 komórek: (gy-1,gx-1),(gy-1,gx),(gy,gx-1),(gy,gx).
+	if abs(a.x - b.x) == 1 and a.y == b.y:
+		# Poziomy ruch: krawędź między wierszami a.y-1 i a.y
+		# Blokuj gdy OBIE komórki po jednej stronie są ścianą/obstacle
+		var top_l = _cell_is_wall(a.y - 1, mini(a.x, b.x))
+		var top_r = _cell_is_wall(a.y - 1, maxi(a.x, b.x) - 1)
+		if top_l and top_r: return true
+		var bot_l = _cell_is_wall(a.y, mini(a.x, b.x))
+		var bot_r = _cell_is_wall(a.y, maxi(a.x, b.x) - 1)
+		if bot_l and bot_r: return true
+	elif a.x == b.x and abs(a.y - b.y) == 1:
+		# Pionowy ruch: krawędź między kolumnami a.x-1 i a.x
+		var lft_t = _cell_is_wall(mini(a.y, b.y),     a.x - 1)
+		var lft_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x - 1)
+		if lft_t and lft_b: return true
+		var rgt_t = _cell_is_wall(mini(a.y, b.y),     a.x)
+		var rgt_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x)
+		if rgt_t and rgt_b: return true
+	elif abs(a.x - b.x) == 1 and abs(a.y - b.y) == 1:
+		# Przekątna: blokuj jeśli oba boczne węzły są na ścianie/granicy obstacle
 		var side_a = Vector2i(b.x, a.y)
 		var side_b = Vector2i(a.x, b.y)
 		if not is_valid_node(side_a.x, side_a.y) or not is_valid_node(side_b.x, side_b.y):
 			return true
-		# Blokuj też gdy oba sąsiednie węzły leżą na ścianie (narożnik boiska)
-		var side_a_on_wall = (side_a.x == 0 or side_a.x == COLS or side_a.y == 0 or side_a.y == ROWS)
-		var side_b_on_wall = (side_b.x == 0 or side_b.x == COLS or side_b.y == 0 or side_b.y == ROWS)
-		if side_a_on_wall and side_b_on_wall:
+		if _node_on_wall_or_obstacle(side_a) and _node_on_wall_or_obstacle(side_b):
 			return true
-	# Blokuj ruch wzdłuż bocznej ściany bramki (prosto w górę/dół z krawędzi bramki)
-	# Z węzła na krawędzi bramki (x==GOAL_COL_START lub x==GOAL_COL_START+GOAL_COLS)
-	# można wejść do bramki tylko po przekątnej (do środka), nie prosto
+	# Blokuj ruch wzdłuż bocznej ściany bramki
 	if a.x == b.x and abs(a.y - b.y) == 1:
 		var bx = a.x
-		# Lewa krawędź bramki
 		if bx == GOAL_COL_START:
 			var min_y = mini(a.y, b.y); var max_y = maxi(a.y, b.y)
-			# Ruch z gy=0 do gy=-1 lub z gy=ROWS do gy=ROWS+1 po lewej krawędzi = niedozwolony
 			if (min_y == -1 and max_y == 0) or (min_y == ROWS and max_y == ROWS + 1):
 				return true
-		# Prawa krawędź bramki
 		if bx == GOAL_COL_START + GOAL_COLS:
 			var min_y = mini(a.y, b.y); var max_y = maxi(a.y, b.y)
 			if (min_y == -1 and max_y == 0) or (min_y == ROWS and max_y == ROWS + 1):
 				return true
+	return false
+
+# Czy węzeł (gx,gy) leży na ścianie boiska lub na granicy obstacle
+func _node_on_wall_or_obstacle(n: Vector2i) -> bool:
+	# Na ścianie zewnętrznej
+	if n.x == 0 or n.x == COLS or n.y == 0 or n.y == ROWS:
+		return true
+	# Na granicy obstacle: węzeł (gx,gy) sąsiaduje z komórką obstacle
+	# Węzeł leży na styku komórek (gy-1,gx-1),(gy-1,gx),(gy,gx-1),(gy,gx)
+	for dr in [-1, 0]:
+		for dc in [-1, 0]:
+			var cr = n.y + dr; var cc = n.x + dc
+			if cr >= 0 and cr < ROWS and cc >= 0 and cc < COLS:
+				if _is_obstacle(cr, cc):
+					return true
 	return false
 
 # Możliwe ruchy z danej pozycji
@@ -165,7 +217,7 @@ func _get_moves_with_edges(pos: Vector2i, edges: Dictionary) -> Array:
 			moves.append(nb)
 	return moves
 
-# Odbicie = węzeł był już odwiedzony lub jest węzłem ściany (ściana = naturalna bariera)
+# Odbicie = węzeł był już odwiedzony lub jest węzłem ściany/obstacle (bariera)
 func node_has_any_trail(pos: Vector2i) -> bool:
 	var count = 0
 	for dx in [-1, 0, 1]:
@@ -174,11 +226,19 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 			var nb = Vector2i(pos.x + dx, pos.y + dy)
 			if used_edges.has(edge_key(pos, nb)):
 				count += 1
-	# Każda ściana boiska przylegająca do węzła liczy jako osobna bariera
+	# Ściany boiska
 	if pos.x == 0: count += 1
 	if pos.x == COLS: count += 1
 	if pos.y == 0: count += 1
 	if pos.y == ROWS: count += 1
+	# Każda przylegająca komórka obstacle liczy jako bariera
+	# Węzeł (gx,gy) sąsiaduje z komórkami (gy-1,gx-1),(gy-1,gx),(gy,gx-1),(gy,gx)
+	for dr in [-1, 0]:
+		for dc in [-1, 0]:
+			var cr = pos.y + dr; var cc = pos.x + dc
+			if cr >= 0 and cr < ROWS and cc >= 0 and cc < COLS:
+				if _is_obstacle(cr, cc):
+					count += 1
 	return count >= 2
 
 # ——————————————————————————————————————————
@@ -186,10 +246,90 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 # ——————————————————————————————————————————
 
 func _ready():
+	if not level_data.is_empty():
+		_apply_level_data()
 	_build_board()
 	_setup_game()
+	# Postaw startowe linie PO _setup_game (który czyści used_edges)
+	_place_pre_lines()
+
+func _place_pre_lines():
+	for ln in pre_lines_data:
+		var a = Vector2i(ln.c1, ln.r1)
+		var b = Vector2i(ln.c2, ln.r2)
+		if a.x < 0 or a.x > COLS or a.y < 0 or a.y > ROWS: continue
+		if b.x < 0 or b.x > COLS or b.y < 0 or b.y > ROWS: continue
+		var ek = edge_key(a, b)
+		if not used_edges.has(ek):
+			used_edges[ek] = true
+			_draw_trail_colored(a, b, PRE_LINE_COLOR)
+
+func _draw_trail_colored(from: Vector2i, to: Vector2i, color: Color) -> Line2D:
+	var line = Line2D.new()
+	# grid_to_pixel zwraca środek węzła — linia wyśrodkowana na kropkach
+	line.add_point(grid_to_pixel(from.x, from.y))
+	line.add_point(grid_to_pixel(to.x, to.y))
+	line.width = 6.0
+	line.default_color = color
+	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	line.joint_mode = Line2D.LINE_JOINT_ROUND
+	line.z_index = 7
+	add_child(line)
+	return line
+
+# Przetłumacz dane JSON na wymiary board.gd
+# WAŻNE: w edytorze grid[0] i grid[rows-1] to bramki wliczone w rozmiar.
+# W board.gd ROWS = liczba wierszy POLA (bez bramek), bramki są na gy=-1 i gy=ROWS+1.
+# Więc: ROWS = editor_rows - 2, COLS = editor_cols
+func _apply_level_data():
+	var ed_cols = int(level_data.get("cols", 6))
+	var ed_rows = int(level_data.get("rows", 10))
+	var grid = level_data.get("grid", [])
+	
+	# Bramki zajmują wiersz 0 i wiersz ed_rows-1 w edytorze
+	# Pole gry = wiersze 1..ed_rows-2 => ROWS = ed_rows - 2
+	COLS = ed_cols
+	ROWS = ed_rows - 2
+	
+	# Wykryj GOAL_COL_START i GOAL_COLS z wiersza bramki (wiersz 0 = GOAL_RED)
+	var goal_cols = []
+	if grid.size() > 0:
+		for c in range((grid[0] as Array).size()):
+			if int(grid[0][c]) == 3:  # GOAL_RED
+				goal_cols.append(c)
+	if goal_cols.size() > 0:
+		goal_cols.sort()
+		GOAL_COL_START = goal_cols[0]
+		GOAL_COLS = goal_cols[-1] - goal_cols[0] + 1
+	
+	# Przeszkody — wiersze 1..ed_rows-2, przetłumacz na board row = editor_row - 1
+	# EMPTY(0) też jest wyłączone — kształt boiska pochodzi z edytora
+	obstacle_cells = []
+	for er in range(1, ed_rows - 1):
+		if er >= grid.size(): continue
+		for c in range(ed_cols):
+			var cell_val = int(grid[er][c])
+			if cell_val == 4 or cell_val == 0:  # OBSTACLE lub EMPTY = wykluczone
+				obstacle_cells.append({"row": er - 1, "col": c})
+	
+	# Linie startowe — węzły siatki (r,c) gdzie r=0 to góra pola (nad wierszem 1 edytora)
+	# Węzeł r w edytorze odpowiada węzłowi r-1 w board (bo wiersz 0 edytora = bramka)
+	pre_lines_data = []
+	for ln in level_data.get("pre_lines", []):
+		pre_lines_data.append({
+			"r1": int(ln.get("r1",0)) - 1,
+			"c1": int(ln.get("c1",0)),
+			"r2": int(ln.get("r2",0)) - 1,
+			"c2": int(ln.get("c2",0))
+		})
 
 func _setup_game():
+	_kill_all_tweens()
+	# Znajdź ScrollContainer przy starcie
+	if not _scroll_container:
+		_scroll_container = _find_scroll_parent()
+
 	ball_grid_pos = Vector2i(COLS / 2, ROWS / 2)
 	current_player = 1
 	used_edges.clear()
@@ -226,25 +366,66 @@ func _setup_game():
 
 	_init_timer_ui()
 	_refresh_active_dots()
+	# Postaw startowe linie po każdym resecie (działa też przy reload)
+	_place_pre_lines()
+
+func _find_scroll_parent() -> ScrollContainer:
+	var node = get_parent()
+	while node:
+		if node is ScrollContainer:
+			return node as ScrollContainer
+		node = node.get_parent()
+	return null
 
 # ——————————————————————————————————————————
 #  SIATKA KROPEK
 # ——————————————————————————————————————————
 
 func _draw_grid_dots():
-	# Węzły pola głównego
+	# Węzły pola głównego — tylko te które mają co najmniej jedną aktywną sąsiednią komórkę
 	for gx in range(COLS + 1):
 		for gy in range(ROWS + 1):
-			var dot = _make_dot(grid_to_pixel(gx, gy), false)
+			var dot
+			if _dot_inside_field(gx, gy):
+				dot = _make_dot(grid_to_pixel(gx, gy), false)
+			else:
+				dot = _make_dot_invisible(grid_to_pixel(gx, gy))
 			dot_nodes.append({"node": dot, "gx": gx, "gy": gy})
-	# Węzły górnej bramki (gy = -1)
+	# Węzły bramek — niewidoczne (logika gry)
 	for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
-		var dot = _make_dot(grid_to_pixel(gx, -1), false)
+		var dot = _make_dot_invisible(grid_to_pixel(gx, -1))
 		dot_nodes.append({"node": dot, "gx": gx, "gy": -1})
-	# Węzły dolnej bramki (gy = ROWS + 1)
 	for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
-		var dot = _make_dot(grid_to_pixel(gx, ROWS + 1), false)
+		var dot = _make_dot_invisible(grid_to_pixel(gx, ROWS + 1))
 		dot_nodes.append({"node": dot, "gx": gx, "gy": ROWS + 1})
+
+# Czy węzeł (gx,gy) powinien mieć widoczną kropkę.
+# Pokaż jeśli co najmniej 2 z 4 przylegających komórek są aktywne.
+# Zewnętrzny róg kształtu ma dokładnie 1 aktywną komórkę — ukryty.
+# Wewnętrzny róg obstacle ma 2+ aktywne komórki — widoczny.
+func _dot_inside_field(gx: int, gy: int) -> bool:
+	var count = 0
+	for dr in [-1, 0]:
+		for dc in [-1, 0]:
+			if _cell_active(gy + dr, gx + dc):
+				count += 1
+	return count >= 2
+
+func _cell_active(row: int, col: int) -> bool:
+	if row < 0 or row >= ROWS or col < 0 or col >= COLS: return false
+	return not _is_obstacle(row, col)
+
+# Węzeł niewidoczny — istnieje dla logiki gry ale nie rysowany
+func _make_dot_invisible(pos: Vector2) -> Node2D:
+	var dot = Node2D.new()
+	dot.position = pos
+	dot.z_index = 6
+	dot.set_meta("active", false)
+	dot.set_meta("pulse_scale", 1.0)
+	dot.set_meta("invisible", true)
+	dot.draw.connect(_on_dot_draw.bind(dot))
+	add_child(dot)
+	return dot
 
 func _make_dot(pos: Vector2, active: bool) -> Node2D:
 	var dot = Node2D.new()
@@ -258,6 +439,7 @@ func _make_dot(pos: Vector2, active: bool) -> Node2D:
 	return dot
 
 func _on_dot_draw(dot: Node2D):
+	if dot.get_meta("invisible", false): return
 	var is_active: bool = dot.get_meta("active")
 	var ps: float = dot.get_meta("pulse_scale")
 	if is_active:
@@ -293,29 +475,68 @@ func _auto_rollback():
 			await get_tree().create_timer(0.5).timeout
 	await _rollback_until_moves()
 
+var _active_tweens: Array = []  # śledź tweeny żeby je killować przy reload
+
 func _start_pulse(dot: Node2D):
 	var tween = create_tween().set_loops().set_trans(Tween.TRANS_SINE)
-	tween.tween_method(func(v): 
-		if not is_instance_valid(dot): return
-		if not dot.get_meta("active"): 
-			tween.kill()
-			dot.set_meta("pulse_scale", 1.0)
-			dot.queue_redraw()
-			return
-		dot.set_meta("pulse_scale", v)
+	_active_tweens.append(tween)
+	tween.tween_method(_pulse_up.bind(dot, tween), 1.0, 1.25, 0.55)
+	tween.tween_method(_pulse_down.bind(dot), 1.25, 1.0, 0.55)
+
+func _pulse_up(v: float, dot: Node2D, tween: Tween):
+	if not is_instance_valid(dot):
+		tween.kill()
+		return
+	if not dot.get_meta("active", false):
+		tween.kill()
+		dot.set_meta("pulse_scale", 1.0)
 		dot.queue_redraw()
-	, 1.0, 1.25, 0.55)
-	tween.tween_method(func(v):
-		if not is_instance_valid(dot): return
-		dot.set_meta("pulse_scale", v)
-		dot.queue_redraw()
-	, 1.25, 1.0, 0.55)
+		return
+	dot.set_meta("pulse_scale", v)
+	dot.queue_redraw()
+
+func _pulse_down(v: float, dot: Node2D):
+	if not is_instance_valid(dot): return
+	dot.set_meta("pulse_scale", v)
+	dot.queue_redraw()
+
+func _kill_all_tweens():
+	for t in _active_tweens:
+		if t and is_instance_valid(t): t.kill()
+	_active_tweens.clear()
 
 # ——————————————————————————————————————————
 #  INPUT
 # ——————————————————————————————————————————
 
 func _input(event: InputEvent):
+	# ── Drag boiska (dotyk lub PPM) ────────────────────────────────────────
+	if _scroll_container:
+		var is_touch = event is InputEventScreenTouch
+		var is_rmb   = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT
+		var is_drag_touch = event is InputEventScreenDrag
+		var is_drag_mouse = event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_RIGHT)
+		
+		if (is_touch and not event.pressed) or (is_rmb and not event.pressed):
+			_drag_active = false
+		
+		if is_touch and event.pressed:
+			_drag_active = true
+			_drag_start_mouse = event.position
+			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
+		elif is_rmb and event.pressed and not ai_thinking:
+			_drag_active = true
+			_drag_start_mouse = event.position
+			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
+		
+		if _drag_active and (is_drag_touch or is_drag_mouse):
+			var cur_pos = event.position
+			var delta = _drag_start_mouse - cur_pos
+			_scroll_container.scroll_horizontal = int(_drag_start_scroll.x + delta.x)
+			_scroll_container.scroll_vertical   = int(_drag_start_scroll.y + delta.y)
+			get_viewport().set_input_as_handled()
+			return
+
 	var pressed = false
 	var click_pos = Vector2.ZERO
 
@@ -506,6 +727,7 @@ func _draw_trail(from: Vector2i, to: Vector2i) -> Line2D:
 	line.default_color = TRAIL_P1_COLOR if current_player == 1 else TRAIL_P2_COLOR
 	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
 	line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	line.joint_mode = Line2D.LINE_JOINT_ROUND
 	line.z_index = 7
 	add_child(line)
 	return line
@@ -563,19 +785,8 @@ func _show_popup_fail():
 # ——————————————————————————————————————————
 
 func _ai_take_turn():
-	# Uruchom minimax w wątku żeby nie blokować animacji
-	var pos_snap = ball_grid_pos
-	var edges_snap = used_edges.duplicate()
-	var result_holder = [null]
-	var thread = Thread.new()
-	thread.start(func():
-		result_holder[0] = _minimax_root(pos_snap, edges_snap, AI_PLAYER, AI_DEPTH)
-	)
-	# Czekaj na wątek bez blokowania głównego wątku
-	while thread.is_alive():
-		await get_tree().process_frame
-	thread.wait_to_finish()
-	var best = result_holder[0]
+	# Minimax bez wątku — używamy call_deferred żeby nie blokować animacji
+	var best = _minimax_root(ball_grid_pos, used_edges.duplicate(), AI_PLAYER, AI_DEPTH)
 	if best == null:
 		ai_thinking = false
 		_refresh_active_dots()
@@ -813,6 +1024,13 @@ func _node_has_trail_pure(pos: Vector2i, edges: Dictionary) -> bool:
 	if pos.x == COLS: count += 1
 	if pos.y == 0: count += 1
 	if pos.y == ROWS: count += 1
+	# Przeszkody przy węźle liczą jak ściany
+	for dr in [-1, 0]:
+		for dc in [-1, 0]:
+			var cr = pos.y + dr; var cc = pos.x + dc
+			if cr >= 0 and cr < ROWS and cc >= 0 and cc < COLS:
+				if _is_obstacle(cr, cc):
+					count += 1
 	return count >= 2
 
 func _is_goal_pure(pos: Vector2i) -> bool:
@@ -833,12 +1051,10 @@ func _can_reach_goal(target_is_top: bool) -> bool:
 	visited[ball_grid_pos] = true
 	while not queue.is_empty():
 		var pos: Vector2i = queue.pop_front()
-		# Sprawdź czy to węzeł bramki szukanej strony
 		if target_is_top and pos.y < 0:
 			return true
 		if not target_is_top and pos.y > ROWS:
 			return true
-		# Sąsiedzi po wolnych krawędziach
 		for dx in [-1, 0, 1]:
 			for dy in [-1, 0, 1]:
 				if dx == 0 and dy == 0: continue
@@ -846,9 +1062,40 @@ func _can_reach_goal(target_is_top: bool) -> bool:
 				if visited.has(nb): continue
 				if not is_valid_node(nb.x, nb.y): continue
 				if used_edges.has(edge_key(pos, nb)): continue
-				if is_wall_edge(pos, nb): continue
+				# BFS używa tylko FIZYCZNYCH barier — nie blokuje ruchów wzdłuż obstacle
+				# (te są niedozwolone w grze ale nie tworzą fizycznej ściany dla BFS)
+				if _is_physical_wall(pos, nb): continue
 				visited[nb] = true
 				queue.append(nb)
+	return false
+
+# Tylko twarde fizyczne bariery dla BFS (ściany boiska + przekątne przez nieaktywne węzły)
+# NIE blokuje ruchów wzdłuż granicy obstacle — to zakaz gry, nie fizyczna ściana
+func _is_physical_wall(a: Vector2i, b: Vector2i) -> bool:
+	# Ściany zewnętrzne
+	if a.x == 0 and b.x == 0: return true
+	if a.x == COLS and b.x == COLS: return true
+	if a.y == 0 and b.y == 0:
+		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
+		if not (mn >= GOAL_COL_START and mx <= GOAL_COL_START + GOAL_COLS): return true
+	if a.y == ROWS and b.y == ROWS:
+		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
+		if not (mn >= GOAL_COL_START and mx <= GOAL_COL_START + GOAL_COLS): return true
+	# Przekątna przez nieaktywny węzeł
+	if abs(a.x - b.x) == 1 and abs(a.y - b.y) == 1:
+		var sa = Vector2i(b.x, a.y); var sb = Vector2i(a.x, b.y)
+		if not is_valid_node(sa.x, sa.y) or not is_valid_node(sb.x, sb.y): return true
+	return false
+
+# Sprawdź czy węzeł (gx,gy) jest dostępny — otoczony przynajmniej jedną niebędącą przeszkodą komórką
+func _node_accessible(gx: int, gy: int) -> bool:
+	for dr in [-1, 0]:
+		for dc in [-1, 0]:
+			var cr = gy + dr; var cc = gx + dc
+			if cr < 0 or cr >= ROWS or cc < 0 or cc >= COLS:
+				return true  # krawędź boiska
+			if not _is_obstacle(cr, cc):
+				return true
 	return false
 
 # Sprawdź po każdym ruchu czy któraś bramka jest odcięta
@@ -1045,77 +1292,60 @@ func _hide_combo():
 #  BUDOWANIE PLANSZY (bez zmian)
 # ——————————————————————————————————————————
 
+func _is_obstacle(row: int, col: int) -> bool:
+	for obs in obstacle_cells:
+		if obs.row == row and obs.col == col:
+			return true
+	return false
+
 func _build_board():
-	inner = BORDER + PADDING
-	field_w = COLS * QUAD_SIZE + (COLS - 1) * GAP
-	field_h = ROWS * QUAD_SIZE + (ROWS - 1) * GAP + PADDING
-	goal_w = GOAL_COLS * QUAD_SIZE + (GOAL_COLS - 1) * GAP
-	goal_h = QUAD_SIZE
+	inner   = BORDER + PADDING
+	field_w = COLS      * QUAD_SIZE + (COLS      - 1) * GAP
+	field_h = ROWS      * QUAD_SIZE + (ROWS      - 1) * GAP
+	goal_w  = GOAL_COLS * QUAD_SIZE + (GOAL_COLS - 1) * GAP
+
+	# goal_h = dokładnie jeden krok siatki + inner (żeby bramka była odsunięta
+	# od boiska o tyle samo co kafelki boiska od siebie)
+	# Krok siatki = QUAD_SIZE + GAP, inner = BORDER + PADDING
+	# goal_h to odległość od y=0 do pierwszego wiersza boiska
+	# goal_h = QUAD_SIZE + GAP  →  row_cy(-1) = goal_h + inner - (QUAD_SIZE+GAP) = inner ✓
+	# Kafelek bramki ląduje dokładnie na y=inner, identycznie jak place_quad_type
+	goal_h = QUAD_SIZE + GAP
 
 	var board_w = field_w + inner * 2
-	var board_h = field_h + goal_h * 2 + inner * 2
+	var board_h = goal_h * 2 + inner * 2 + field_h
+	# board_h = inner + bramka_górna(QUAD_SIZE+GAP) + inner + boisko + inner + bramka_dolna(QUAD_SIZE+GAP) + inner
+
 	custom_minimum_size = Vector2(board_w, board_h)
+	anchor_left = 0.5; anchor_right  = 0.5
+	anchor_top  = 0.5; anchor_bottom = 0.5
+	offset_left   = -board_w / 2.0; offset_right  = board_w / 2.0
+	offset_top    = -board_h / 2.0; offset_bottom = board_h / 2.0
 
-	anchor_left = 0.5
-	anchor_right = 0.5
-	offset_left = -board_w / 2.0
-	offset_right = board_w / 2.0
-	anchor_top = 0.5
-	anchor_bottom = 0.5
-	offset_top = -board_h / 2.0
-	offset_bottom = board_h / 2.0
-
+	# Szerokość panelu bramki: border + padding + kafelki bramki + padding + border
 	var goal_panel_w = BORDER * 2 + PADDING * 2 + goal_w
-	goal_h = BORDER + QUAD_SIZE
+	var goal_x       = (board_w - goal_panel_w) / 2.0
+	var goal_quad_x  = goal_x + BORDER + PADDING
 
-	board_h = field_h + goal_h * 2 + inner * 2 + PADDING + PADDING
-	custom_minimum_size = Vector2(board_w, board_h)
-
-	var goal_x = (board_w - goal_panel_w) / 2.0
-	var goal_quad_x = goal_x + BORDER + PADDING
-
-	_add_goal_bg(true, goal_x, goal_panel_w)
-	_add_goal_bg(false, goal_x, goal_panel_w)
 	_add_field_bg(board_w)
 
-	var connector_x = goal_x + BORDER
-	var connector_w = goal_panel_w - BORDER * 2
-
-	var top_con = Panel.new()
-	top_con.position = Vector2(connector_x, goal_h - 1)
-	top_con.size = Vector2(connector_w, BORDER + 2)
-	var s1 = StyleBoxFlat.new(); s1.bg_color = FIELD_COLOR
-	top_con.add_theme_stylebox_override("panel", s1)
-	add_child(top_con)
-
-	var bot_con = Panel.new()
-	bot_con.position = Vector2(connector_x, goal_h + inner * 2 + field_h - 1)
-	bot_con.size = Vector2(connector_w, BORDER + 2)
-	var s2 = StyleBoxFlat.new(); s2.bg_color = FIELD_COLOR
-	bot_con.add_theme_stylebox_override("panel", s2)
-	add_child(bot_con)
-
-	var bot_con2 = Panel.new()
-	bot_con2.position = Vector2(connector_x, goal_h + inner + field_h + inner - 2 * PADDING - 1)
-	bot_con2.size = Vector2(connector_w, BORDER + 2 + PADDING)
-	var s3 = StyleBoxFlat.new(); s3.bg_color = FIELD_COLOR
-	bot_con2.add_theme_stylebox_override("panel", s3)
-	add_child(bot_con2)
-
-	# Górna bramka — AI (czerwona, quad_f4)
+	# Kafelki górnej bramki: pozycja y = inner (padding od góry)
+	# To odpowiada row=-1 w siatce: goal_h + inner + (-1)*(QUAD_SIZE+GAP) = inner
 	for i in range(GOAL_COLS):
-		_place_quad_type(Vector2(goal_quad_x + i * (QUAD_SIZE + GAP), BORDER + PADDING - 1), quad_f4)
+		_place_quad_type(Vector2(goal_quad_x + i * (QUAD_SIZE + GAP), inner), quad_f4)
 
+	# Kafelki boiska
 	for row in range(ROWS):
 		for col in range(COLS):
+			if _is_obstacle(row, col): continue
 			var use_f2 = (row + col) % 2 == 1
 			_place_quad(Vector2(
 				inner + col * (QUAD_SIZE + GAP),
 				goal_h + inner + row * (QUAD_SIZE + GAP)
 			), use_f2)
 
-	# Dolna bramka — gracz (niebieska, quad_f3)
-	var bot_quad_y = goal_h + inner * 2 + field_h + BORDER + 1 - 3 * PADDING
+	# Kafelki dolnej bramki: row=ROWS → goal_h + inner + ROWS*(QUAD_SIZE+GAP)
+	var bot_quad_y = goal_h + inner + ROWS * (QUAD_SIZE + GAP)
 	for i in range(GOAL_COLS):
 		_place_quad_type(Vector2(goal_quad_x + i * (QUAD_SIZE + GAP), bot_quad_y), quad_f3)
 
@@ -1129,39 +1359,241 @@ func _place_quad_type(pos: Vector2, quad_scene) -> void:
 	quad.position = pos
 	add_child(quad)
 
-func _add_field_bg(board_w: float):
-	var panel = Panel.new()
-	panel.position = Vector2(0, goal_h)
-	panel.size = Vector2(board_w, field_h + inner * 2 - PADDING)
-	var style = StyleBoxFlat.new()
-	style.bg_color = FIELD_COLOR
-	style.border_color = BORDER_COLOR
-	style.border_width_left = int(BORDER)
-	style.border_width_right = int(BORDER)
-	style.border_width_top = int(BORDER)
-	style.border_width_bottom = int(BORDER)
-	style.corner_radius_top_left = int(RADIUS)
-	style.corner_radius_top_right = int(RADIUS)
-	style.corner_radius_bottom_left = int(RADIUS)
-	style.corner_radius_bottom_right = int(RADIUS)
-	panel.add_theme_stylebox_override("panel", style)
-	add_child(panel)
+func _add_field_bg(_board_w: float):
+	_add_shaped_field_bg()
 
-func _add_goal_bg(is_top: bool, goal_x: float, goal_panel_w: float):
-	var goal_y = 0.0 if is_top else goal_h + inner * 2 + field_h - 2 * PADDING
-	var panel = Panel.new()
-	panel.position = Vector2(goal_x, goal_y)
-	panel.size = Vector2(goal_panel_w, goal_h + BORDER)
-	var style = StyleBoxFlat.new()
-	style.bg_color = FIELD_COLOR
-	style.border_color = BORDER_COLOR
-	style.border_width_left = int(BORDER)
-	style.border_width_right = int(BORDER)
-	style.border_width_top = int(BORDER) if is_top else 0
-	style.border_width_bottom = 0 if is_top else int(BORDER)
-	style.corner_radius_top_left = int(RADIUS) if is_top else 0
-	style.corner_radius_top_right = int(RADIUS) if is_top else 0
-	style.corner_radius_bottom_left = 0 if is_top else int(RADIUS)
-	style.corner_radius_bottom_right = 0 if is_top else int(RADIUS)
-	panel.add_theme_stylebox_override("panel", style)
-	add_child(panel)
+func _add_shaped_field_bg():
+	# Tło: panel na każdą aktywną komórkę (boisko + bramki).
+	# Rozszerzamy o GAP/2+1 w kierunku sąsiada żeby nie było szczelin.
+	var ovr = GAP / 2.0 + 1.0
+
+	# Pomocnik pozycji y dla wiersza (bramki to row=-1 i row=ROWS)
+	var row_cy = func(row: int) -> float:
+		return float(goal_h + inner + row * (QUAD_SIZE + GAP))
+
+	# Boisko
+	for row in range(ROWS):
+		for col in range(COLS):
+			if _is_obstacle(row, col): continue
+			var cx = inner + col * (QUAD_SIZE + GAP)
+			var cy = row_cy.call(row)
+			var has_l = col > 0      and not _is_obstacle(row, col-1)
+			var has_r = col < COLS-1 and not _is_obstacle(row, col+1)
+			var has_t = row > 0      and not _is_obstacle(row-1, col)
+			var has_b = row < ROWS-1 and not _is_obstacle(row+1, col)
+			var goal_t = row == 0      and _is_goal_col(col)
+			var goal_b = row == ROWS-1 and _is_goal_col(col)
+			var el = ovr if has_l          else 1.0
+			var er = ovr if has_r          else 1.0
+			var et = ovr if (has_t or goal_t) else 1.0
+			var eb = ovr if (has_b or goal_b) else 1.0
+			var cell = Panel.new()
+			cell.position = Vector2(cx - el, cy - et)
+			cell.size     = Vector2(QUAD_SIZE + el + er, QUAD_SIZE + et + eb)
+			var sty = StyleBoxFlat.new(); sty.bg_color = FIELD_COLOR
+			cell.add_theme_stylebox_override("panel", sty)
+			cell.z_index = 0
+			add_child(cell)
+
+	# Bramki (row=-1 i row=ROWS) — jeden szeroki panel na wszystkie kolumny bramki
+	var goal_cx_start = inner + GOAL_COL_START * (QUAD_SIZE + GAP)
+	var goal_cx_end   = inner + (GOAL_COL_START + GOAL_COLS - 1) * (QUAD_SIZE + GAP) + QUAD_SIZE
+	var goal_bg_w     = goal_cx_end - goal_cx_start
+	# Górna: od cy_top-1 do cy_0 + QUAD_SIZE + ovr
+	var cy_top = row_cy.call(-1)
+	var cy_0   = row_cy.call(0)
+	var gt = Panel.new()
+	gt.position = Vector2(goal_cx_start - 1.0, cy_top - 1.0)
+	gt.size     = Vector2(goal_bg_w + 2.0, (cy_0 + QUAD_SIZE + ovr) - (cy_top - 1.0) + 1.0)
+	var st = StyleBoxFlat.new(); st.bg_color = FIELD_COLOR
+	gt.add_theme_stylebox_override("panel", st); gt.z_index = 0; add_child(gt)
+	# Dolna: od cy_last + QUAD_SIZE - ovr do cy_bot + QUAD_SIZE + 1
+	var cy_bot  = row_cy.call(ROWS)
+	var cy_last = row_cy.call(ROWS - 1)
+	var gb = Panel.new()
+	gb.position = Vector2(goal_cx_start - 1.0, cy_last + QUAD_SIZE - ovr - 1.0)
+	gb.size     = Vector2(goal_bg_w + 2.0, (cy_bot + QUAD_SIZE + 1.0) - (cy_last + QUAD_SIZE - ovr - 1.0))
+	var sb = StyleBoxFlat.new(); sb.bg_color = FIELD_COLOR
+	gb.add_theme_stylebox_override("panel", sb); gb.z_index = 0; add_child(gb)
+
+	# Border
+	var bnode = Node2D.new()
+	bnode.z_index = 3
+	add_child(bnode)
+	bnode.draw.connect(Callable(self, "_draw_shaped_border").bind(bnode))
+	bnode.queue_redraw()
+
+func _is_goal_col(col: int) -> bool:
+	return col >= GOAL_COL_START and col <= GOAL_COL_START + GOAL_COLS - 1
+
+func _draw_shaped_border(bnode: Node2D):
+	if not is_instance_valid(bnode): return
+	var bw  = float(BORDER) - 2.0  # rysuj nieco cieniej żeby nie wystawało poza pad
+	var pad = 4.0
+	var rc  = CORNER_RADIUS
+
+	var row_cy = func(row: int) -> float:
+		return float(goal_h + inner + row * (QUAD_SIZE + GAP))
+
+	var active_set: Dictionary = {}
+	for row in range(ROWS):
+		for col in range(COLS):
+			if not _is_obstacle(row, col):
+				active_set[Vector2i(col, row)] = true
+	for i in range(GOAL_COLS):
+		active_set[Vector2i(GOAL_COL_START + i, -1)]  = true
+		active_set[Vector2i(GOAL_COL_START + i, ROWS)] = true
+
+	var h_edges: Array = []
+	var v_edges: Array = []
+
+	for cell_key in active_set:
+		var col: int = cell_key.x
+		var row: int = cell_key.y
+		var cx = inner + col * (QUAD_SIZE + GAP)
+		var cy = row_cy.call(row)
+		var x0 = cx - pad;             var y0 = cy - pad
+		var x1 = cx + QUAD_SIZE + pad;  var y1 = cy + QUAD_SIZE + pad
+
+		var ht = active_set.has(Vector2i(col, row - 1))
+		var hb = active_set.has(Vector2i(col, row + 1))
+		var hl = active_set.has(Vector2i(col - 1, row))
+		var hr = active_set.has(Vector2i(col + 1, row))
+
+		if not ht: h_edges.append({"y":y0,"x1":x0,"x2":x1,"lft_corner":not hl,"rgt_corner":not hr})
+		if not hb: h_edges.append({"y":y1,"x1":x0,"x2":x1,"lft_corner":not hl,"rgt_corner":not hr})
+		if not hl: v_edges.append({"x":x0,"y1":y0,"y2":y1,"top_corner":not ht,"bot_corner":not hb})
+		if not hr: v_edges.append({"x":x1,"y1":y0,"y2":y1,"top_corner":not ht,"bot_corner":not hb})
+
+	var merged_h = _merge_edges_h(h_edges)
+	var merged_v = _merge_edges_v(v_edges)
+
+	# ── Wykryj narożniki geometrycznie (nie przez flagi) ──────────────────────
+	# Narożnik istnieje gdy koniec v_seg pokrywa się z końcem h_seg (w tolerancji tol).
+	# To jest jedyne wiarygodne źródło informacji — flagi corner mogą być złe po scaleniu.
+	var tol = pad * 2.0 + 2.0
+	# Zbuduj słowniki: punkt → lista segmentów kończących/zaczynających się tam
+	# corner_map: Vector2i(round_x, round_y) -> {"TL","TR","BL","BR"}
+	var corners: Array = []  # [{vx, hy, type}]
+	for hs in merged_h:
+		for vs in merged_v:
+			var lx_match = abs(hs.x1 - vs.x) < tol
+			var rx_match = abs(hs.x2 - vs.x) < tol
+			var ty_match = abs(hs.y - vs.y1) < tol
+			var by_match = abs(hs.y - vs.y2) < tol
+			if lx_match and ty_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"TL"})
+			if rx_match and ty_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"TR"})
+			if lx_match and by_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"BL"})
+			if rx_match and by_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"BR"})
+
+	# Sprawdź czy koniec segmentu ma narożnik — szukamy bezpośrednio w corners[]
+	# zamiast w corner_set (który ma 1-2px rozbieżność między vx/hy a x1/y2 segmentów)
+	var ctol = tol  # ta sama tolerancja co przy wykrywaniu
+	var h_has_lft_corner = func(e) -> bool:
+		for c in corners:
+			if (c.t == "TL" or c.t == "BL") and abs(e.x1 - c.vx) < ctol and abs(e.y - c.hy) < ctol:
+				return true
+		return false
+	var h_has_rgt_corner = func(e) -> bool:
+		for c in corners:
+			if (c.t == "TR" or c.t == "BR") and abs(e.x2 - c.vx) < ctol and abs(e.y - c.hy) < ctol:
+				return true
+		return false
+	var v_has_top_corner = func(e) -> bool:
+		for c in corners:
+			if (c.t == "TL" or c.t == "TR") and abs(e.x - c.vx) < ctol and abs(e.y1 - c.hy) < ctol:
+				return true
+		return false
+	var v_has_bot_corner = func(e) -> bool:
+		for c in corners:
+			if (c.t == "BL" or c.t == "BR") and abs(e.x - c.vx) < ctol and abs(e.y2 - c.hy) < ctol:
+				return true
+		return false
+
+	# ── Rysuj linie skrócone o rc+bw/2 przy narożnikach ─────────────────────
+	# Skracamy o rc + bw/2 żeby kwadratowy koniec linii był schowany pod łukiem
+	var extra = bw * 0.5
+	for e in merged_h:
+		var rl = rc + extra if h_has_lft_corner.call(e) else 0.0
+		var rr = rc + extra if h_has_rgt_corner.call(e) else 0.0
+		if e.x1 + rl < e.x2 - rr:
+			bnode.draw_line(Vector2(e.x1 + rl, e.y), Vector2(e.x2 - rr, e.y), BORDER_COLOR, bw, false)
+
+	for e in merged_v:
+		var rt = rc + extra if v_has_top_corner.call(e) else 0.0
+		var rb = rc + extra if v_has_bot_corner.call(e) else 0.0
+		if e.y1 + rt < e.y2 - rb:
+			bnode.draw_line(Vector2(e.x, e.y1 + rt), Vector2(e.x, e.y2 - rb), BORDER_COLOR, bw, false)
+
+	# ── Rysuj łuki ────────────────────────────────────────────────────────────
+	for c in corners:
+		_draw_corner(bnode, c.vx, c.hy, rc, bw, c.t)
+
+func _draw_corner(node: Node2D, vx: float, hy: float, rc: float, bw: float, corner: String):
+	match corner:
+		"TL": _draw_arc(node, Vector2(vx+rc, hy+rc), rc, PI,      PI*1.5, BORDER_COLOR, bw)
+		"TR": _draw_arc(node, Vector2(vx-rc, hy+rc), rc, PI*1.5,  PI*2.0, BORDER_COLOR, bw)
+		"BL": _draw_arc(node, Vector2(vx+rc, hy-rc), rc, PI*0.5,  PI,     BORDER_COLOR, bw)
+		"BR": _draw_arc(node, Vector2(vx-rc, hy-rc), rc, 0.0,     PI*0.5, BORDER_COLOR, bw)
+
+func _merge_edges_h(edges: Array) -> Array:
+	# Scal segmenty na tej samej linii y, stykające się końce x
+	# Tolerancja scalania = GAP + 2*pad (odstęp między sąsiednimi kafelkami w tej samej linii)
+	var merge_tol = GAP + 2.0 * 4.0 + 1.0  # GAP + 2*pad + 1
+	var by_y: Dictionary = {}
+	for e in edges:
+		var key = roundi(e.y * 2.0)
+		if not by_y.has(key): by_y[key] = []
+		by_y[key].append(e)
+	var result: Array = []
+	for key in by_y:
+		var grp: Array = by_y[key]
+		grp.sort_custom(func(a, b): return a.x1 < b.x1)
+		var cur = grp[0].duplicate()
+		for i in range(1, grp.size()):
+			var s = grp[i]
+			if s.x1 <= cur.x2 + merge_tol:
+				cur.x2 = maxf(cur.x2, s.x2)
+				cur["rgt_corner"] = s.rgt_corner
+			else:
+				result.append(cur)
+				cur = s.duplicate()
+		result.append(cur)
+	return result
+
+func _merge_edges_v(edges: Array) -> Array:
+	# Scalanie wzdłuż y — tolerancja uwzględnia odstęp między bramką a boiskiem
+	# Bramka (row=-1) kończy się na cy + QUAD_SIZE + pad
+	# Boisko row=0 zaczyna na cy - pad = goal_h + inner - pad
+	# Odstęp = (goal_h+inner-pad) - (goal_h+inner+(-1)*(QUAD_SIZE+GAP)+QUAD_SIZE+pad)
+	#        = GAP - 2*pad  (może być małe lub ujemne)
+	# Używamy tej samej tolerancji co dla h
+	var merge_tol = GAP + 2.0 * 4.0 + 1.0
+	var by_x: Dictionary = {}
+	for e in edges:
+		var key = roundi(e.x * 2.0)
+		if not by_x.has(key): by_x[key] = []
+		by_x[key].append(e)
+	var result: Array = []
+	for key in by_x:
+		var grp: Array = by_x[key]
+		grp.sort_custom(func(a, b): return a.y1 < b.y1)
+		var cur = grp[0].duplicate()
+		for i in range(1, grp.size()):
+			var s = grp[i]
+			if s.y1 <= cur.y2 + merge_tol:
+				cur.y2 = maxf(cur.y2, s.y2)
+				cur["bot_corner"] = s.bot_corner
+			else:
+				result.append(cur)
+				cur = s.duplicate()
+		result.append(cur)
+	return result
+
+func _draw_arc(node: Node2D, center: Vector2, radius: float, angle_from: float, angle_to: float, color: Color, width: float):
+	var points = PackedVector2Array()
+	var steps = 12
+	for i in range(steps + 1):
+		var angle = angle_from + (angle_to - angle_from) * float(i) / float(steps)
+		points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+	node.draw_polyline(points, color, width, true)
