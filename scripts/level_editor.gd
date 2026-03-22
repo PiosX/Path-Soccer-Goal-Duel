@@ -19,22 +19,22 @@ const C_OBSTACLE   = Color("#3d1a1a")
 const C_OBSTACLE_BORDER = Color.WHITE
 const C_GRID       = Color(1,1,1,0.10)
 const C_BORDER     = Color.WHITE
-const C_LINE       = Color("#FFD700")
+const C_TELEPORT_A = Color("#aa44ff")    # teleport fioletowy (para A)
+const C_TELEPORT_B = Color("#ff8800")    # teleport pomarańczowy (para B)
 const C_PANEL      = Color(0.12, 0.12, 0.18, 1.0)
 const C_BTN        = Color(0.22, 0.22, 0.30, 1.0)
 const C_BTN_HOV    = Color(0.32, 0.32, 0.42, 1.0)
 const C_BTN_ACT    = Color("#1a6faa")
 const C_ACCENT     = Color("#06c3f6")
 
-enum Cell { EMPTY=0, FIELD=1, GOAL_BLUE=2, GOAL_RED=3, OBSTACLE=4 }
+enum Cell { EMPTY=0, FIELD=1, GOAL_BLUE=2, GOAL_RED=3, OBSTACLE=4, TELEPORT_A=5, TELEPORT_B=6 }
 
 var cols: int = 8
 var rows: int = 10
 var grid: Array = []
-# Linie jako pary węzłów siatki [Vector2i, Vector2i]
-# Węzeł (nx,ny): nx in [0..cols], ny in [0..rows] — punkt między kafelkami
-var pre_lines: Array = []
-var line_pending: Vector2i = Vector2i(-1, -1)
+# Teleporty jako węzły siatki [{gx,gy}] — oddzielnie od gridu
+var teleport_nodes_a: Array = []  # para fioletowych (max 2)
+var teleport_nodes_b: Array = []  # para pomarańczowych (max 2)
 
 var draw_mode: int = 1
 var is_lmb: bool = false
@@ -43,7 +43,6 @@ var last_cell: Vector2i = Vector2i(-1,-1)
 
 var orientation: String = "vertical"
 var gen_obstacles: bool = false
-var gen_lines: bool = false
 var current_level_id: int = 1
 
 var root_control: Control
@@ -80,8 +79,8 @@ func _input(event: InputEvent):
 			KEY_1: _set_mode(1)
 			KEY_2: _set_mode(2)
 			KEY_3: _set_mode(3)
-			KEY_4: _set_mode(4)
-			KEY_5: _set_mode(5)
+			KEY_4: _set_mode(5)
+			KEY_5: _set_mode(6)
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
@@ -95,8 +94,8 @@ func _input(event: InputEvent):
 		var ctrl = canvas_node.get_meta("ctrl_ref") as Control
 		if not is_instance_valid(ctrl): return
 		var lpos = ctrl.get_local_mouse_position()
-		if draw_mode == 4:
-			pass  # linie tylko na klik, nie na drag
+		if draw_mode == 5 or draw_mode == 6:
+			pass  # węzły tylko na klik, nie na drag
 		else:
 			var cell = _pixel_to_cell(lpos)
 			if cell != last_cell:
@@ -107,8 +106,10 @@ func _input(event: InputEvent):
 		var ctrl = canvas_node.get_meta("ctrl_ref") as Control
 		if not is_instance_valid(ctrl): return
 		var lpos = ctrl.get_local_mouse_position()
-		if draw_mode == 4:
-			_handle_line_click(lpos, event.button_index == MOUSE_BUTTON_LEFT)
+		if draw_mode == 5:
+			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, true)
+		elif draw_mode == 6:
+			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, false)
 		else:
 			var cell = _pixel_to_cell(lpos)
 			if cell.x >= 0:
@@ -122,8 +123,8 @@ func _reset_grid():
 		for c in range(cols):
 			row.append(Cell.FIELD)
 		grid.append(row)
-	pre_lines = []
-	line_pending = Vector2i(-1, -1)
+	teleport_nodes_a = []
+	teleport_nodes_b = []
 	_place_default_goals()
 	_redraw()
 
@@ -190,33 +191,35 @@ func _paint_cell(cell: Vector2i, lmb: bool):
 			1: new_val = Cell.FIELD
 			2: new_val = Cell.GOAL_BLUE
 			3: new_val = Cell.GOAL_RED
-			5: new_val = Cell.OBSTACLE
 			_: new_val = Cell.FIELD
 	else:
 		new_val = Cell.EMPTY
 	grid[r][c] = new_val
 	_redraw()
 
-# Tryb 4: klikanie węzłów tworzy łańcuch linii
-func _handle_line_click(lpos: Vector2, lmb: bool):
+# Tryb 5/6: klikanie węzłów ustawia teleporty (max 2 na parę)
+func _handle_teleport_click(lpos: Vector2, lmb: bool, is_a: bool):
 	var node = _pixel_to_node(lpos)
+	var arr = teleport_nodes_a if is_a else teleport_nodes_b
 	if not lmb:
-		# PPM — usuń linie przez ten węzeł
-		var new_lines = []
-		for ln in pre_lines:
-			if ln[0] != node and ln[1] != node:
-				new_lines.append(ln)
-		pre_lines = new_lines
-		line_pending = Vector2i(-1, -1)
+		# PPM — usuń teleport na tym węźle
+		var new_arr = []
+		for t in arr:
+			if t != node: new_arr.append(t)
+		if is_a: teleport_nodes_a = new_arr
+		else: teleport_nodes_b = new_arr
 		_redraw()
 		return
-	# LPM — buduj łańcuch
-	if line_pending == Vector2i(-1, -1):
-		line_pending = node
-	else:
-		if line_pending != node:
-			pre_lines.append([line_pending, node])
-		line_pending = node
+	# LPM — dodaj węzeł (max 2 na parę; jeśli już 2 — zamień najstarszy)
+	var exists = false
+	for t in arr:
+		if t == node: exists = true; break
+	if not exists:
+		arr.append(node)
+		if arr.size() > 2:
+			arr.pop_front()
+		if is_a: teleport_nodes_a = arr
+		else: teleport_nodes_b = arr
 	_redraw()
 
 func _apply_symmetry(r: int, c: int, val: int):
@@ -225,6 +228,7 @@ func _apply_symmetry(r: int, c: int, val: int):
 	var val_v = val
 	if val == Cell.GOAL_BLUE: val_v = Cell.GOAL_RED
 	elif val == Cell.GOAL_RED: val_v = Cell.GOAL_BLUE
+	# Teleporty zachowują swój typ przy symetrii
 	if mr != r: grid[mr][c] = val_v
 	if mc != c: grid[r][mc] = val
 	if mr != r and mc != c: grid[mr][mc] = val_v
@@ -246,19 +250,6 @@ func _generate_random():
 				grid[r][c] = Cell.OBSTACLE
 				_apply_symmetry(r, c, Cell.OBSTACLE)
 				placed += 1
-
-	if gen_lines:
-		pre_lines = []
-		line_pending = Vector2i(-1, -1)
-		var num_lines = rng.randi_range(2, 5)
-		for _i in range(num_lines):
-			# Węzły siatki — linie poziome lub pionowe przez środek
-			var ny = rng.randi_range(rows/2 - 1, rows/2 + 1)
-			var nx1 = rng.randi_range(1, cols/2)
-			var nx2 = mini(nx1 + rng.randi_range(1, 3), cols - 1)
-			pre_lines.append([Vector2i(nx1, ny), Vector2i(nx2, ny)])
-			# Symetrycznie
-			pre_lines.append([Vector2i(nx1, rows - ny), Vector2i(nx2, rows - ny)])
 
 	_set_status("Wygenerowano losowy poziom")
 	_redraw()
@@ -315,37 +306,44 @@ func _draw_editor(cn: Node2D):
 	# Obramowanie boiska
 	_draw_outline(cn, ox, oy)
 
-	# Węzły siatki w trybie 4
-	if draw_mode == 4:
+	# Węzły siatki widoczne w trybach 4, 5, 6
+	if draw_mode == 5 or draw_mode == 6:
 		for nx in range(cols + 1):
 			for ny in range(rows + 1):
 				var pp = _node_to_pixel(nx, ny)
 				cn.draw_circle(pp, 3.5, Color(1,1,1,0.5))
 
-	# Startowe linie — od węzła do węzła (między kafelkami)
-	for ln in pre_lines:
-		var p1 = _node_to_pixel(ln[0].x, ln[0].y)
-		var p2 = _node_to_pixel(ln[1].x, ln[1].y)
-		cn.draw_line(p1, p2, C_LINE, 4.5)
-		cn.draw_circle(p1, 5.5, C_LINE)
-		cn.draw_circle(p2, 5.5, C_LINE)
-
-	# Oczekujący węzeł linii
-	if draw_mode == 4 and line_pending != Vector2i(-1, -1):
-		var pp = _node_to_pixel(line_pending.x, line_pending.y)
-		cn.draw_circle(pp, 9.0, Color(1,0.9,0,0.5))
-		cn.draw_circle(pp, 5.0, Color(1,1,1,1.0))
+	# Teleporty — kropki na węzłach siatki
+	for t in teleport_nodes_a:
+		var pp = _node_to_pixel(t.x, t.y)
+		cn.draw_circle(pp, 11.0, Color(C_TELEPORT_A.r, C_TELEPORT_A.g, C_TELEPORT_A.b, 0.3))
+		cn.draw_circle(pp, 7.0, C_TELEPORT_A)
+		cn.draw_circle(pp, 3.5, Color.WHITE)
+	for t in teleport_nodes_b:
+		var pp = _node_to_pixel(t.x, t.y)
+		cn.draw_circle(pp, 11.0, Color(C_TELEPORT_B.r, C_TELEPORT_B.g, C_TELEPORT_B.b, 0.3))
+		cn.draw_circle(pp, 7.0, C_TELEPORT_B)
+		cn.draw_circle(pp, 3.5, Color.WHITE)
+	# Linia łącząca parę teleportów (podgląd)
+	if teleport_nodes_a.size() == 2:
+		var p1 = _node_to_pixel(teleport_nodes_a[0].x, teleport_nodes_a[0].y)
+		var p2 = _node_to_pixel(teleport_nodes_a[1].x, teleport_nodes_a[1].y)
+		cn.draw_dashed_line(p1, p2, Color(C_TELEPORT_A.r, C_TELEPORT_A.g, C_TELEPORT_A.b, 0.5), 1.5, 6.0)
+	if teleport_nodes_b.size() == 2:
+		var p1 = _node_to_pixel(teleport_nodes_b[0].x, teleport_nodes_b[0].y)
+		var p2 = _node_to_pixel(teleport_nodes_b[1].x, teleport_nodes_b[1].y)
+		cn.draw_dashed_line(p1, p2, Color(C_TELEPORT_B.r, C_TELEPORT_B.g, C_TELEPORT_B.b, 0.5), 1.5, 6.0)
 
 	# Etykiety bramek
 	for r in range(rows):
 		for c in range(cols):
+			var x = ox + c * CELL + 4
+			var y = oy + r * CELL + 4
 			if grid[r][c] == Cell.GOAL_BLUE or grid[r][c] == Cell.GOAL_RED:
-				var x = ox + c * CELL + 4
-				var y = oy + r * CELL + 4
 				var label = "B" if grid[r][c] == Cell.GOAL_BLUE else "R"
-				var col = C_GOAL_BLUE if grid[r][c] == Cell.GOAL_BLUE else C_GOAL_RED
+				var col2 = C_GOAL_BLUE if grid[r][c] == Cell.GOAL_BLUE else C_GOAL_RED
 				cn.draw_string(ThemeDB.fallback_font, Vector2(x, y+14), label,
-					HORIZONTAL_ALIGNMENT_LEFT, -1, 11, col)
+					HORIZONTAL_ALIGNMENT_LEFT, -1, 11, col2)
 
 func _draw_outline(cn: Node2D, ox: float, oy: float):
 	var bw = 3.0
@@ -377,13 +375,17 @@ func _save_level():
 	var id = int(level_id_edit.text) if level_id_edit.text.is_valid_int() else current_level_id
 	current_level_id = id
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://levels"))
-	# Serializuj linie jako {r1,c1,r2,c2}
-	var lines_data = []
-	for ln in pre_lines:
-		lines_data.append({"r1": ln[0].y, "c1": ln[0].x, "r2": ln[1].y, "c2": ln[1].x})
+	# Teleporty — węzły siatki zapisane w przestrzeni edytora (gy bez przesunięcia)
+	var tp_a_data = []
+	for t in teleport_nodes_a:
+		tp_a_data.append({"gx": t.x, "gy": t.y})
+	var tp_b_data = []
+	for t in teleport_nodes_b:
+		tp_b_data.append({"gx": t.x, "gy": t.y})
 	var data = {
 		"id": id, "cols": cols, "rows": rows,
-		"orientation": orientation, "grid": [], "pre_lines": lines_data
+		"orientation": orientation, "grid": [],
+		"teleport_a": tp_a_data, "teleport_b": tp_b_data
 	}
 	for row in grid:
 		data["grid"].append(row.duplicate())
@@ -423,14 +425,13 @@ func _load_level():
 		var ra: Array = []
 		for cell in (row_data as Array): ra.append(int(cell))
 		grid.append(ra)
-	# Wczytaj linie jako Vector2i pary
-	pre_lines = []
-	line_pending = Vector2i(-1, -1)
-	for ln in parsed.get("pre_lines", []):
-		pre_lines.append([
-			Vector2i(int(ln.get("c1",0)), int(ln.get("r1",0))),
-			Vector2i(int(ln.get("c2",0)), int(ln.get("r2",0)))
-		])
+	# Wczytaj teleporty
+	teleport_nodes_a = []
+	for t in parsed.get("teleport_a", []):
+		teleport_nodes_a.append(Vector2i(int(t.get("gx",0)), int(t.get("gy",0))))
+	teleport_nodes_b = []
+	for t in parsed.get("teleport_b", []):
+		teleport_nodes_b.append(Vector2i(int(t.get("gx",0)), int(t.get("gy",0))))
 	cols_spin.set_value_no_signal(cols)
 	rows_spin.set_value_no_signal(rows)
 	_update_orient_buttons()
@@ -456,8 +457,12 @@ func _reload_board(data: Dictionary):
 	if "combo_label" in board: board.combo_label = null
 	board.level_data = data
 	board.obstacle_cells = []
-	board.pre_lines_data = []
+	board.teleport_a_nodes = []
+	board.teleport_b_nodes = []
 	board._apply_level_data()
+	# Upewnij się że scroll container jest znaleziony przed build
+	if not board._scroll_container:
+		board._scroll_container = board._find_scroll_parent()
 	board._build_board()
 	board._setup_game()
 	_set_status("Zaladowano poziom %d (%d x %d)" % [current_level_id, cols, rows])
@@ -533,11 +538,11 @@ func _build_ui():
 	_add_separator(vbox)
 	_add_label(vbox, "Tryb (1-5):", 13)
 	var modes_data = [
-		[1, "1 - Kafelek",          C_FIELD],
+		[1, "1 - Kafelek",           C_FIELD],
 		[2, "2 - Bramka niebieska",  C_GOAL_BLUE],
 		[3, "3 - Bramka czerwona",   C_GOAL_RED],
-		[4, "4 - Linia startowa",    C_LINE],
-		[5, "5 - Przeszkoda",        C_OBSTACLE_BORDER],
+		[5, "4 - Teleport (fiol.)",  C_TELEPORT_A],
+		[6, "5 - Teleport (pom.)",   C_TELEPORT_B],
 	]
 	btn_modes.clear()
 	for md in modes_data:
@@ -551,9 +556,7 @@ func _build_ui():
 	_add_separator(vbox)
 	_add_label(vbox, "Generator losowy:", 13)
 	var cb_obs = _make_checkbox("Przeszkody (dziury)", gen_obstacles, func(v): gen_obstacles = v)
-	var cb_lines = _make_checkbox("Startowe linie", gen_lines, func(v): gen_lines = v)
 	vbox.add_child(cb_obs)
-	vbox.add_child(cb_lines)
 	var btn_gen = _make_button("Generuj losowo", func(): _generate_random())
 	btn_gen.custom_minimum_size.y = 40
 	vbox.add_child(btn_gen)
@@ -678,7 +681,6 @@ func _style_lineedit(le: LineEdit):
 
 func _set_mode(m: int):
 	draw_mode = m
-	line_pending = Vector2i(-1, -1)
 	_update_mode_buttons()
 	_set_status("Tryb: %d" % m)
 	_redraw()

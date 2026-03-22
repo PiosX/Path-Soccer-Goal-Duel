@@ -19,7 +19,7 @@ var GOAL_COLS: int = 2
 # ————— DANE POZIOMU —————
 var level_data: Dictionary = {}
 var obstacle_cells: Array = []   # [{row,col}] w układzie board (bez bramek)
-var pre_lines_data: Array = []   # [{r1,c1,r2,c2}] węzły siatki
+
 const BORDER = 8.0
 const PADDING = 9.0
 const RADIUS = 30.0
@@ -28,12 +28,19 @@ const FIELD_COLOR = Color("#448B47")
 const BORDER_COLOR = Color.WHITE
 const GAP = 9.0
 
+# ————— TELEPORTY —————
+const TELEPORT_A_COLOR = Color("#aa44ff")  # fioletowy (para A)
+const TELEPORT_B_COLOR = Color("#ff8800")  # pomarańczowy (para B)
+
+var teleport_a_cells: Array = []  # nieużywane (legacy)
+var teleport_b_cells: Array = []  # nieużywane (legacy)
+var _tp_wave_active: bool = true  # flaga do zatrzymania fal przy reload
+
 # ————— KOLORY GRY —————
 const DOT_COLOR       = Color(1.0, 1.0, 1.0, 0.5)
 const DOT_ACTIVE_COLOR = Color(1.0, 0.9, 0.0, 1.0)
 const TRAIL_P1_COLOR  = Color("#FFFFFF")
 const TRAIL_P2_COLOR  = Color("#FFD700")
-const PRE_LINE_COLOR  = Color("#aa44ff")  # fioletowe linie startowe
 
 # ————— STAN GRY —————
 var ball_grid_pos: Vector2i        # bieżąca pozycja piłki w siatce
@@ -67,7 +74,9 @@ var _drag_start_scroll: Vector2 = Vector2.ZERO
 var _scroll_container: ScrollContainer = null
 var dot_nodes: Array = []   # [{node, gx, gy}]
 var active_moves: Array = []
+var _drag_base_x: float = 0.0  # pozycja X planszy gdy jest wyśrodkowana — baza dla clampa
 var _touch_moved: bool = false  # odróżnia drag od tapa na mobilce
+
 
 # ————— WĘZŁY TIMERA (pobierane z drzewa sceny nadrzędnej) —————
 var ui_turn_label: Label = null        # Label "Turn" / "15s"
@@ -225,7 +234,8 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 		for dy in [-1, 0, 1]:
 			if dx == 0 and dy == 0: continue
 			var nb = Vector2i(pos.x + dx, pos.y + dy)
-			if used_edges.has(edge_key(pos, nb)):
+			var ek = edge_key(pos, nb)
+			if used_edges.has(ek):
 				count += 1
 	if pos.x == 0: count += 1
 	if pos.x == COLS: count += 1
@@ -248,35 +258,14 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 func _ready():
 	if not level_data.is_empty():
 		_apply_level_data()
+	_scroll_container = _find_scroll_parent()
 	_build_board()
+	# Wymuś recalc scroll po ustawieniu custom_minimum_size
+	if _scroll_container:
+		_scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		_scroll_container.vertical_scroll_mode   = ScrollContainer.SCROLL_MODE_AUTO
 	_setup_game()
-	# Postaw startowe linie PO _setup_game (który czyści used_edges)
-	_place_pre_lines()
 
-func _place_pre_lines():
-	for ln in pre_lines_data:
-		var a = Vector2i(ln.c1, ln.r1)
-		var b = Vector2i(ln.c2, ln.r2)
-		if a.x < 0 or a.x > COLS or a.y < 0 or a.y > ROWS: continue
-		if b.x < 0 or b.x > COLS or b.y < 0 or b.y > ROWS: continue
-		var ek = edge_key(a, b)
-		if not used_edges.has(ek):
-			used_edges[ek] = true
-			_draw_trail_colored(a, b, PRE_LINE_COLOR)
-
-func _draw_trail_colored(from: Vector2i, to: Vector2i, color: Color) -> Line2D:
-	var line = Line2D.new()
-	# grid_to_pixel zwraca środek węzła — linia wyśrodkowana na kropkach
-	line.add_point(grid_to_pixel(from.x, from.y))
-	line.add_point(grid_to_pixel(to.x, to.y))
-	line.width = 6.0
-	line.default_color = color
-	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	line.end_cap_mode = Line2D.LINE_CAP_ROUND
-	line.joint_mode = Line2D.LINE_JOINT_ROUND
-	line.z_index = 7
-	add_child(line)
-	return line
 
 # Przetłumacz dane JSON na wymiary board.gd
 # WAŻNE: w edytorze grid[0] i grid[rows-1] to bramki wliczone w rozmiar.
@@ -306,27 +295,29 @@ func _apply_level_data():
 	# Przeszkody — wiersze 1..ed_rows-2, przetłumacz na board row = editor_row - 1
 	# EMPTY(0) też jest wyłączone — kształt boiska pochodzi z edytora
 	obstacle_cells = []
+	teleport_a_cells = []
+	teleport_b_cells = []
 	for er in range(1, ed_rows - 1):
 		if er >= grid.size(): continue
 		for c in range(ed_cols):
 			var cell_val = int(grid[er][c])
 			if cell_val == 4 or cell_val == 0:  # OBSTACLE lub EMPTY = wykluczone
 				obstacle_cells.append({"row": er - 1, "col": c})
-	
-	# Linie startowe — węzły siatki (r,c) gdzie r=0 to góra pola (nad wierszem 1 edytora)
-	# Węzeł r w edytorze odpowiada węzłowi r-1 w board (bo wiersz 0 edytora = bramka)
-	pre_lines_data = []
-	for ln in level_data.get("pre_lines", []):
-		pre_lines_data.append({
-			"r1": int(ln.get("r1",0)) - 1,
-			"c1": int(ln.get("c1",0)),
-			"r2": int(ln.get("r2",0)) - 1,
-			"c2": int(ln.get("c2",0))
-		})
+			# wartości 5 i 6 ignorowane w gridzie — teleporty są węzłami, nie komórkami
+
+	# Teleporty — węzły siatki (gx, gy) w board-space
+	# edytor zapisuje węzły jako {gx, gy} w przestrzeni edytora (gy od 0 do rows włącznie)
+	# przeliczamy: board_gy = editor_gy - 1 (bo wiersz 0 edytora = bramka)
+	teleport_a_nodes = []
+	teleport_b_nodes = []
+	for t in level_data.get("teleport_a", []):
+		teleport_a_nodes.append(Vector2i(int(t.get("gx", 0)), int(t.get("gy", 0)) - 1))
+	for t in level_data.get("teleport_b", []):
+		teleport_b_nodes.append(Vector2i(int(t.get("gx", 0)), int(t.get("gy", 0)) - 1))
 
 func _setup_game():
 	_kill_all_tweens()
-	# Znajdź ScrollContainer przy starcie
+	# ScrollContainer już znaleziony w _ready / _reload_board
 	if not _scroll_container:
 		_scroll_container = _find_scroll_parent()
 
@@ -336,6 +327,8 @@ func _setup_game():
 	bounce_active = false
 	active_moves.clear()
 	move_history.clear()
+	_tp_wave_active = true
+	_spawn_teleport_dots()
 
 	_draw_grid_dots()
 
@@ -366,16 +359,78 @@ func _setup_game():
 
 	_init_timer_ui()
 	_refresh_active_dots()
-	# Postaw startowe linie po każdym resecie (działa też przy reload)
-	_place_pre_lines()
+	# Wyśrodkuj ScrollContainer na planszy po zbudowaniu
+	call_deferred("_center_scroll")
+
+func _center_scroll():
+	if not _scroll_container: return
+	await get_tree().process_frame
+	await get_tree().process_frame
+	position.x = 0.0
+	_drag_base_x = 0.0
+	print("START: position=", position, " global_pos=", global_position, " size=", size, " custom_min=", custom_minimum_size, " parent=", get_parent_control().name, " parent.size=", get_parent_control().size, " parent.global=", get_parent_control().global_position, " sc.size=", _scroll_container.size, " sc.global=", _scroll_container.global_position)
 
 func _find_scroll_parent() -> ScrollContainer:
 	var node = get_parent()
 	while node:
 		if node is ScrollContainer:
-			return node as ScrollContainer
+			var sc = node as ScrollContainer
+			sc.follow_focus = false
+			return sc
 		node = node.get_parent()
 	return null
+
+func _on_scroll_gui_input(_event: InputEvent):
+	pass  # nieużywane
+
+# ——————————————————————————————————————————
+#  DRAG BOISKA — przesuwanie pozycji jak w hex_grid
+# ——————————————————————————————————————————
+
+func _unhandled_input(event: InputEvent):
+	# Środkowy lub prawy przycisk myszy — drag planszy (tylko oś X)
+	var is_rmb = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT
+	var is_mmb = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE
+	var is_drag = event is InputEventMouseMotion and (
+		(event.button_mask & MOUSE_BUTTON_MASK_RIGHT) or
+		(event.button_mask & MOUSE_BUTTON_MASK_MIDDLE)
+	)
+
+	if (is_rmb or is_mmb) and event.pressed:
+		_drag_active = true
+		_drag_start_mouse = event.global_position
+		_drag_start_scroll = position
+		get_viewport().set_input_as_handled()
+		return
+
+	if (is_rmb or is_mmb) and not event.pressed:
+		_drag_active = false
+		get_viewport().set_input_as_handled()
+		return
+
+	if _drag_active and is_drag:
+		var delta_x = event.global_position.x - _drag_start_mouse.x
+		var new_x = _drag_start_scroll.x + delta_x
+		var board_w = size.x  # rzeczywisty rozmiar, nie custom_minimum_size
+		var viewport_w = get_viewport_rect().size.x
+		# lewa krawędź planszy w pikselach ekranu przy new_x:
+		# global.x = parent.global.x + position.x (bo anchor=0, offset=-board_w/2... sprawdź)
+		# Z logu: global=(-48.5) gdy position=(-78.5) i parent.global=(30)
+		# więc global.x = parent.global.x + position.x + board_w/2 ? 
+		# -48.5 = 30 + (-78.5) + 0 → nie... 
+		# -48.5 = 30 + (-78.5) = -48.5 ✓  (anchor 0.5 nie dodaje nic do global gdy offset=-board_w/2)
+		# lewa krawędź = global.x = parent_global_x + new_x
+		var parent_global_x = global_position.x - position.x  # = 30
+		var left_edge = parent_global_x + new_x
+		var right_edge = left_edge + board_w
+		var pad = 30.0
+		if left_edge > pad:
+			new_x -= left_edge - pad
+		if right_edge < viewport_w - pad:
+			new_x += (viewport_w - pad) - right_edge
+		position.x = new_x
+		get_viewport().set_input_as_handled()
+		return
 
 # ——————————————————————————————————————————
 #  SIATKA KROPEK
@@ -515,6 +570,7 @@ func _pulse_down(v: float, dot: Node2D):
 	dot.queue_redraw()
 
 func _kill_all_tweens():
+	_tp_wave_active = false
 	for t in _active_tweens:
 		if t and is_instance_valid(t): t.kill()
 	_active_tweens.clear()
@@ -523,32 +579,22 @@ func _kill_all_tweens():
 #  INPUT
 # ——————————————————————————————————————————
 
+# ——————————————————————————————————————————
+#  INPUT
+# ——————————————————————————————————————————
+
 func _input(event: InputEvent):
-	# ── Drag boiska ────────────────────────────────────────────────────────
+	# ── Touch drag boiska ──────────────────────────────────────────────────
 	if _scroll_container:
-		var is_rmb        = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT
-		var is_drag_mouse = event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_RIGHT)
 		var is_touch      = event is InputEventScreenTouch
 		var is_drag_touch = event is InputEventScreenDrag
-
-		if is_rmb and event.pressed and not ai_thinking:
-			_drag_active = true
-			_drag_start_mouse = event.position
-			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
-		if is_rmb and not event.pressed:
-			_drag_active = false
-		if _drag_active and is_drag_mouse:
-			var delta = _drag_start_mouse - event.position
-			_scroll_container.scroll_horizontal = int(_drag_start_scroll.x + delta.x)
-			_scroll_container.scroll_vertical   = int(_drag_start_scroll.y + delta.y)
-			get_viewport().set_input_as_handled()
-			return
 
 		if is_touch and event.pressed:
 			_drag_active = true
 			_touch_moved = false
 			_drag_start_mouse = event.position
 			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
+			get_viewport().set_input_as_handled()
 			return
 		if is_drag_touch and _drag_active:
 			var delta = _drag_start_mouse - event.position
@@ -621,6 +667,10 @@ func _do_move(target: Vector2i):
 	if scored:
 		_show_combo(target, true)
 		return
+
+	# Teleport — jeśli piłka wchodzi na teleport
+	if _check_and_do_teleport(target):
+		return  # teleportacja przejęła kontrolę
 
 	# Odbicie jeśli węzeł ma już ślady
 	bounce_active = node_has_any_trail(target)
@@ -835,6 +885,10 @@ func _do_move_silent(target: Vector2i):
 		ai_thinking = false
 		return
 
+	# Teleport — jeśli piłka wchodzi na teleport
+	if _check_and_do_teleport(target):
+		return  # teleportacja przejęła kontrolę
+
 	bounce_active = node_has_any_trail(target)
 	if bounce_active:
 		combo_count += 1
@@ -898,6 +952,15 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 		var next_player = player if bounce else (2 if player == 1 else 1)
 
 		var score = _minimax(move, new_edges, next_player, depth - 1, -INF, INF, false)
+
+		# Bonus za teleport jeśli prowadzi bliżej bramki przeciwnika
+		var tp_dest = _teleport_destination_pure(move)
+		if tp_dest != null:
+			var goal_center_x = float(GOAL_COL_START) + float(GOAL_COLS) / 2.0
+			var dist_before = abs(move.x - goal_center_x) * 0.5 + float(ROWS - move.y)
+			var dist_after  = abs(tp_dest.x - goal_center_x) * 0.5 + float(ROWS - tp_dest.y)
+			if dist_after < dist_before:
+				score += 80.0  # teleport przybliża do bramki — dobry ruch
 
 		# Dodatkowa kara w root za zaułki (na wypadek gdybyśmy musieli oceniać deadend_moves)
 		if move in deadend_moves:
@@ -986,6 +1049,28 @@ func _heuristic(pos: Vector2i, edges: Dictionary) -> float:
 			deadend_penalty += 3.0
 
 	return position_score + mobility * 4.0 - deadend_penalty
+
+# Sprawdź czy węzeł (pos) jest teleportem i gdzie prowadzi
+func _teleport_destination_pure(pos: Vector2i) -> Variant:
+	for n in teleport_a_nodes:
+		if n == pos:
+			return _find_teleport_node_partner(pos, teleport_a_nodes)
+	for n in teleport_b_nodes:
+		if n == pos:
+			return _find_teleport_node_partner(pos, teleport_b_nodes)
+	return null
+
+func _find_nearest_valid_node(cell: Vector2i) -> Vector2i:
+	var candidates = [
+		Vector2i(cell.x, cell.y),
+		Vector2i(cell.x + 1, cell.y),
+		Vector2i(cell.x, cell.y + 1),
+		Vector2i(cell.x + 1, cell.y + 1),
+	]
+	for cn in candidates:
+		if is_valid_node(cn.x, cn.y):
+			return cn
+	return cell
 
 # Szybkie liczenie ruchów bez tworzenia tablicy
 func _count_moves_pure(pos: Vector2i, edges: Dictionary) -> int:
@@ -1191,6 +1276,9 @@ func _stop_turn_timer():
 	timer_running = false
 
 func _process(delta: float):
+	_process_timer(delta)
+
+func _process_timer(delta: float):
 	if not timer_running or VS_AI:
 		return
 	turn_timer -= delta
@@ -1321,6 +1409,122 @@ func _is_obstacle(row: int, col: int) -> bool:
 			return true
 	return false
 
+# ——————————————————————————————————————————
+#  TELEPORTY (węzły siatki, nie komórki)
+# ——————————————————————————————————————————
+
+# teleport_a_nodes / teleport_b_nodes: Array of Vector2i (gx, gy) w siatce board
+var teleport_a_nodes: Array = []
+var teleport_b_nodes: Array = []
+
+func _is_teleport_node_a(gx: int, gy: int) -> bool:
+	for n in teleport_a_nodes:
+		if n.x == gx and n.y == gy: return true
+	return false
+
+func _is_teleport_node_b(gx: int, gy: int) -> bool:
+	for n in teleport_b_nodes:
+		if n.x == gx and n.y == gy: return true
+	return false
+
+# Tworzy animację "fali" teleportu na węźle siatki — szybkie kółka rozchodzące się i zanikające
+func _spawn_teleport_dot(gx: int, gy: int, color: Color):
+	var pos = grid_to_pixel(gx, gy)
+	# Pętla nieskończona przez rekurencyjny callback
+	_spawn_teleport_wave(pos, color)
+
+func _spawn_teleport_wave(pos: Vector2, color: Color):
+	var dot = Node2D.new()
+	dot.position = pos
+	dot.z_index = 9
+	dot.set_meta("tp_radius", 0.0)
+	dot.set_meta("tp_alpha", 1.0)
+	dot.set_meta("tp_color", color)
+	dot.draw.connect(func():
+		if not is_instance_valid(dot): return
+		var r: float = dot.get_meta("tp_radius")
+		var a: float = dot.get_meta("tp_alpha")
+		var c: Color = dot.get_meta("tp_color")
+		# Fala rozchodząca się i zanikająca
+		dot.draw_arc(Vector2.ZERO, r, 0.0, TAU, 24, Color(c.r, c.g, c.b, a * 0.7), 3.0, true)
+		# Stała środkowa kropka — w pełni kolorze teleportu, bez białego
+		dot.draw_circle(Vector2.ZERO, 8.0, Color(c.r, c.g, c.b, 1.0))
+	)
+	add_child(dot)
+
+	var tween = create_tween().set_parallel(true)
+	_active_tweens.append(tween)
+	tween.tween_method(func(v: float):
+		if is_instance_valid(dot): dot.set_meta("tp_radius", v); dot.queue_redraw()
+	, 0.0, 26.0, 0.9)
+	tween.tween_method(func(v: float):
+		if is_instance_valid(dot): dot.set_meta("tp_alpha", v); dot.queue_redraw()
+	, 1.0, 0.0, 0.9)
+	tween.chain().tween_callback(func():
+		if is_instance_valid(dot): dot.queue_free()
+		if _tp_wave_active and is_instance_valid(self):
+			_spawn_teleport_wave(pos, color)
+	)
+
+func _spawn_teleport_dots():
+	for n in teleport_a_nodes:
+		_spawn_teleport_dot(n.x, n.y, TELEPORT_A_COLOR)
+	for n in teleport_b_nodes:
+		_spawn_teleport_dot(n.x, n.y, TELEPORT_B_COLOR)
+
+# Sprawdź czy piłka stanęła na węźle teleportu i teleportuj
+func _check_and_do_teleport(pos: Vector2i) -> bool:
+	if _is_teleport_node_a(pos.x, pos.y):
+		var partner = _find_teleport_node_partner(pos, teleport_a_nodes)
+		if partner != null:
+			_do_teleport(pos, partner)
+			return true
+	if _is_teleport_node_b(pos.x, pos.y):
+		var partner = _find_teleport_node_partner(pos, teleport_b_nodes)
+		if partner != null:
+			_do_teleport(pos, partner)
+			return true
+	return false
+
+func _find_teleport_node_partner(current: Vector2i, nodes: Array) -> Variant:
+	for n in nodes:
+		if n != current:
+			return n
+	return null
+
+# Animacja teleportacji: skurczenie → teleport → pojawienie → koniec tury
+func _do_teleport(from_node: Vector2i, target_node: Vector2i):
+	var base_scale = 36.0 / 88.0
+	var target_px = grid_to_pixel(target_node.x, target_node.y)
+	var tween = create_tween().set_parallel(false)
+	tween.tween_property(ball_node, "scale", Vector2.ZERO, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func():
+		ball_grid_pos = target_node
+		ball_node.position = target_px
+	)
+	tween.tween_property(ball_node, "scale", Vector2(base_scale * 1.4, base_scale * 1.4), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(ball_node, "scale", Vector2(base_scale, base_scale), 0.1)
+	tween.tween_callback(func():
+		# Teleport zawsze kończy turę — zmiana gracza
+		combo_count = 0
+		_hide_combo()
+		bounce_active = false
+		current_player = 2 if current_player == 1 else 1
+		if not VS_AI:
+			_start_turn_timer()
+		_refresh_active_dots()
+		_check_cutoff()
+		if VS_AI and current_player == AI_PLAYER:
+			ai_thinking = true
+			_hide_active_dots()
+			await get_tree().create_timer(0.28).timeout
+			_ai_take_turn()
+		else:
+			# Tura gracza — odblokuj input
+			ai_thinking = false
+			_refresh_active_dots()
+	)
+
 func _build_board():
 	inner   = BORDER + PADDING
 	field_w = COLS      * QUAD_SIZE + (COLS      - 1) * GAP
@@ -1340,6 +1544,7 @@ func _build_board():
 	# board_h = inner + bramka_górna(QUAD_SIZE+GAP) + inner + boisko + inner + bramka_dolna(QUAD_SIZE+GAP) + inner
 
 	custom_minimum_size = Vector2(board_w, board_h)
+	# Przywróć oryginalne anchory — wyśrodkowanie względem rodzica
 	anchor_left = 0.5; anchor_right  = 0.5
 	anchor_top  = 0.5; anchor_bottom = 0.5
 	offset_left   = -board_w / 2.0; offset_right  = board_w / 2.0
