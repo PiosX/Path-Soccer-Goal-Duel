@@ -411,8 +411,16 @@ func _dot_inside_field(gx: int, gy: int) -> bool:
 		for dc in [-1, 0]:
 			var r = gy + dr
 			var c = gx + dc
-			if r < 0 or r >= ROWS or c < 0 or c >= COLS:
-				count += 1
+			if c < 0 or c >= COLS:
+				pass  # poza lewą/prawą ścianą — nie liczymy
+			elif r < 0:
+				# Powyżej pola — liczymy tylko jeśli kolumna jest wewnątrz bramki górnej
+				if c >= GOAL_COL_START and c < GOAL_COL_START + GOAL_COLS:
+					count += 1
+			elif r >= ROWS:
+				# Poniżej pola — liczymy tylko jeśli kolumna jest wewnątrz bramki dolnej
+				if c >= GOAL_COL_START and c < GOAL_COL_START + GOAL_COLS:
+					count += 1
 			elif not _is_obstacle(r, c):
 				count += 1
 	return count >= 2
@@ -1475,10 +1483,10 @@ func _draw_shaped_border(bnode: Node2D):
 		var hl = active_set.has(Vector2i(col - 1, row))
 		var hr = active_set.has(Vector2i(col + 1, row))
 
-		if not ht: h_edges.append({"y":y0,"x1":x0,"x2":x1,"lft_corner":not hl,"rgt_corner":not hr})
-		if not hb: h_edges.append({"y":y1,"x1":x0,"x2":x1,"lft_corner":not hl,"rgt_corner":not hr})
-		if not hl: v_edges.append({"x":x0,"y1":y0,"y2":y1,"top_corner":not ht,"bot_corner":not hb})
-		if not hr: v_edges.append({"x":x1,"y1":y0,"y2":y1,"top_corner":not ht,"bot_corner":not hb})
+		if not ht: h_edges.append({"y":y0,"x1":x0,"x2":x1,"lft_corner":not hl,"rgt_corner":not hr,"inner":1})
+		if not hb: h_edges.append({"y":y1,"x1":x0,"x2":x1,"lft_corner":not hl,"rgt_corner":not hr,"inner":-1})
+		if not hl: v_edges.append({"x":x0,"y1":y0,"y2":y1,"top_corner":not ht,"bot_corner":not hb,"inner":1})
+		if not hr: v_edges.append({"x":x1,"y1":y0,"y2":y1,"top_corner":not ht,"bot_corner":not hb,"inner":-1})
 
 	var merged_h = _merge_edges_h(h_edges)
 	var merged_v = _merge_edges_v(v_edges)
@@ -1496,10 +1504,10 @@ func _draw_shaped_border(bnode: Node2D):
 			var rx_match = abs(hs.x2 - vs.x) < tol
 			var ty_match = abs(hs.y - vs.y1) < tol
 			var by_match = abs(hs.y - vs.y2) < tol
-			if lx_match and ty_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"TL"})
-			if rx_match and ty_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"TR"})
-			if lx_match and by_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"BL"})
-			if rx_match and by_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"BR"})
+			if lx_match and ty_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"TL","ih":hs.inner,"iv":vs.inner})
+			if rx_match and ty_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"TR","ih":hs.inner,"iv":vs.inner})
+			if lx_match and by_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"BL","ih":hs.inner,"iv":vs.inner})
+			if rx_match and by_match: corners.append({"vx":vs.x,"hy":hs.y,"t":"BR","ih":hs.inner,"iv":vs.inner})
 
 	# Sprawdź czy koniec segmentu ma narożnik — szukamy bezpośrednio w corners[]
 	# zamiast w corner_set (który ma 1-2px rozbieżność między vx/hy a x1/y2 segmentów)
@@ -1542,14 +1550,82 @@ func _draw_shaped_border(bnode: Node2D):
 
 	# ── Rysuj łuki ────────────────────────────────────────────────────────────
 	for c in corners:
-		_draw_corner(bnode, c.vx, c.hy, rc, bw, c.t)
+		# Narożnik jest "wklęsły" (trójkąt do środka) gdy:
+		# TL: wnętrze jest w dół (ih=+1) ORAZ w prawo (iv=+1)
+		# TR: wnętrze jest w dół (ih=+1) ORAZ w lewo (iv=-1)
+		# BL: wnętrze jest w górę (ih=-1) ORAZ w prawo (iv=+1)
+		# BR: wnętrze jest w górę (ih=-1) ORAZ w lewo (iv=-1)
+		var concave: bool
+		match c.t:
+			"TL": concave = (c.ih ==  1 and c.iv ==  1)
+			"TR": concave = (c.ih ==  1 and c.iv == -1)
+			"BL": concave = (c.ih == -1 and c.iv ==  1)
+			"BR": concave = (c.ih == -1 and c.iv == -1)
+			_:    concave = true
+		var corner_type = c.t if concave else c.t + "_wall"
+		_draw_corner(bnode, c.vx, c.hy, rc, bw, corner_type)
 
 func _draw_corner(node: Node2D, vx: float, hy: float, rc: float, bw: float, corner: String):
+	var s = rc  # rozmiar trójkąta = radius łuku
 	match corner:
-		"TL": _draw_arc(node, Vector2(vx+rc, hy+rc), rc, PI,      PI*1.5, BORDER_COLOR, bw)
-		"TR": _draw_arc(node, Vector2(vx-rc, hy+rc), rc, PI*1.5,  PI*2.0, BORDER_COLOR, bw)
-		"BL": _draw_arc(node, Vector2(vx+rc, hy-rc), rc, PI*0.5,  PI,     BORDER_COLOR, bw)
-		"BR": _draw_arc(node, Vector2(vx-rc, hy-rc), rc, 0.0,     PI*0.5, BORDER_COLOR, bw)
+		# ── Wklęsłe rogi wewnątrz pola (zielony trójkąt przed łukiem) ──
+		"TL":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx+s-5, hy-5),
+				Vector2(vx+s-5, hy+s-5),
+				Vector2(vx-5,   hy+s-5)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx+rc, hy+rc), rc, PI,     PI*1.5, BORDER_COLOR, bw)
+		"TR":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx-s+5, hy-5),
+				Vector2(vx-s+5, hy+s-5),
+				Vector2(vx+5,   hy+s-5)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx-rc, hy+rc), rc, PI*1.5, PI*2.0, BORDER_COLOR, bw)
+		"BL":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx+5,   hy-5),
+				Vector2(vx+s, hy),
+				Vector2(vx,   hy-s)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx+rc, hy-rc), rc, PI*0.5, PI,     BORDER_COLOR, bw)
+		"BR":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx-5,   hy-5),
+				Vector2(vx-s, hy),
+				Vector2(vx,   hy-s)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx-rc, hy-rc), rc, 0.0,    PI*0.5, BORDER_COLOR, bw)
+		# ── Zewnętrzne rogi ścian (zakryj trójkątną lukę za łukiem) ──
+		"TL_wall":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx-5,    hy-5),
+				Vector2(vx+s-5,  hy-5),
+				Vector2(vx-5,    hy+s-5)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx+rc, hy+rc), rc, PI,     PI*1.5, BORDER_COLOR, bw)
+		"TR_wall":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx+5,    hy-5),
+				Vector2(vx-s+5,  hy-5),
+				Vector2(vx+5,    hy+s-5)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx-rc, hy+rc), rc, PI*1.5, PI*2.0, BORDER_COLOR, bw)
+		"BL_wall":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx-5,    hy+5),
+				Vector2(vx+s-5,  hy+5),
+				Vector2(vx-5,    hy-s+5)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx+rc, hy-rc), rc, PI*0.5, PI,     BORDER_COLOR, bw)
+		"BR_wall":
+			node.draw_colored_polygon(PackedVector2Array([
+				Vector2(vx+5,    hy+5),
+				Vector2(vx-s+5,  hy+5),
+				Vector2(vx+5,    hy-s+5)
+			]), FIELD_COLOR)
+			_draw_arc(node, Vector2(vx-rc, hy-rc), rc, 0.0,    PI*0.5, BORDER_COLOR, bw)
 
 func _merge_edges_h(edges: Array) -> Array:
 	# Scal segmenty na tej samej linii y, stykające się końce x
