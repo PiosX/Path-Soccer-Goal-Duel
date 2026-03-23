@@ -19,6 +19,9 @@ var GOAL_COLS: int = 2
 # ————— DANE POZIOMU —————
 var level_data: Dictionary = {}
 var obstacle_cells: Array = []   # [{row,col}] w układzie board (bez bramek)
+var goal_cells_data: Array = []  # [{row,col,type}] type=3=red, type=2=blue — dla orientacji poziomej
+var GOAL_ROW_START: int = 0      # dla orientacji poziomej — który wiersz zaczyna bramkę
+var GOAL_ROWS: int = 0           # dla orientacji poziomej — ile wierszy ma bramka
 
 const BORDER = 8.0
 const PADDING = 9.0
@@ -57,6 +60,7 @@ var VS_AI: bool = true             # ustaw z zewnątrz przed _ready
 const AI_PLAYER: int = 2
 const AI_DEPTH: int = 3
 var ai_thinking: bool = false
+var _game_ended: bool = false
 
 # ————— TIMER (tryb 2 graczy) —————
 const TURN_TIME: float = 15.0
@@ -96,9 +100,19 @@ var inner: float
 
 # Pozycja węzła siatki w pikselach (lokalnych)
 func grid_to_pixel(gx: int, gy: int) -> Vector2:
-	var px = inner + gx * (QUAD_SIZE + GAP) - GAP / 2.0
-	var py = goal_h + inner + gy * (QUAD_SIZE + GAP) - GAP / 2.0
+	var step = QUAD_SIZE + GAP
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# X: boisko od step+inner, gx=0..COLS. Bramki: gx=-1 (lewa) i gx=COLS+1 (prawa)
+		var px = step + inner + gx * step - GAP / 2.0
+		var py = inner + gy * step - GAP / 2.0
+		return Vector2(px, py)
+	var px = inner + gx * step - GAP / 2.0
+	var py = goal_h + inner + gy * step - GAP / 2.0
 	return Vector2(px, py)
+
+# Pozycja piksela węzła bramki bocznej — używa grid_to_pixel (spójna z resztą)
+func _goal_side_pixel(gx: int, gy: int) -> Vector2:
+	return grid_to_pixel(gx, gy)
 
 # Klucz krawędzi (nieskierowany)
 func edge_key(a: Vector2i, b: Vector2i) -> String:
@@ -110,10 +124,17 @@ func edge_key(a: Vector2i, b: Vector2i) -> String:
 func is_valid_node(gx: int, gy: int) -> bool:
 	if gx >= 0 and gx <= COLS and gy >= 0 and gy <= ROWS:
 		return _node_accessible(gx, gy)
-	if gy == -1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
-		return true
-	if gy == ROWS + 1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
-		return true
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# Bramki boczne: gx==-1 (lewa) i gx==COLS+1 (prawa)
+		if gx == -1 and gy >= GOAL_ROW_START and gy <= GOAL_ROW_START + GOAL_ROWS:
+			return true
+		if gx == COLS + 1 and gy >= GOAL_ROW_START and gy <= GOAL_ROW_START + GOAL_ROWS:
+			return true
+	else:
+		if gy == -1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
+			return true
+		if gy == ROWS + 1 and gx >= GOAL_COL_START and gx <= GOAL_COL_START + GOAL_COLS:
+			return true
 	return false
 
 # Czy komórka (row,col) jest przeszkodą lub poza boiskiem
@@ -124,6 +145,76 @@ func _cell_is_wall(row: int, col: int) -> bool:
 
 # Czy krawędź jest niedozwolona (leży wzdłuż ściany lub przez nią)
 func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# Górna/dolna ściana (zamknięte)
+		if a.y == 0 and b.y == 0: return true
+		if a.y == ROWS and b.y == ROWS: return true
+		# Lewa/prawa linia boiska — otwarta tylko przy bramce
+		if a.x == 0 and b.x == 0:
+			var mn = mini(a.y, b.y); var mx = maxi(a.y, b.y)
+			if not (mn >= GOAL_ROW_START and mx <= GOAL_ROW_START + GOAL_ROWS):
+				return true
+		if a.x == COLS and b.x == COLS:
+			var mn = mini(a.y, b.y); var mx = maxi(a.y, b.y)
+			if not (mn >= GOAL_ROW_START and mx <= GOAL_ROW_START + GOAL_ROWS):
+				return true
+		# Słupek bramki (między polem a wnętrzem bramki)
+		if a.y == b.y and abs(a.x - b.x) == 1:
+			var by2 = a.y
+			if by2 == GOAL_ROW_START or by2 == GOAL_ROW_START + GOAL_ROWS:
+				var minx = mini(a.x, b.x); var maxx = maxi(a.x, b.x)
+				if (minx == -1 and maxx == 0) or (minx == COLS and maxx == COLS + 1):
+					return true
+		# Przekątna i obstacle — ta sama logika co pionowa
+		if abs(a.x - b.x) == 1 and abs(a.y - b.y) == 1:
+			var side_a = Vector2i(b.x, a.y)
+			var side_b = Vector2i(a.x, b.y)
+			if not is_valid_node(side_a.x, side_a.y) and not is_valid_node(side_b.x, side_b.y):
+				return true
+			if is_valid_node(side_a.x, side_a.y) and is_valid_node(side_b.x, side_b.y):
+				if _node_on_wall_or_obstacle(side_a) and _node_on_wall_or_obstacle(side_b):
+					return true
+			if not is_valid_node(side_a.x, side_a.y) and is_valid_node(side_b.x, side_b.y) and _node_on_wall_or_obstacle(side_b):
+				return true
+			if not is_valid_node(side_b.x, side_b.y) and is_valid_node(side_a.x, side_a.y) and _node_on_wall_or_obstacle(side_a):
+				return true
+		var a_is_goal2 = (a.x < 0 or a.x > COLS)
+		var b_is_goal2 = (b.x < 0 or b.x > COLS)
+		if not a_is_goal2 and not b_is_goal2:
+			if abs(a.x - b.x) == 1 and a.y == b.y:
+				# Słupek bramki poziomej: węzeł na linii GOAL_ROW_START lub GOAL_ROW_START+GOAL_ROWS
+				# Komórki po "zewnętrznej" stronie słupka są poza boiskiem — nie blokuj ruchu wzdłuż pola
+				var on_top_goalpost = (a.y == GOAL_ROW_START)
+				var on_bot_goalpost = (a.y == GOAL_ROW_START + GOAL_ROWS)
+				if not on_top_goalpost:
+					var top_l = _cell_is_wall(a.y - 1, mini(a.x, b.x)) if a.y > 0 else true
+					var top_r = _cell_is_wall(a.y - 1, maxi(a.x, b.x) - 1) if a.y > 0 else true
+					if top_l and top_r: return true
+				if not on_bot_goalpost:
+					var bot_l = _cell_is_wall(a.y, mini(a.x, b.x)) if a.y < ROWS else true
+					var bot_r = _cell_is_wall(a.y, maxi(a.x, b.x) - 1) if a.y < ROWS else true
+					if bot_l and bot_r: return true
+				if on_top_goalpost:
+					var bot_l = _cell_is_wall(a.y, mini(a.x, b.x)) if a.y < ROWS else true
+					var bot_r = _cell_is_wall(a.y, maxi(a.x, b.x) - 1) if a.y < ROWS else true
+					if bot_l and bot_r: return true
+				if on_bot_goalpost:
+					var top_l = _cell_is_wall(a.y - 1, mini(a.x, b.x)) if a.y > 0 else true
+					var top_r = _cell_is_wall(a.y - 1, maxi(a.x, b.x) - 1) if a.y > 0 else true
+					if top_l and top_r: return true
+			elif a.x == b.x and abs(a.y - b.y) == 1:
+				# Ruch pionowy wzdłuż ściany bramki — nie sprawdzaj strony zewnętrznej (col=-1 lub col=COLS)
+				if a.x > 0:
+					var lft_t = _cell_is_wall(mini(a.y, b.y), a.x - 1)
+					var lft_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x - 1)
+					if lft_t and lft_b: return true
+				if a.x < COLS:
+					var rgt_t = _cell_is_wall(mini(a.y, b.y), a.x)
+					var rgt_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x)
+					if rgt_t and rgt_b: return true
+		return false
+
+	# ——— Orientacja pionowa (oryginalna) ———
 	# Lewa/prawa ściana — ruch równoległy wzdłuż niej
 	if a.x == 0 and b.x == 0: return true
 	if a.x == COLS and b.x == COLS: return true
@@ -188,12 +279,15 @@ func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
 
 # Czy węzeł (gx,gy) leży na ścianie boiska lub na granicy obstacle
 func _node_on_wall_or_obstacle(n: Vector2i) -> bool:
-	# Na ścianie zewnętrznej — ale węzły na linii y=0 lub y=ROWS WEWNĄTRZ bramki
-	# (między słupkami, nie wliczając słupków) to otwarte wejście, nie ściana
-	var in_goal_interior = (n.x > GOAL_COL_START and n.x < GOAL_COL_START + GOAL_COLS)
-	if n.x == 0 or n.x == COLS: return true
-	if (n.y == 0 or n.y == ROWS) and not in_goal_interior: return true
-	# Na granicy obstacle
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# Włączamy słupki (>= i <=) — są węzłami gry, nie ścianą
+		var in_goal_range = (n.y >= GOAL_ROW_START and n.y <= GOAL_ROW_START + GOAL_ROWS)
+		if n.y == 0 or n.y == ROWS: return true
+		if (n.x == 0 or n.x == COLS) and not in_goal_range: return true
+	else:
+		var in_goal_interior = (n.x > GOAL_COL_START and n.x < GOAL_COL_START + GOAL_COLS)
+		if n.x == 0 or n.x == COLS: return true
+		if (n.y == 0 or n.y == ROWS) and not in_goal_interior: return true
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = n.y + dr; var cc = n.x + dc
@@ -205,14 +299,24 @@ func _node_on_wall_or_obstacle(n: Vector2i) -> bool:
 # Możliwe ruchy z danej pozycji
 func get_valid_moves(pos: Vector2i) -> Array:
 	var moves = []
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
+	var near_goal = is_h and (pos.x == 0 or pos.x == COLS)
 	for dx in [-1, 0, 1]:
 		for dy in [-1, 0, 1]:
 			if dx == 0 and dy == 0: continue
 			var nb = Vector2i(pos.x + dx, pos.y + dy)
-			if not is_valid_node(nb.x, nb.y): continue
-			if used_edges.has(edge_key(pos, nb)): continue
-			if is_wall_edge(pos, nb): continue
+			if not is_valid_node(nb.x, nb.y):
+				if near_goal: print("[MOVES] ", nb, " INVALID_NODE")
+				continue
+			if used_edges.has(edge_key(pos, nb)):
+				if near_goal: print("[MOVES] ", nb, " USED_EDGE")
+				continue
+			if is_wall_edge(pos, nb):
+				if near_goal: print("[MOVES] ", nb, " WALL_EDGE")
+				continue
+			if near_goal: print("[MOVES] ", nb, " OK")
 			moves.append(nb)
+	if near_goal: print("[MOVES] z ", pos, " dostepne=", moves)
 	return moves
 
 func _get_moves_with_edges(pos: Vector2i, edges: Dictionary) -> Array:
@@ -230,6 +334,7 @@ func _get_moves_with_edges(pos: Vector2i, edges: Dictionary) -> Array:
 # Odbicie = węzeł był już odwiedzony lub jest węzłem ściany/obstacle (bariera)
 func node_has_any_trail(pos: Vector2i) -> bool:
 	var count = 0
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
 	for dx in [-1, 0, 1]:
 		for dy in [-1, 0, 1]:
 			if dx == 0 and dy == 0: continue
@@ -237,12 +342,28 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 			var ek = edge_key(pos, nb)
 			if used_edges.has(ek):
 				count += 1
-	if pos.x == 0: count += 1
-	if pos.x == COLS: count += 1
-	# y=0/y=ROWS: ściana wszędzie poza wnętrzem bramki (między słupkami exclusive)
-	var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
-	if pos.y == 0 and not in_goal_interior: count += 1
-	if pos.y == ROWS and not in_goal_interior: count += 1
+				if is_h: print("[BOUNCE] krawedz: ", pos, "->", nb, " count=", count)
+	if is_h:
+		if pos.y == 0: count += 1; print("[BOUNCE] gorna sciana count=", count)
+		if pos.y == ROWS: count += 1; print("[BOUNCE] dolna sciana count=", count)
+		var in_goal_interior = (pos.y > GOAL_ROW_START and pos.y < GOAL_ROW_START + GOAL_ROWS)
+		print("[BOUNCE] pos=", pos, " GRS=", GOAL_ROW_START, " GR=", GOAL_ROWS, " interior=", in_goal_interior)
+		if pos.x == 0 and not in_goal_interior: count += 1; print("[BOUNCE] lewa sciana count=", count)
+		if pos.x == COLS and not in_goal_interior: count += 1; print("[BOUNCE] prawa sciana count=", count)
+		for dr in [-1, 0]:
+			for dc in [-1, 0]:
+				var cr = pos.y + dr; var cc = pos.x + dc
+				if cr >= 0 and cr < ROWS and cc >= 0 and cc < COLS:
+					if _is_obstacle(cr, cc):
+						count += 1
+		print("[BOUNCE] WYNIK pos=", pos, " count=", count, " bounce=", count >= 2)
+		return count >= 2
+	else:
+		if pos.x == 0: count += 1
+		if pos.x == COLS: count += 1
+		var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
+		if pos.y == 0 and not in_goal_interior: count += 1
+		if pos.y == ROWS and not in_goal_interior: count += 1
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = pos.y + dr; var cc = pos.x + dc
@@ -275,45 +396,95 @@ func _apply_level_data():
 	var ed_cols = int(level_data.get("cols", 6))
 	var ed_rows = int(level_data.get("rows", 10))
 	var grid = level_data.get("grid", [])
-	
-	# Bramki zajmują wiersz 0 i wiersz ed_rows-1 w edytorze
-	# Pole gry = wiersze 1..ed_rows-2 => ROWS = ed_rows - 2
+	var ed_orientation = level_data.get("orientation", "vertical")
+
 	COLS = ed_cols
 	ROWS = ed_rows - 2
-	
-	# Wykryj GOAL_COL_START i GOAL_COLS z wiersza bramki (wiersz 0 = GOAL_RED)
-	var goal_cols = []
-	if grid.size() > 0:
-		for c in range((grid[0] as Array).size()):
-			if int(grid[0][c]) == 3:  # GOAL_RED
-				goal_cols.append(c)
-	if goal_cols.size() > 0:
-		goal_cols.sort()
-		GOAL_COL_START = goal_cols[0]
-		GOAL_COLS = goal_cols[-1] - goal_cols[0] + 1
-	
-	# Przeszkody — wiersze 1..ed_rows-2, przetłumacz na board row = editor_row - 1
-	# EMPTY(0) też jest wyłączone — kształt boiska pochodzi z edytora
-	obstacle_cells = []
-	teleport_a_cells = []
-	teleport_b_cells = []
-	for er in range(1, ed_rows - 1):
-		if er >= grid.size(): continue
-		for c in range(ed_cols):
-			var cell_val = int(grid[er][c])
-			if cell_val == 4 or cell_val == 0:  # OBSTACLE lub EMPTY = wykluczone
-				obstacle_cells.append({"row": er - 1, "col": c})
-			# wartości 5 i 6 ignorowane w gridzie — teleporty są węzłami, nie komórkami
 
-	# Teleporty — węzły siatki (gx, gy) w board-space
-	# edytor zapisuje węzły jako {gx, gy} w przestrzeni edytora (gy od 0 do rows włącznie)
-	# przeliczamy: board_gy = editor_gy - 1 (bo wiersz 0 edytora = bramka)
-	teleport_a_nodes = []
-	teleport_b_nodes = []
-	for t in level_data.get("teleport_a", []):
-		teleport_a_nodes.append(Vector2i(int(t.get("gx", 0)), int(t.get("gy", 0)) - 1))
-	for t in level_data.get("teleport_b", []):
-		teleport_b_nodes.append(Vector2i(int(t.get("gx", 0)), int(t.get("gy", 0)) - 1))
+	if ed_orientation == "horizontal":
+		# W edytorze poziomym WSZYSTKIE ed_rows to pole gry (brak wierszy-bramek góra/dół).
+		# col=0 = lewa bramka (RED/AI), col=ed_cols-1 = prawa (BLUE/gracz)
+		# Pole gry = col 1..ed_cols-2  →  board col 0..COLS-1
+		COLS = ed_cols - 2
+		ROWS = ed_rows          # brak odjęcia 2 — nie ma wierszy-bramek!
+		GOAL_COL_START = 0
+		GOAL_COLS = 0
+
+		obstacle_cells = []
+		goal_cells_data = []
+		teleport_a_cells = []
+		teleport_b_cells = []
+
+		# Wiersze bramki z col=0 edytora (er = board row, bezpośrednio)
+		var goal_rows = []
+		for er in range(ed_rows):
+			if er >= grid.size(): continue
+			var cell_val = int(grid[er][0])
+			if (cell_val == 2 or cell_val == 3) and not (er in goal_rows):
+				goal_rows.append(er)
+
+		if goal_rows.size() > 0:
+			goal_rows.sort()
+			GOAL_ROW_START = goal_rows[0]
+			GOAL_ROWS = goal_rows[-1] - goal_rows[0] + 1
+		else:
+			GOAL_ROW_START = ROWS / 2 - 1
+			GOAL_ROWS = 2
+
+		# Przeszkody z pola gry (col 1..ed_cols-2 → board col 0..COLS-1)
+		for er in range(ed_rows):
+			if er >= grid.size(): continue
+			for c in range(1, ed_cols - 1):
+				var cell_val = int(grid[er][c])
+				if cell_val == 0 or cell_val == 4:
+					obstacle_cells.append({"row": er, "col": c - 1})
+
+		# goal_cells_data — col=-1 lewa, col=COLS prawa (dla rysowania)
+		for er in range(ed_rows):
+			if er >= grid.size(): continue
+			var lv = int(grid[er][0])
+			var rv = int(grid[er][ed_cols - 1])
+			if lv == 2 or lv == 3:
+				goal_cells_data.append({"row": er, "col": -1, "type": lv})
+			if rv == 2 or rv == 3:
+				goal_cells_data.append({"row": er, "col": COLS, "type": rv})
+
+		teleport_a_nodes = []
+		teleport_b_nodes = []
+		for t in level_data.get("teleport_a", []):
+			teleport_a_nodes.append(Vector2i(int(t.get("gx", 0)) - 1, int(t.get("gy", 0))))
+		for t in level_data.get("teleport_b", []):
+			teleport_b_nodes.append(Vector2i(int(t.get("gx", 0)) - 1, int(t.get("gy", 0))))
+
+	else:
+		# Orientacja pionowa (oryginalna)
+		goal_cells_data = []
+		var goal_cols = []
+		if grid.size() > 0:
+			for c in range((grid[0] as Array).size()):
+				if int(grid[0][c]) == 3:  # GOAL_RED
+					goal_cols.append(c)
+		if goal_cols.size() > 0:
+			goal_cols.sort()
+			GOAL_COL_START = goal_cols[0]
+			GOAL_COLS = goal_cols[-1] - goal_cols[0] + 1
+
+		obstacle_cells = []
+		teleport_a_cells = []
+		teleport_b_cells = []
+		for er in range(1, ed_rows - 1):
+			if er >= grid.size(): continue
+			for c in range(ed_cols):
+				var cell_val = int(grid[er][c])
+				if cell_val == 4 or cell_val == 0:
+					obstacle_cells.append({"row": er - 1, "col": c})
+
+		teleport_a_nodes = []
+		teleport_b_nodes = []
+		for t in level_data.get("teleport_a", []):
+			teleport_a_nodes.append(Vector2i(int(t.get("gx", 0)), int(t.get("gy", 0)) - 1))
+		for t in level_data.get("teleport_b", []):
+			teleport_b_nodes.append(Vector2i(int(t.get("gx", 0)), int(t.get("gy", 0)) - 1))
 
 func _setup_game():
 	_kill_all_tweens()
@@ -327,6 +498,7 @@ func _setup_game():
 	bounce_active = false
 	active_moves.clear()
 	move_history.clear()
+	_game_ended = false
 	_tp_wave_active = true
 	_spawn_teleport_dots()
 
@@ -447,14 +619,23 @@ func _draw_grid_dots():
 				dot = _make_dot_invisible(grid_to_pixel(gx, gy))
 			dot_nodes.append({"node": dot, "gx": gx, "gy": gy})
 	# Węzły bramek — widoczne tylko gdy aktywne
-	for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
-		var dot = _make_dot(grid_to_pixel(gx, -1), false)
-		dot.set_meta("goal_node", true)
-		dot_nodes.append({"node": dot, "gx": gx, "gy": -1})
-	for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
-		var dot = _make_dot(grid_to_pixel(gx, ROWS + 1), false)
-		dot.set_meta("goal_node", true)
-		dot_nodes.append({"node": dot, "gx": gx, "gy": ROWS + 1})
+	if level_data.get("orientation", "vertical") == "horizontal":
+		for gy in range(GOAL_ROW_START, GOAL_ROW_START + GOAL_ROWS + 1):
+			var dot_l = _make_dot(_goal_side_pixel(-1, gy), false)
+			dot_l.set_meta("goal_node", true)
+			dot_nodes.append({"node": dot_l, "gx": -1, "gy": gy})
+			var dot_r = _make_dot(_goal_side_pixel(COLS + 1, gy), false)
+			dot_r.set_meta("goal_node", true)
+			dot_nodes.append({"node": dot_r, "gx": COLS + 1, "gy": gy})
+	else:
+		for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
+			var dot = _make_dot(grid_to_pixel(gx, -1), false)
+			dot.set_meta("goal_node", true)
+			dot_nodes.append({"node": dot, "gx": gx, "gy": -1})
+		for gx in range(GOAL_COL_START, GOAL_COL_START + GOAL_COLS + 1):
+			var dot = _make_dot(grid_to_pixel(gx, ROWS + 1), false)
+			dot.set_meta("goal_node", true)
+			dot_nodes.append({"node": dot, "gx": gx, "gy": ROWS + 1})
 
 # Czy węzeł (gx,gy) powinien mieć widoczną kropkę.
 # Pokaż jeśli co najmniej 2 z 4 przylegających komórek są aktywne.
@@ -467,7 +648,11 @@ func _dot_inside_field(gx: int, gy: int) -> bool:
 			var r = gy + dr
 			var c = gx + dc
 			if c < 0 or c >= COLS:
-				pass  # poza lewą/prawą ścianą — nie liczymy
+				if level_data.get("orientation", "vertical") == "horizontal":
+					# Lewa bramka (c<0) lub prawa (c>=COLS) — liczymy jeśli wiersz jest w bramce
+					if r >= GOAL_ROW_START and r <= GOAL_ROW_START + GOAL_ROWS - 1:
+						count += 1
+				# else: poza lewą/prawą ścianą pionowego — nie liczymy
 			elif r < 0:
 				# Powyżej pola — liczymy tylko jeśli kolumna jest wewnątrz bramki górnej
 				if c >= GOAL_COL_START and c < GOAL_COL_START + GOAL_COLS:
@@ -629,8 +814,14 @@ func _try_move(local_pos: Vector2):
 	var best_dist = tap_radius
 	var best_move: Variant = null
 
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
 	for move in active_moves:
-		var d = local_pos.distance_to(grid_to_pixel(move.x, move.y))
+		var mpx: Vector2
+		if is_h and (move.x < 0 or move.x > COLS):
+			mpx = _goal_side_pixel(move.x, move.y)
+		else:
+			mpx = grid_to_pixel(move.x, move.y)
+		var d = local_pos.distance_to(mpx)
 		if d < best_dist:
 			best_dist = d
 			best_move = move
@@ -661,11 +852,24 @@ func _do_move(target: Vector2i):
 	var scored = _check_goal(target)
 
 	# Animuj do celu
-	_animate_ball(target, scored)
+	_animate_ball(target, false)
 	ball_grid_pos = target
 
 	if scored:
-		_show_combo(target, true)
+		_game_ended = true
+		ai_thinking = true
+		_hide_combo()
+		score += 500
+		var player_scored: bool
+		if level_data.get("orientation", "vertical") == "horizontal":
+			player_scored = (ball_grid_pos.x < 0)
+		else:
+			player_scored = (ball_grid_pos.y < 0)
+		await get_tree().create_timer(0.25).timeout
+		if player_scored:
+			_show_popup_win()
+		else:
+			_show_popup_fail()
 		return
 
 	# Teleport — jeśli piłka wchodzi na teleport
@@ -776,7 +980,12 @@ func _hide_active_dots():
 # ——————————————————————————————————————————
 
 func _animate_ball(target: Vector2i, is_goal: bool):
-	var target_px = grid_to_pixel(target.x, target.y)
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
+	var target_px: Vector2
+	if is_h and (target.x < 0 or target.x > COLS):
+		target_px = _goal_side_pixel(target.x, target.y)
+	else:
+		target_px = grid_to_pixel(target.x, target.y)
 	var base_scale = 36.0 / 88.0
 	var tween = create_tween().set_parallel(false)
 
@@ -794,8 +1003,11 @@ func _animate_ball(target: Vector2i, is_goal: bool):
 
 func _draw_trail(from: Vector2i, to: Vector2i) -> Line2D:
 	var line = Line2D.new()
-	line.add_point(grid_to_pixel(from.x, from.y))
-	line.add_point(grid_to_pixel(to.x, to.y))
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
+	var from_px = _goal_side_pixel(from.x, from.y) if (is_h and (from.x < 0 or from.x > COLS)) else grid_to_pixel(from.x, from.y)
+	var to_px   = _goal_side_pixel(to.x, to.y)     if (is_h and (to.x < 0   or to.x > COLS))   else grid_to_pixel(to.x, to.y)
+	line.add_point(from_px)
+	line.add_point(to_px)
 	line.width = 5.5
 	line.default_color = TRAIL_P1_COLOR if current_player == 1 else TRAIL_P2_COLOR
 	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
@@ -810,21 +1022,30 @@ func _draw_trail(from: Vector2i, to: Vector2i) -> Line2D:
 # ——————————————————————————————————————————
 
 func _check_goal(pos: Vector2i) -> bool:
-	if pos.y < 0 and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
-		return true
-	if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
-		return true
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# Lewa bramka (x<0) = bramka AI (RED), prawa (x>COLS) = bramka gracza (BLUE)
+		if pos.x < 0 and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+			return true
+		if pos.x > COLS and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+			return true
+	else:
+		if pos.y < 0 and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
+			return true
+		if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
+			return true
 	return false
 
 func _on_goal_anim():
 	var scorer = current_player
 	print("GOL! Gracz %d strzelił!" % scorer)
 	_hide_combo()
-	# Górna bramka (y<0) = bramka AI, więc gracz 1 strzelił
-	# Dolna bramka (y>ROWS) = bramka gracza, więc AI strzelił
-	var player_scored = (ball_grid_pos.y < 0)  # gracz 1 strzelił AI
+	var player_scored: bool
+	if level_data.get("orientation", "vertical") == "horizontal":
+		player_scored = (ball_grid_pos.x < 0)  # lewa bramka = bramka AI = gracz strzelił
+	else:
+		player_scored = (ball_grid_pos.y < 0)  # górna bramka = bramka AI = gracz strzelił
 	if player_scored:
-		score += 500  # bonus za gola
+		score += 500
 		_show_popup_win()
 	else:
 		_show_popup_fail()
@@ -839,6 +1060,7 @@ func _game_over(winner: int):
 
 func _show_popup_win():
 	ai_thinking = true
+	_game_ended = true
 	var popup = scene_complete.instantiate()
 	# Ustaw przed add_child — _ready odczyta i animuje od 0 do tych wartości
 	var ctrl = popup.get_node("Control")
@@ -848,6 +1070,7 @@ func _show_popup_win():
 
 func _show_popup_fail():
 	ai_thinking = true
+	_game_ended = true
 	var popup = scene_failed.instantiate()
 	var ctrl = popup.get_node("Control")
 	ctrl.score = score
@@ -858,6 +1081,7 @@ func _show_popup_fail():
 # ——————————————————————————————————————————
 
 func _ai_take_turn():
+	if _game_ended: return
 	# Minimax bez wątku — używamy call_deferred żeby nie blokować animacji
 	var best = _minimax_root(ball_grid_pos, used_edges.duplicate(), AI_PLAYER, AI_DEPTH)
 	if best == null:
@@ -878,11 +1102,24 @@ func _do_move_silent(target: Vector2i):
 	move_history.append({"from": from, "to": target, "ek": ek, "player": current_player, "line": trail_line})
 
 	var scored = _check_goal(target)
-	_animate_ball(target, scored)
+	_animate_ball(target, false)
 	ball_grid_pos = target
 
 	if scored:
+		_game_ended = true
 		ai_thinking = false
+		_hide_combo()
+		score += 500
+		var player_scored: bool
+		if level_data.get("orientation", "vertical") == "horizontal":
+			player_scored = (ball_grid_pos.x < 0)
+		else:
+			player_scored = (ball_grid_pos.y < 0)
+		await get_tree().create_timer(0.25).timeout
+		if player_scored:
+			_show_popup_win()
+		else:
+			_show_popup_fail()
 		return
 
 	# Teleport — jeśli piłka wchodzi na teleport
@@ -956,9 +1193,16 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 		# Bonus za teleport jeśli prowadzi bliżej bramki przeciwnika
 		var tp_dest = _teleport_destination_pure(move)
 		if tp_dest != null:
-			var goal_center_x = float(GOAL_COL_START) + float(GOAL_COLS) / 2.0
-			var dist_before = abs(move.x - goal_center_x) * 0.5 + float(ROWS - move.y)
-			var dist_after  = abs(tp_dest.x - goal_center_x) * 0.5 + float(ROWS - tp_dest.y)
+			var dist_before: float
+			var dist_after: float
+			if level_data.get("orientation", "vertical") == "horizontal":
+				var goal_center_y = float(GOAL_ROW_START) + float(GOAL_ROWS) / 2.0
+				dist_before = abs(move.y - goal_center_y) * 0.5 + float(COLS - move.x)
+				dist_after  = abs(tp_dest.y - goal_center_y) * 0.5 + float(COLS - tp_dest.x)
+			else:
+				var goal_center_x = float(GOAL_COL_START) + float(GOAL_COLS) / 2.0
+				dist_before = abs(move.x - goal_center_x) * 0.5 + float(ROWS - move.y)
+				dist_after  = abs(tp_dest.x - goal_center_x) * 0.5 + float(ROWS - tp_dest.y)
 			if dist_after < dist_before:
 				score += 80.0  # teleport przybliża do bramki — dobry ruch
 
@@ -976,14 +1220,20 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 # maximizing = true gdy AI (gracz 2) jest na ruchu
 func _minimax(pos: Vector2i, edges: Dictionary, player: int, depth: int, alpha: float, beta: float, maximizing: bool) -> float:
 	# Sprawdź terminal: gol
-	# Górna bramka (y<0) = bramka AI — kto tu wchodzi strzela AI gola (źle dla AI)
-	# Dolna bramka (y>ROWS) = bramka gracza — kto tu wchodzi strzela graczowi gola (dobrze dla AI)
-	# Górna bramka (y<0) = bramka AI — piłka tu = GOL GRACZA = źle dla AI
-	if pos.y < 0 and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
-		return -10000.0 - depth  # Zawsze źle dla AI niezależnie kto wchodził
-	# Dolna bramka (y>ROWS) = bramka gracza — piłka tu = GOL AI = świetnie dla AI
-	if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
-		return 10000.0 + depth   # Zawsze świetnie dla AI
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# Lewa bramka (x<0) = bramka AI (RED) = GOL GRACZA = źle dla AI
+		if pos.x < 0 and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+			return -10000.0 - depth
+		# Prawa bramka (x>COLS) = bramka gracza (BLUE) = GOL AI = świetnie dla AI
+		if pos.x > COLS and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+			return 10000.0 + depth
+	else:
+		# Górna bramka (y<0) = bramka AI — piłka tu = GOL GRACZA = źle dla AI
+		if pos.y < 0 and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
+			return -10000.0 - depth
+		# Dolna bramka (y>ROWS) = bramka gracza — piłka tu = GOL AI = świetnie dla AI
+		if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
+			return 10000.0 + depth
 
 	if depth == 0:
 		return _heuristic(pos, edges)
@@ -1023,12 +1273,19 @@ func _minimax(pos: Vector2i, edges: Dictionary, player: int, depth: int, alpha: 
 
 # Heurystyka z perspektywy AI — tylko tanie obliczenia, bez BFS
 func _heuristic(pos: Vector2i, edges: Dictionary) -> float:
-	var goal_center_x = float(GOAL_COL_START) + float(GOAL_COLS) / 2.0
-
-	# Pozycja: AI atakuje dolną bramkę (duże y), broni górnej
-	var dist_to_attack = abs(pos.x - goal_center_x) * 0.5 + float(ROWS - pos.y)
-	var dist_to_defend = abs(pos.x - goal_center_x) * 0.5 + float(pos.y)
-	var position_score = (dist_to_defend - dist_to_attack) * 12.0
+	var position_score: float
+	if level_data.get("orientation", "vertical") == "horizontal":
+		# AI atakuje prawą bramkę (duże x), broni lewej
+		var goal_center_y = float(GOAL_ROW_START) + float(GOAL_ROWS) / 2.0
+		var dist_to_attack = abs(pos.y - goal_center_y) * 0.5 + float(COLS - pos.x)
+		var dist_to_defend = abs(pos.y - goal_center_y) * 0.5 + float(pos.x)
+		position_score = (dist_to_defend - dist_to_attack) * 12.0
+	else:
+		var goal_center_x = float(GOAL_COL_START) + float(GOAL_COLS) / 2.0
+		# Pozycja: AI atakuje dolną bramkę (duże y), broni górnej
+		var dist_to_attack = abs(pos.x - goal_center_x) * 0.5 + float(ROWS - pos.y)
+		var dist_to_defend = abs(pos.x - goal_center_x) * 0.5 + float(pos.y)
+		position_score = (dist_to_defend - dist_to_attack) * 12.0
 
 	# Mobilność — ile ruchów z obecnej pozycji (O(8), bardzo tanie)
 	var my_moves = _get_moves_pure(pos, edges)
@@ -1128,11 +1385,18 @@ func _node_has_trail_pure(pos: Vector2i, edges: Dictionary) -> bool:
 			var nb = Vector2i(pos.x + dx, pos.y + dy)
 			if edges.has(edge_key(pos, nb)):
 				count += 1
-	if pos.x == 0: count += 1
-	if pos.x == COLS: count += 1
-	var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
-	if pos.y == 0 and not in_goal_interior: count += 1
-	if pos.y == ROWS and not in_goal_interior: count += 1
+	if level_data.get("orientation", "vertical") == "horizontal":
+		if pos.y == 0: count += 1
+		if pos.y == ROWS: count += 1
+		var in_goal_interior_h = (pos.y > GOAL_ROW_START and pos.y < GOAL_ROW_START + GOAL_ROWS)
+		if pos.x == 0 and not in_goal_interior_h: count += 1
+		if pos.x == COLS and not in_goal_interior_h: count += 1
+	else:
+		if pos.x == 0: count += 1
+		if pos.x == COLS: count += 1
+		var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
+		if pos.y == 0 and not in_goal_interior: count += 1
+		if pos.y == ROWS and not in_goal_interior: count += 1
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = pos.y + dr; var cc = pos.x + dc
@@ -1142,27 +1406,37 @@ func _node_has_trail_pure(pos: Vector2i, edges: Dictionary) -> bool:
 	return count >= 2
 
 func _is_goal_pure(pos: Vector2i) -> bool:
-	if pos.y < 0 and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
-		return true
-	if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
-		return true
+	if level_data.get("orientation", "vertical") == "horizontal":
+		if pos.x < 0 and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+			return true
+		if pos.x > COLS and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+			return true
+	else:
+		if pos.y < 0 and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
+			return true
+		if pos.y > ROWS and pos.x >= GOAL_COL_START and pos.x <= GOAL_COL_START + GOAL_COLS:
+			return true
 	return false
 
 # ——————————————————————————————————————————
 #  DETEKCJA ODCIĘCIA
 # ——————————————————————————————————————————
 
-# BFS od pozycji piłki — czy można dotrzeć do dowolnego węzła bramki górnej (y<0) lub dolnej (y>ROWS)
+# BFS od pozycji piłki — czy można dotrzeć do bramki
+# target_is_top: dla pionowej = górna (AI), dla poziomej = lewa (AI)
 func _can_reach_goal(target_is_top: bool) -> bool:
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
 	var visited: Dictionary = {}
 	var queue: Array = [ball_grid_pos]
 	visited[ball_grid_pos] = true
 	while not queue.is_empty():
 		var pos: Vector2i = queue.pop_front()
-		if target_is_top and pos.y < 0:
-			return true
-		if not target_is_top and pos.y > ROWS:
-			return true
+		if is_h:
+			if target_is_top and pos.x < 0: return true
+			if not target_is_top and pos.x > COLS: return true
+		else:
+			if target_is_top and pos.y < 0: return true
+			if not target_is_top and pos.y > ROWS: return true
 		for dx in [-1, 0, 1]:
 			for dy in [-1, 0, 1]:
 				if dx == 0 and dy == 0: continue
@@ -1170,8 +1444,6 @@ func _can_reach_goal(target_is_top: bool) -> bool:
 				if visited.has(nb): continue
 				if not is_valid_node(nb.x, nb.y): continue
 				if used_edges.has(edge_key(pos, nb)): continue
-				# BFS używa tylko FIZYCZNYCH barier — nie blokuje ruchów wzdłuż obstacle
-				# (te są niedozwolone w grze ale nie tworzą fizycznej ściany dla BFS)
 				if _is_physical_wall(pos, nb): continue
 				visited[nb] = true
 				queue.append(nb)
@@ -1208,6 +1480,9 @@ func _node_accessible(gx: int, gy: int) -> bool:
 
 # Sprawdź po każdym ruchu czy któraś bramka jest odcięta
 func _check_cutoff():
+	# Dla orientacji poziomej bramki są po bokach — mechanizm odcięcia góra/dół nie działa
+	if level_data.get("orientation", "vertical") == "horizontal":
+		return
 	# Nie sprawdzaj tuż po rollbacku — zostawiona linia mogłaby fałszywie blokować
 	if _just_rolled_back:
 		_just_rolled_back = false
@@ -1531,51 +1806,77 @@ func _build_board():
 	field_h = ROWS      * QUAD_SIZE + (ROWS      - 1) * GAP
 	goal_w  = GOAL_COLS * QUAD_SIZE + (GOAL_COLS - 1) * GAP
 
-	# goal_h = dokładnie jeden krok siatki + inner (żeby bramka była odsunięta
-	# od boiska o tyle samo co kafelki boiska od siebie)
-	# Krok siatki = QUAD_SIZE + GAP, inner = BORDER + PADDING
-	# goal_h to odległość od y=0 do pierwszego wiersza boiska
-	# goal_h = QUAD_SIZE + GAP  →  row_cy(-1) = goal_h + inner - (QUAD_SIZE+GAP) = inner ✓
-	# Kafelek bramki ląduje dokładnie na y=inner, identycznie jak place_quad_type
-	goal_h = QUAD_SIZE + GAP
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
+	var step = QUAD_SIZE + GAP
 
-	var board_w = field_w + inner * 2
-	var board_h = goal_h * 2 + inner * 2 + field_h
-	# board_h = inner + bramka_górna(QUAD_SIZE+GAP) + inner + boisko + inner + bramka_dolna(QUAD_SIZE+GAP) + inner
+	if is_h:
+		# Orientacja pozioma: bramki po bokach, goal_h=0 (brak bramek góra/dół)
+		goal_h = 0
+		# board_w = lewa_bramka + inner + pole + inner + prawa_bramka
+		var board_w = step + inner * 2 + field_w
+		var board_h = inner * 2 + field_h
+		custom_minimum_size = Vector2(board_w, board_h)
+		anchor_left = 0.5; anchor_right  = 0.5
+		anchor_top  = 0.5; anchor_bottom = 0.5
+		offset_left   = -board_w / 2.0; offset_right  = board_w / 2.0
+		offset_top    = -board_h / 2.0; offset_bottom = board_h / 2.0
 
-	custom_minimum_size = Vector2(board_w, board_h)
-	# Przywróć oryginalne anchory — wyśrodkowanie względem rodzica
-	anchor_left = 0.5; anchor_right  = 0.5
-	anchor_top  = 0.5; anchor_bottom = 0.5
-	offset_left   = -board_w / 2.0; offset_right  = board_w / 2.0
-	offset_top    = -board_h / 2.0; offset_bottom = board_h / 2.0
+		_add_field_bg(board_w)
 
-	# Szerokość panelu bramki: border + padding + kafelki bramki + padding + border
-	var goal_panel_w = BORDER * 2 + PADDING * 2 + goal_w
-	var goal_x       = (board_w - goal_panel_w) / 2.0
-	var goal_quad_x  = goal_x + BORDER + PADDING
+		# Kafelki boiska (przesunięte o step w prawo bo lewa bramka zajmuje krok)
+		for row in range(ROWS):
+			for col in range(COLS):
+				if _is_obstacle(row, col): continue
+				var use_f2 = (row + col) % 2 == 1
+				_place_quad(Vector2(
+					step + inner + col * step,
+					inner + row * step
+				), use_f2)
 
-	_add_field_bg(board_w)
+		# Kafelki bramek bocznych
+		for gc in goal_cells_data:
+			var px: float
+			if gc["col"] < 0:
+				px = inner  # lewa bramka
+			else:
+				px = step + inner + COLS * step  # prawa bramka
+			var py = inner + gc["row"] * step
+			var quad_scene = quad_f4 if gc["type"] == 3 else quad_f3
+			_place_quad_type(Vector2(px, py), quad_scene)
+	else:
+		# Orientacja pionowa (oryginalna)
+		goal_h = step
 
-	# Kafelki górnej bramki: pozycja y = inner (padding od góry)
-	# To odpowiada row=-1 w siatce: goal_h + inner + (-1)*(QUAD_SIZE+GAP) = inner
-	for i in range(GOAL_COLS):
-		_place_quad_type(Vector2(goal_quad_x + i * (QUAD_SIZE + GAP), inner), quad_f4)
+		var board_w = field_w + inner * 2
+		var board_h = goal_h * 2 + inner * 2 + field_h
 
-	# Kafelki boiska
-	for row in range(ROWS):
-		for col in range(COLS):
-			if _is_obstacle(row, col): continue
-			var use_f2 = (row + col) % 2 == 1
-			_place_quad(Vector2(
-				inner + col * (QUAD_SIZE + GAP),
-				goal_h + inner + row * (QUAD_SIZE + GAP)
-			), use_f2)
+		custom_minimum_size = Vector2(board_w, board_h)
+		anchor_left = 0.5; anchor_right  = 0.5
+		anchor_top  = 0.5; anchor_bottom = 0.5
+		offset_left   = -board_w / 2.0; offset_right  = board_w / 2.0
+		offset_top    = -board_h / 2.0; offset_bottom = board_h / 2.0
 
-	# Kafelki dolnej bramki: row=ROWS → goal_h + inner + ROWS*(QUAD_SIZE+GAP)
-	var bot_quad_y = goal_h + inner + ROWS * (QUAD_SIZE + GAP)
-	for i in range(GOAL_COLS):
-		_place_quad_type(Vector2(goal_quad_x + i * (QUAD_SIZE + GAP), bot_quad_y), quad_f3)
+		var goal_panel_w = BORDER * 2 + PADDING * 2 + goal_w
+		var goal_x       = (board_w - goal_panel_w) / 2.0
+		var goal_quad_x  = goal_x + BORDER + PADDING
+
+		_add_field_bg(board_w)
+
+		for i in range(GOAL_COLS):
+			_place_quad_type(Vector2(goal_quad_x + i * step, inner), quad_f4)
+
+		for row in range(ROWS):
+			for col in range(COLS):
+				if _is_obstacle(row, col): continue
+				var use_f2 = (row + col) % 2 == 1
+				_place_quad(Vector2(
+					inner + col * step,
+					goal_h + inner + row * step
+				), use_f2)
+
+		var bot_quad_y = goal_h + inner + ROWS * step
+		for i in range(GOAL_COLS):
+			_place_quad_type(Vector2(goal_quad_x + i * step, bot_quad_y), quad_f3)
 
 func _place_quad(pos: Vector2, use_f2: bool):
 	var quad = quad_f2.instantiate() if use_f2 else quad_f1.instantiate()
@@ -1591,60 +1892,104 @@ func _add_field_bg(_board_w: float):
 	_add_shaped_field_bg()
 
 func _add_shaped_field_bg():
-	# Tło: panel na każdą aktywną komórkę (boisko + bramki).
-	# Rozszerzamy o GAP/2+1 w kierunku sąsiada żeby nie było szczelin.
 	var ovr = GAP / 2.0 + 1.0
+	var step = QUAD_SIZE + GAP
+	var is_h = level_data.get("orientation", "vertical") == "horizontal"
 
-	# Pomocnik pozycji y dla wiersza (bramki to row=-1 i row=ROWS)
-	var row_cy = func(row: int) -> float:
-		return float(goal_h + inner + row * (QUAD_SIZE + GAP))
+	if is_h:
+		# ── Poziome boisko ──────────────────────────────────────────────
+		# cx boiska = step + inner + col*step (przesunięcie o lewą bramkę)
+		for row in range(ROWS):
+			for col in range(COLS):
+				if _is_obstacle(row, col): continue
+				var cx = step + inner + col * step
+				var cy = inner + row * step
+				var has_l = col > 0      and not _is_obstacle(row, col-1)
+				var has_r = col < COLS-1 and not _is_obstacle(row, col+1)
+				var has_t = row > 0      and not _is_obstacle(row-1, col)
+				var has_b = row < ROWS-1 and not _is_obstacle(row+1, col)
+				var goal_l = col == 0      and _is_goal_row(row)
+				var goal_r = col == COLS-1 and _is_goal_row(row)
+				var el = ovr if (has_l or goal_l) else 1.0
+				var er2 = ovr if (has_r or goal_r) else 1.0
+				var et = ovr if has_t else 1.0
+				var eb = ovr if has_b else 1.0
+				var cell = Panel.new()
+				cell.position = Vector2(cx - el, cy - et)
+				cell.size     = Vector2(QUAD_SIZE + el + er2, QUAD_SIZE + et + eb)
+				var sty = StyleBoxFlat.new(); sty.bg_color = FIELD_COLOR
+				cell.add_theme_stylebox_override("panel", sty)
+				cell.z_index = 0
+				add_child(cell)
 
-	# Boisko
-	for row in range(ROWS):
-		for col in range(COLS):
-			if _is_obstacle(row, col): continue
-			var cx = inner + col * (QUAD_SIZE + GAP)
-			var cy = row_cy.call(row)
-			var has_l = col > 0      and not _is_obstacle(row, col-1)
-			var has_r = col < COLS-1 and not _is_obstacle(row, col+1)
-			var has_t = row > 0      and not _is_obstacle(row-1, col)
-			var has_b = row < ROWS-1 and not _is_obstacle(row+1, col)
-			var goal_t = row == 0      and _is_goal_col(col)
-			var goal_b = row == ROWS-1 and _is_goal_col(col)
-			var el = ovr if has_l          else 1.0
-			var er = ovr if has_r          else 1.0
-			var et = ovr if (has_t or goal_t) else 1.0
-			var eb = ovr if (has_b or goal_b) else 1.0
-			var cell = Panel.new()
-			cell.position = Vector2(cx - el, cy - et)
-			cell.size     = Vector2(QUAD_SIZE + el + er, QUAD_SIZE + et + eb)
-			var sty = StyleBoxFlat.new(); sty.bg_color = FIELD_COLOR
-			cell.add_theme_stylebox_override("panel", sty)
-			cell.z_index = 0
-			add_child(cell)
+		# Bramki boczne — jeden wysoki panel po lewej i po prawej
+		var goal_ry_start = inner + GOAL_ROW_START * step
+		var goal_ry_end   = inner + (GOAL_ROW_START + GOAL_ROWS - 1) * step + QUAD_SIZE
+		var goal_bg_h = goal_ry_end - goal_ry_start
 
-	# Bramki (row=-1 i row=ROWS) — jeden szeroki panel na wszystkie kolumny bramki
-	var goal_cx_start = inner + GOAL_COL_START * (QUAD_SIZE + GAP)
-	var goal_cx_end   = inner + (GOAL_COL_START + GOAL_COLS - 1) * (QUAD_SIZE + GAP) + QUAD_SIZE
-	var goal_bg_w     = goal_cx_end - goal_cx_start
-	# Górna: od cy_top-1 do cy_0 + QUAD_SIZE + ovr
-	var cy_top = row_cy.call(-1)
-	var cy_0   = row_cy.call(0)
-	var gt = Panel.new()
-	gt.position = Vector2(goal_cx_start - 1.0, cy_top - 1.0)
-	gt.size     = Vector2(goal_bg_w + 2.0, (cy_0 + QUAD_SIZE + ovr) - (cy_top - 1.0) + 1.0)
-	var st = StyleBoxFlat.new(); st.bg_color = FIELD_COLOR
-	gt.add_theme_stylebox_override("panel", st); gt.z_index = 0; add_child(gt)
-	# Dolna: od cy_last + QUAD_SIZE - ovr do cy_bot + QUAD_SIZE + 1
-	var cy_bot  = row_cy.call(ROWS)
-	var cy_last = row_cy.call(ROWS - 1)
-	var gb = Panel.new()
-	gb.position = Vector2(goal_cx_start - 1.0, cy_last + QUAD_SIZE - ovr - 1.0)
-	gb.size     = Vector2(goal_bg_w + 2.0, (cy_bot + QUAD_SIZE + 1.0) - (cy_last + QUAD_SIZE - ovr - 1.0))
-	var sb = StyleBoxFlat.new(); sb.bg_color = FIELD_COLOR
-	gb.add_theme_stylebox_override("panel", sb); gb.z_index = 0; add_child(gb)
+		# Lewa bramka: od inner do step+inner (pole gry), połączona z col=0 boiska
+		var cx_field_left = step + inner  # lewa krawędź pola gry
+		var gl = Panel.new()
+		gl.position = Vector2(inner - 1.0, goal_ry_start - 1.0)
+		gl.size     = Vector2((cx_field_left + ovr) - (inner - 1.0) + 1.0, goal_bg_h + 2.0)
+		var sl = StyleBoxFlat.new(); sl.bg_color = FIELD_COLOR
+		gl.add_theme_stylebox_override("panel", sl); gl.z_index = 0; add_child(gl)
 
-	# Border
+		# Prawa bramka
+		var cx_field_right = step + inner + COLS * step  # prawa krawędź pola gry
+		var gr = Panel.new()
+		gr.position = Vector2(cx_field_right - ovr, goal_ry_start - 1.0)
+		gr.size     = Vector2((inner + step + COLS * step + QUAD_SIZE + 1.0) - (cx_field_right - ovr), goal_bg_h + 2.0)
+		var sr = StyleBoxFlat.new(); sr.bg_color = FIELD_COLOR
+		gr.add_theme_stylebox_override("panel", sr); gr.z_index = 0; add_child(gr)
+
+	else:
+		# ── Pionowe boisko (oryginał) ────────────────────────────────────
+		var row_cy = func(row: int) -> float:
+			return float(goal_h + inner + row * step)
+
+		for row in range(ROWS):
+			for col in range(COLS):
+				if _is_obstacle(row, col): continue
+				var cx = inner + col * step
+				var cy = row_cy.call(row)
+				var has_l = col > 0      and not _is_obstacle(row, col-1)
+				var has_r = col < COLS-1 and not _is_obstacle(row, col+1)
+				var has_t = row > 0      and not _is_obstacle(row-1, col)
+				var has_b = row < ROWS-1 and not _is_obstacle(row+1, col)
+				var goal_t = row == 0      and _is_goal_col(col)
+				var goal_b = row == ROWS-1 and _is_goal_col(col)
+				var el = ovr if has_l          else 1.0
+				var er2 = ovr if has_r          else 1.0
+				var et = ovr if (has_t or goal_t) else 1.0
+				var eb = ovr if (has_b or goal_b) else 1.0
+				var cell = Panel.new()
+				cell.position = Vector2(cx - el, cy - et)
+				cell.size     = Vector2(QUAD_SIZE + el + er2, QUAD_SIZE + et + eb)
+				var sty = StyleBoxFlat.new(); sty.bg_color = FIELD_COLOR
+				cell.add_theme_stylebox_override("panel", sty)
+				cell.z_index = 0
+				add_child(cell)
+
+		var goal_cx_start = inner + GOAL_COL_START * step
+		var goal_cx_end   = inner + (GOAL_COL_START + GOAL_COLS - 1) * step + QUAD_SIZE
+		var goal_bg_w     = goal_cx_end - goal_cx_start
+		var cy_top = row_cy.call(-1)
+		var cy_0   = row_cy.call(0)
+		var gt = Panel.new()
+		gt.position = Vector2(goal_cx_start - 1.0, cy_top - 1.0)
+		gt.size     = Vector2(goal_bg_w + 2.0, (cy_0 + QUAD_SIZE + ovr) - (cy_top - 1.0) + 1.0)
+		var st = StyleBoxFlat.new(); st.bg_color = FIELD_COLOR
+		gt.add_theme_stylebox_override("panel", st); gt.z_index = 0; add_child(gt)
+		var cy_bot  = row_cy.call(ROWS)
+		var cy_last = row_cy.call(ROWS - 1)
+		var gb = Panel.new()
+		gb.position = Vector2(goal_cx_start - 1.0, cy_last + QUAD_SIZE - ovr - 1.0)
+		gb.size     = Vector2(goal_bg_w + 2.0, (cy_bot + QUAD_SIZE + 1.0) - (cy_last + QUAD_SIZE - ovr - 1.0))
+		var sb = StyleBoxFlat.new(); sb.bg_color = FIELD_COLOR
+		gb.add_theme_stylebox_override("panel", sb); gb.z_index = 0; add_child(gb)
+
+	# Border (wspólny)
 	var bnode = Node2D.new()
 	bnode.z_index = 3
 	add_child(bnode)
@@ -1654,23 +1999,34 @@ func _add_shaped_field_bg():
 func _is_goal_col(col: int) -> bool:
 	return col >= GOAL_COL_START and col <= GOAL_COL_START + GOAL_COLS - 1
 
+func _is_goal_row(row: int) -> bool:
+	return row >= GOAL_ROW_START and row <= GOAL_ROW_START + GOAL_ROWS - 1
+
 func _draw_shaped_border(bnode: Node2D):
 	if not is_instance_valid(bnode): return
 	var bw  = float(BORDER) - 2.0  # rysuj nieco cieniej żeby nie wystawało poza pad
 	var pad = 4.0
 	var rc  = CORNER_RADIUS
+	var step = QUAD_SIZE + GAP
 
 	var row_cy = func(row: int) -> float:
 		return float(goal_h + inner + row * (QUAD_SIZE + GAP))
 
 	var active_set: Dictionary = {}
+	var is_h2 = level_data.get("orientation", "vertical") == "horizontal"
 	for row in range(ROWS):
 		for col in range(COLS):
 			if not _is_obstacle(row, col):
 				active_set[Vector2i(col, row)] = true
-	for i in range(GOAL_COLS):
-		active_set[Vector2i(GOAL_COL_START + i, -1)]  = true
-		active_set[Vector2i(GOAL_COL_START + i, ROWS)] = true
+	if is_h2:
+		# Bramki boczne: col=-1 (lewa) i col=COLS (prawa)
+		for r in range(GOAL_ROW_START, GOAL_ROW_START + GOAL_ROWS):
+			active_set[Vector2i(-1, r)]    = true
+			active_set[Vector2i(COLS, r)]  = true
+	else:
+		for i in range(GOAL_COLS):
+			active_set[Vector2i(GOAL_COL_START + i, -1)]  = true
+			active_set[Vector2i(GOAL_COL_START + i, ROWS)] = true
 
 	var h_edges: Array = []
 	var v_edges: Array = []
@@ -1678,8 +2034,14 @@ func _draw_shaped_border(bnode: Node2D):
 	for cell_key in active_set:
 		var col: int = cell_key.x
 		var row: int = cell_key.y
-		var cx = inner + col * (QUAD_SIZE + GAP)
-		var cy = row_cy.call(row)
+		var cx: float
+		var cy: float
+		if is_h2:
+			cx = step + inner + col * step
+			cy = inner + row * step
+		else:
+			cx = inner + col * (QUAD_SIZE + GAP)
+			cy = row_cy.call(row)
 		var x0 = cx - pad;             var y0 = cy - pad
 		var x1 = cx + QUAD_SIZE + pad;  var y1 = cy + QUAD_SIZE + pad
 

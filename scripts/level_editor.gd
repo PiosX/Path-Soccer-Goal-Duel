@@ -247,8 +247,8 @@ func _generate_random():
 			var r = rng.randi_range(1, rows/2 - 1)
 			var c = rng.randi_range(0, cols/2 - 1)
 			if grid[r][c] == Cell.FIELD:
-				grid[r][c] = Cell.OBSTACLE
-				_apply_symmetry(r, c, Cell.OBSTACLE)
+				grid[r][c] = Cell.EMPTY
+				_apply_symmetry(r, c, Cell.EMPTY)
 				placed += 1
 
 	_set_status("Wygenerowano losowy poziom")
@@ -375,7 +375,6 @@ func _save_level():
 	var id = int(level_id_edit.text) if level_id_edit.text.is_valid_int() else current_level_id
 	current_level_id = id
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://levels"))
-	# Teleporty — węzły siatki zapisane w przestrzeni edytora (gy bez przesunięcia)
 	var tp_a_data = []
 	for t in teleport_nodes_a:
 		tp_a_data.append({"gx": t.x, "gy": t.y})
