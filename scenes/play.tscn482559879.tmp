@@ -155,7 +155,7 @@ offset_bottom = 107.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("9_l5yu4")
 theme_override_font_sizes/font_size = 28
-horizontal_alignment = 1
+text = "MASTER YI"
 
 [node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control" unique_id=2132798934]
 custom_minimum_size = Vector2(0, 80)
@@ -172,6 +172,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_fonts/font = ExtResource("9_l5yu4")
 theme_override_font_sizes/font_size = 36
+text = "1251"
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=1985879968]
 layout_mode = 2

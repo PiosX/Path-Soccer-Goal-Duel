@@ -238,23 +238,24 @@ func _on_next_pressed():
 	_slide_grids(grid_page1, grid_page2, -1)  # slide w lewo
 
 func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
+	var target_pos = grid_in.position  # pozycja z anchorów — już jest poprawna
 	grid_in.visible = true
-	grid_in.position = Vector2(GRID_X + (grid_in.size.x * -direction), GRID_Y)
+	grid_in.position = Vector2(target_pos.x + (grid_in.size.x * -direction), target_pos.y)
 	grid_in.modulate.a = 0.0
 	_update_nav_buttons()
-	
+
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(grid_out, "position:x", GRID_X + (grid_out.size.x * direction), 0.25)\
+	tween.tween_property(grid_out, "position:x", grid_out.position.x + (grid_out.size.x * direction), 0.25)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(grid_out, "modulate:a", 0.0, 0.2)
-	tween.tween_property(grid_in, "position:x", GRID_X, 0.25)\
+	tween.tween_property(grid_in, "position:x", target_pos.x, 0.25)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(grid_in, "modulate:a", 1.0, 0.2)
-	
+
 	await tween.finished
 	grid_out.visible = false
-	grid_out.position = Vector2(GRID_X, GRID_Y)
+	grid_out.position = Vector2(grid_out.position.x - (grid_out.size.x * direction), grid_out.position.y)  # reset
 	grid_out.modulate.a = 1.0
 
 # ————— ONLINE —————

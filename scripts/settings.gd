@@ -4,11 +4,17 @@ var buttons_visible = false
 var sound_on = true
 var music_on = true
 
+# ————— PLAYFAB —————
+const PLAYFAB_URL = "https://139617.playfabapi.com"
+
 # ————— SETTINGS TOGGLE —————
 
 func _ready():
 	await get_tree().process_frame
-	
+
+	# Załaduj nick i gold z sesji / PlayFab
+	_load_player_info()
+
 	var all_buttons = [
 		get_node_or_null("VBoxContainer/Button_Settings"),
 		get_node_or_null("VBoxContainer/Button_Sound"),
@@ -179,3 +185,64 @@ func _on_nav4_pressed():
 func _play_and_wait():
 	$SoundClick.play()
 	await $SoundClick.finished
+
+# ————— NICK I GOLD —————
+
+func _load_player_info():
+	var cfg = ConfigFile.new()
+	var err = cfg.load("user://session.cfg")
+	if cfg.load("user://session.cfg") != OK:
+		return
+	var nick   = cfg.get_value("session", "nick", "")
+	var ticket = cfg.get_value("session", "ticket", "")
+	var gold   = cfg.get_value("session", "gold", 20)
+
+	var label_nick = get_node_or_null("Nickname")
+	if label_nick and nick != "":
+		label_nick.text = nick
+
+	var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
+	if label_coins:
+		label_coins.text = str(gold)
+
+	# PlayFab w tle — tylko aktualizuje jeśli się zmieniło
+	if ticket != "":
+		_fetch_gold(ticket)
+
+func _fetch_gold(ticket: String):
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var body = { "Keys": ["gold"] }
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/GetUserData",
+		headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	var response = await http.request_completed
+	http.queue_free()
+
+	if response[1] != 200:
+		return
+
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK:
+		return
+
+	var parsed = json.get_data()
+	if parsed.get("code", 0) != 200:
+		return
+
+	var data = parsed.get("data", {}).get("Data", {})
+	var gold_str = data.get("gold", {}).get("Value", "0")
+	var gold = int(gold_str)
+
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	cfg.set_value("session", "gold", gold)
+	cfg.save("user://session.cfg")
+
+	var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
+	if label_coins:
+		label_coins.text = str(gold)

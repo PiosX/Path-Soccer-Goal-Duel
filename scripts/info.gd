@@ -3,6 +3,7 @@ extends CanvasLayer
 # ————— ISTNIEJĄCE —————
 @onready var sound_click = $MarginContainer/Control/SoundClick
 @onready var btn_privacy = $MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy
+@onready var btn_terms = $MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Terms
 
 # ————— FORMULARZE —————
 @onready var register   = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register
@@ -34,7 +35,7 @@ var _busy := false
 func _ready():
 	await get_tree().process_frame
 
-	for btn in [btn_privacy, btn_register, btn_logout, btn_delete]:
+	for btn in [btn_privacy, btn_terms, btn_register, btn_logout, btn_delete]:
 		if btn:
 			btn.pivot_offset = btn.size / 2
 
@@ -238,12 +239,21 @@ func _show_error(label: Label, msg: String):
 
 func _on_privacy_pressed():
 	sound_click.play()
-	OS.shell_open("https://redmoongames.carrd.co/")
+	OS.shell_open("https://redmoongames-path-pp.carrd.co/")
 
 func _on_privacy_mouse_entered():
 	_scale_button(btn_privacy, 0.9)
 func _on_privacy_mouse_exited():
 	_scale_button(btn_privacy, 1.0)
+	
+func _on_terms_pressed():
+	sound_click.play()
+	OS.shell_open("https://redmoongames-path-tos.carrd.co/")
+	
+func _on_terms_mouse_entered():
+	_scale_button(btn_terms, 0.9)
+func _on_terms_mouse_exited():
+	_scale_button(btn_terms, 1.0)
 
 func _on_texture_button_register_mouse_entered():
 	_scale_button(btn_register, 0.9)

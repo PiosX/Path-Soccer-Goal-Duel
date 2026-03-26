@@ -20,6 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="13_f7js3"]
 [ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="14_t77mh"]
 [ext_resource type="Texture2D" uid="uid://xm4x8apb7b3q" path="res://ui/common/info.png" id="15_ascja"]
+[ext_resource type="Texture2D" uid="uid://d2oqkvqkvo3ee" path="res://ui/info/title-terms.png" id="15_sjvpb"]
 [ext_resource type="Texture2D" uid="uid://dshgnnpr53ck1" path="res://ui/common/play-btn.png" id="16_6uer7"]
 [ext_resource type="Texture2D" uid="uid://rvtdcfucieib" path="res://ui/common/modes-btn.png" id="17_7frwq"]
 [ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="18_mpmey"]
@@ -178,7 +179,7 @@ offset_bottom = 107.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 28
-text = "MASTER YI"
+horizontal_alignment = 1
 
 [node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control" unique_id=1320388568]
 custom_minimum_size = Vector2(0, 80)
@@ -204,13 +205,12 @@ stretch_mode = 5
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/Control" unique_id=636063375]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -300.0
-offset_top = 170.0
-offset_right = 300.0
-offset_bottom = 990.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 30.0
+offset_top = 160.0
+offset_right = -30.0
+offset_bottom = 1000.0
 grow_horizontal = 2
 horizontal_scroll_mode = 0
 
@@ -221,6 +221,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 20
 
 [node name="HBoxContainer_Account" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=676045156]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
@@ -361,6 +362,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("9_oq0du")
 
 [node name="Registered" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=822735378]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 20
 
@@ -555,6 +557,41 @@ size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("9_sii4c")
 
+[node name="Terms_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=220393219]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Terms_Title" unique_id=834991748]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Terms_Title" unique_id=1246563657]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("15_sjvpb")
+
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Terms_Title" unique_id=1620336613]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Label_Terms_Text" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=7040448]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 30
+text = "Our Terms of Service are available at:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureButton_Terms" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=84945936]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_sii4c")
+
 [node name="Contact_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=633417008]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -701,6 +738,9 @@ texture_normal = ExtResource("19_hr3he")
 [connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Terms" to="." method="_on_terms_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Terms" to="." method="_on_terms_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Terms" to="." method="_on_terms_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_pressed"]

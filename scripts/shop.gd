@@ -27,19 +27,24 @@ var tex_active = preload("res://ui/shop/active.png")
 # ————— STAN —————
 var current_panel = 0
 var current_page = 0
-const GRID_X = 52.0
-const GRID_Y = 315.0
 
 var skin_states = []
 const TOTAL_SKINS = 24
+const SKIN_PRICE = 200
 var active_skin_index = 0
 var active_tween: Tween = null
 var active_skin_ctrl: Control = null
 var active_skin_base_y: float = 0.0
+var player_gold: int = 0
 
 func _ready():
 	await get_tree().process_frame
-	
+
+	# Wczytaj gold z session.cfg
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") == OK:
+		player_gold = cfg.get_value("session", "gold", 0)
+
 	var btns = [
 		get_node_or_null("Control_Collection/HBoxContainer_Top/TextureButton_ArrowLeft"),
 		get_node_or_null("Control_Collection/HBoxContainer_Top/TextureButton_ArrowRight"),
@@ -113,15 +118,19 @@ func _apply_grid_states(grid: Control, offset: int):
 		if not btn_buy:
 			continue
 		match skin_states[skin_index]:
-			0:
+			0:  # do kupienia
 				btn_buy.texture_normal = tex_buy
-				btn_buy.disabled = false
-				btn_buy.modulate = Color(1, 1, 1, 1)
-			1:
+				if player_gold >= SKIN_PRICE:
+					btn_buy.disabled = false
+					btn_buy.modulate = Color(1, 1, 1, 1)
+				else:
+					btn_buy.disabled = true
+					btn_buy.modulate = Color(0.5, 0.5, 0.5, 1)
+			1:  # kupiony, można założyć
 				btn_buy.texture_normal = tex_equip
 				btn_buy.disabled = false
 				btn_buy.modulate = Color(1, 1, 1, 1)
-			2:
+			2:  # aktywny
 				btn_buy.texture_normal = tex_active
 				btn_buy.disabled = true
 				btn_buy.modulate = Color(0.6, 0.6, 0.6, 1)
@@ -130,10 +139,21 @@ func _on_buy_pressed(skin_index: int, skin_ctrl: Control):
 	sound_click.play()
 	var state = skin_states[skin_index]
 	match state:
-		0:
+		0:  # kup za 200 gold
+			if player_gold < SKIN_PRICE:
+				return
+			player_gold -= SKIN_PRICE
 			skin_states[skin_index] = 1
-		1:
-			# Zatrzymaj animację poprzedniego aktywnego
+			# Zapisz nowy gold do session.cfg
+			var cfg = ConfigFile.new()
+			cfg.load("user://session.cfg")
+			cfg.set_value("session", "gold", player_gold)
+			cfg.save("user://session.cfg")
+			# Zaktualizuj label goldów jeśli jest na scenie
+			var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
+			if label_coins:
+				label_coins.text = str(player_gold)
+		1:  # załóż skin
 			if skin_states[active_skin_index] == 2:
 				skin_states[active_skin_index] = 1
 				_stop_active_animation()
@@ -257,21 +277,22 @@ func _on_next_pressed():
 	_slide_grids(grid_page1, grid_page2, -1)
 
 func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
+	var target_pos = grid_in.position  # pozycja z anchorów — poprawna dla każdej rozdzielczości
 	grid_in.visible = true
-	grid_in.position = Vector2(GRID_X + (grid_in.size.x * -direction), GRID_Y)
+	grid_in.position = Vector2(target_pos.x + (grid_in.size.x * -direction), target_pos.y)
 	grid_in.modulate.a = 0.0
 	_update_nav_buttons()
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(grid_out, "position:x", GRID_X + (grid_out.size.x * direction), 0.25)\
+	tween.tween_property(grid_out, "position:x", grid_out.position.x + (grid_out.size.x * direction), 0.25)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(grid_out, "modulate:a", 0.0, 0.2)
-	tween.tween_property(grid_in, "position:x", GRID_X, 0.25)\
+	tween.tween_property(grid_in, "position:x", target_pos.x, 0.25)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(grid_in, "modulate:a", 1.0, 0.2)
 	await tween.finished
 	grid_out.visible = false
-	grid_out.position = Vector2(GRID_X, GRID_Y)
+	grid_out.position.x = target_pos.x  # reset do tej samej pozycji bazowej
 	grid_out.modulate.a = 1.0
 
 func _update_nav_buttons():
