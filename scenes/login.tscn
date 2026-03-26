@@ -1,0 +1,639 @@
+[gd_scene format=3 uid="uid://c3xvkmrm5fls3"]
+
+[ext_resource type="Script" uid="uid://dgnmspovogwp7" path="res://scripts/login.gd" id="1_1u3ka"]
+[ext_resource type="Texture2D" uid="uid://cd7fm65gwl1k4" path="res://ui/common/background.png" id="1_jktlv"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="3_gk31c"]
+[ext_resource type="Texture2D" uid="uid://ctqo8t0t5oy08" path="res://ui/settings/bg-settings.png" id="5_1u3ka"]
+[ext_resource type="Texture2D" uid="uid://bu6amsyg1acr8" path="res://ui/login/play.png" id="7_1u3ka"]
+[ext_resource type="Texture2D" uid="uid://cyhyjtchdv1ro" path="res://ui/login/checked.png" id="7_tbijj"]
+[ext_resource type="Texture2D" uid="uid://64xmcjjf30l2" path="res://ui/login/unchecked.png" id="8_47vyr"]
+[ext_resource type="Texture2D" uid="uid://deb355gfcvawf" path="res://ui/login/login.png" id="8_wlyqo"]
+[ext_resource type="Texture2D" uid="uid://d2lqm7nf1qclx" path="res://ui/login/guest.png" id="9_1u3ka"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="9_qxpir"]
+[ext_resource type="Texture2D" uid="uid://bheiujv5dc3my" path="res://ui/common/title.png" id="11_rk01l"]
+[ext_resource type="Texture2D" uid="uid://cdgauvbo2vl0k" path="res://ui/login/send.png" id="12_47vyr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ngwtj"]
+bg_color = Color(0.184314, 0.501961, 0.929412, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_31byv"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.7607843, 0.99215686, 1, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1u3ka"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=243069120]
+script = ExtResource("1_1u3ka")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1585675918]
+z_index = -1
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -66.6667
+offset_right = 66.6667
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_jktlv")
+expand_mode = 3
+stretch_mode = 6
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1164819213]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="Control" type="Control" parent="MarginContainer" unique_id=869001530]
+layout_mode = 2
+
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=1292163239]
+stream = ExtResource("3_gk31c")
+
+[node name="TextureRect_Title" type="TextureRect" parent="MarginContainer/Control" unique_id=451382463]
+z_index = -1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -322.5
+offset_top = -450.0
+offset_right = 322.5
+offset_bottom = -125.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_rk01l")
+
+[node name="Control_Guest" type="Control" parent="MarginContainer/Control" unique_id=1338723509]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -100.0
+offset_right = 208.0
+offset_bottom = 402.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Guest" unique_id=1033197390]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_1u3ka")
+
+[node name="Panel_Header" type="Panel" parent="MarginContainer/Control/Control_Guest" unique_id=363627931]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -182.0
+offset_top = 10.0
+offset_right = 182.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ngwtj")
+
+[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Guest/Panel_Header" unique_id=716734951]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 36
+text = "Welcome"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/Control_Guest" unique_id=401473751]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -175.0
+offset_top = 80.0
+offset_right = 175.0
+offset_bottom = 254.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_UsernameGuest" type="Label" parent="MarginContainer/Control/Control_Guest/VBoxContainer" unique_id=1381926080]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.376471, 0.811765, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 32
+text = "Username"
+horizontal_alignment = 1
+
+[node name="Guest_Input" type="LineEdit" parent="MarginContainer/Control/Control_Guest/VBoxContainer" unique_id=700160232]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_31byv")
+theme_override_styles/focus = SubResource("StyleBoxFlat_1u3ka")
+alignment = 1
+max_length = 11
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Control/Control_Guest/VBoxContainer" unique_id=1800135967]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="CheckBox" type="CheckBox" parent="MarginContainer/Control/Control_Guest/VBoxContainer/HBoxContainer" unique_id=1413574600]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_icons/checked = ExtResource("7_tbijj")
+theme_override_icons/unchecked = ExtResource("8_47vyr")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/Control/Control_Guest/VBoxContainer/HBoxContainer" unique_id=184303358]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/default_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_fonts/normal_font = ExtResource("9_qxpir")
+theme_override_font_sizes/normal_font_size = 14
+bbcode_enabled = true
+text = "I agree to the [url=terms]Terms of Service[/url] and [url=privacy]Privacy Policy[/url]"
+scroll_active = false
+vertical_alignment = 1
+
+[node name="Label_Error" type="Label" parent="MarginContainer/Control/Control_Guest/VBoxContainer" unique_id=979731342]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 20
+text = "Username is already taken"
+horizontal_alignment = 1
+
+[node name="TextureButton_Play" type="TextureButton" parent="MarginContainer/Control/Control_Guest" unique_id=265599468]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -247.0
+offset_right = 92.0
+offset_bottom = -165.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_1u3ka")
+
+[node name="TextureButton_Login" type="TextureButton" parent="MarginContainer/Control/Control_Guest" unique_id=436496558]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -157.0
+offset_right = 92.0
+offset_bottom = -75.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_wlyqo")
+
+[node name="Label_Info" type="Label" parent="MarginContainer/Control/Control_Guest" unique_id=992027035]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -176.0
+offset_top = -62.0
+offset_right = 176.0
+offset_bottom = -17.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 20
+text = "Want to create an account? 
+You can do it later in the game settings."
+horizontal_alignment = 1
+
+[node name="Control_Login" type="Control" parent="MarginContainer/Control" unique_id=580293291]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -100.0
+offset_right = 208.0
+offset_bottom = 402.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Login" unique_id=415221201]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_1u3ka")
+
+[node name="Panel_Header" type="Panel" parent="MarginContainer/Control/Control_Login" unique_id=2125800186]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -182.0
+offset_top = 10.0
+offset_right = 182.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ngwtj")
+
+[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Login/Panel_Header" unique_id=1034600181]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 36
+text = "Login"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer_Login" type="VBoxContainer" parent="MarginContainer/Control/Control_Login" unique_id=1269274894]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 80.0
+offset_right = 160.0
+offset_bottom = 208.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Username" type="Label" parent="MarginContainer/Control/Control_Login/VBoxContainer_Login" unique_id=2111004157]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.376471, 0.811765, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 32
+text = "Username"
+horizontal_alignment = 1
+
+[node name="Login_Input" type="LineEdit" parent="MarginContainer/Control/Control_Login/VBoxContainer_Login" unique_id=1924522476]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_31byv")
+theme_override_styles/focus = SubResource("StyleBoxFlat_1u3ka")
+alignment = 1
+max_length = 11
+
+[node name="VBoxContainer_Password" type="VBoxContainer" parent="MarginContainer/Control/Control_Login" unique_id=335570130]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 190.0
+offset_right = 160.0
+offset_bottom = 318.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Password" type="Label" parent="MarginContainer/Control/Control_Login/VBoxContainer_Password" unique_id=423908650]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.376471, 0.811765, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 32
+text = "Password"
+horizontal_alignment = 1
+
+[node name="Password_Input" type="LineEdit" parent="MarginContainer/Control/Control_Login/VBoxContainer_Password" unique_id=112861126]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_31byv")
+theme_override_styles/focus = SubResource("StyleBoxFlat_1u3ka")
+alignment = 1
+max_length = 16
+virtual_keyboard_type = 6
+secret = true
+secret_character = "*"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Control/Control_Login/VBoxContainer_Password" unique_id=212717064]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="LinkButton" type="LinkButton" parent="MarginContainer/Control/Control_Login/VBoxContainer_Password/HBoxContainer" unique_id=390693538]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_colors/font_focus_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.18431373, 0.5019608, 0.92941177, 1)
+theme_override_colors/font_hover_color = Color(0.18431373, 0.5019608, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+text = "Forgot your password?"
+
+[node name="Label_Error" type="Label" parent="MarginContainer/Control/Control_Login/VBoxContainer_Password" unique_id=497806451]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 20
+text = "Invalid username or password"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Control/Control_Login" unique_id=361669017]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -152.0
+offset_bottom = -70.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="TextureButton_Guest" type="TextureButton" parent="MarginContainer/Control/Control_Login/HBoxContainer" unique_id=1821119070]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_1u3ka")
+
+[node name="TextureButton_Login" type="TextureButton" parent="MarginContainer/Control/Control_Login/HBoxContainer" unique_id=667617774]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_wlyqo")
+
+[node name="Label_Info" type="Label" parent="MarginContainer/Control/Control_Login" unique_id=80888659]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -176.0
+offset_top = -62.0
+offset_right = 176.0
+offset_bottom = -17.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 20
+text = "Want to create an account? 
+You can do it later in the game settings."
+horizontal_alignment = 1
+
+[node name="Control_Forgot" type="Control" parent="MarginContainer/Control" unique_id=224445482]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -100.0
+offset_right = 208.0
+offset_bottom = 402.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Forgot" unique_id=1370939482]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_1u3ka")
+
+[node name="Panel_Header" type="Panel" parent="MarginContainer/Control/Control_Forgot" unique_id=942752939]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -182.0
+offset_top = 10.0
+offset_right = 182.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ngwtj")
+
+[node name="Label_Title" type="Label" parent="MarginContainer/Control/Control_Forgot/Panel_Header" unique_id=298199446]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 36
+text = "Reset Password"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer_Email" type="VBoxContainer" parent="MarginContainer/Control/Control_Forgot" unique_id=302256555]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 90.0
+offset_right = 160.0
+offset_bottom = 265.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Email" type="Label" parent="MarginContainer/Control/Control_Forgot/VBoxContainer_Email" unique_id=1766724837]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.376471, 0.811765, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 32
+text = "Email"
+horizontal_alignment = 1
+
+[node name="Email_Input" type="LineEdit" parent="MarginContainer/Control/Control_Forgot/VBoxContainer_Email" unique_id=1758493217]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_31byv")
+theme_override_styles/focus = SubResource("StyleBoxFlat_1u3ka")
+alignment = 1
+max_length = 254
+virtual_keyboard_type = 5
+
+[node name="Label_Info" type="Label" parent="MarginContainer/Control/Control_Forgot/VBoxContainer_Email" unique_id=1688542957]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 16
+text = "Enter your email address and we’ll
+ send you a link to reset your password."
+horizontal_alignment = 1
+
+[node name="Label_Error" type="Label" parent="MarginContainer/Control/Control_Forgot/VBoxContainer_Email" unique_id=1047410315]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("9_qxpir")
+theme_override_font_sizes/font_size = 20
+text = "Invalid username or password"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Control/Control_Forgot" unique_id=1140294525]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -122.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="TextureButton_Guest" type="TextureButton" parent="MarginContainer/Control/Control_Forgot/HBoxContainer" unique_id=1679646354]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_1u3ka")
+
+[node name="TextureButton_Login" type="TextureButton" parent="MarginContainer/Control/Control_Forgot/HBoxContainer" unique_id=863388354]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_wlyqo")
+
+[node name="TextureButton_Send" type="TextureButton" parent="MarginContainer/Control/Control_Forgot" unique_id=1540999230]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -92.0
+offset_top = -222.0
+offset_right = 92.0
+offset_bottom = -140.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("12_47vyr")
+
+[connection signal="toggled" from="MarginContainer/Control/Control_Guest/VBoxContainer/HBoxContainer/CheckBox" to="." method="_on_check_box_toggled"]
+[connection signal="meta_clicked" from="MarginContainer/Control/Control_Guest/VBoxContainer/HBoxContainer/RichTextLabel" to="." method="_on_rich_text_label_meta_clicked"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Guest/TextureButton_Play" to="." method="_on_texture_button_play_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Guest/TextureButton_Play" to="." method="_on_texture_button_play_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Guest/TextureButton_Play" to="." method="_on_texture_button_play_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Guest/TextureButton_Login" to="." method="_on_texture_button_login_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Guest/TextureButton_Login" to="." method="_on_texture_button_login_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Guest/TextureButton_Login" to="." method="_on_texture_button_login_pressed"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Login/VBoxContainer_Password/HBoxContainer/LinkButton" to="." method="_on_link_button_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_guest_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_guest_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_guest_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_login_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_login_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_login_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_forgot_guest_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_forgot_guest_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_forgot_guest_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_forgot_login_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_forgot_login_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_forgot_login_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Forgot/TextureButton_Send" to="." method="_on_texture_button_send_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Forgot/TextureButton_Send" to="." method="_on_texture_button_send_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Forgot/TextureButton_Send" to="." method="_on_texture_button_send_pressed"]

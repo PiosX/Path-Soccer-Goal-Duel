@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://0eycpjkwkxd2"]
+[gd_scene format=3 uid="uid://0eycpjkwkxd2"]
 
 [ext_resource type="Script" uid="uid://ct2esgluvx66k" path="res://scripts/info.gd" id="1_h3pe7"]
 [ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_ro675"]
@@ -9,9 +9,13 @@
 [ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="6_d0uon"]
 [ext_resource type="Texture2D" uid="uid://ca0cml8inppof" path="res://ui/info/title-ver.png" id="7_7ytsi"]
 [ext_resource type="Texture2D" uid="uid://wt4e3lub74s4" path="res://ui/info/title-privacy.png" id="8_bsc3n"]
+[ext_resource type="Texture2D" uid="uid://dv5ubyh1jkw7n" path="res://ui/info/title-account.png" id="8_efmte"]
+[ext_resource type="Texture2D" uid="uid://df7drgjugwfq0" path="res://ui/info/register.png" id="9_oq0du"]
 [ext_resource type="Texture2D" uid="uid://bsg565fqkie6l" path="res://ui/info/open.png" id="9_sii4c"]
+[ext_resource type="Texture2D" uid="uid://cjus10k0t7cfw" path="res://ui/info/logout.png" id="10_d0uon"]
 [ext_resource type="Texture2D" uid="uid://d2iddynkp277x" path="res://ui/info/title-contact.png" id="10_ro675"]
 [ext_resource type="Texture2D" uid="uid://cihmp1c11ujed" path="res://ui/info/title-credits.png" id="11_h3pe7"]
+[ext_resource type="Texture2D" uid="uid://bxpg1aow8qxa7" path="res://ui/info/delete-account.png" id="11_sjvpb"]
 [ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="12_7btgp"]
 [ext_resource type="Texture2D" uid="uid://chl32i65iv6xh" path="res://ui/common/sound.png" id="13_f7js3"]
 [ext_resource type="Texture2D" uid="uid://bf7cavg460y7i" path="res://ui/common/music.png" id="14_t77mh"]
@@ -21,10 +25,58 @@
 [ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="18_mpmey"]
 [ext_resource type="Texture2D" uid="uid://c668nr1y6pa5g" path="res://ui/common/scores-btn.png" id="19_hr3he"]
 
-[node name="Control" type="CanvasLayer"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_efmte"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.7607843, 0.99215686, 1, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sjvpb"]
+bg_color = Color(0.7607843, 0.99215686, 1, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+expand_margin_left = 5.0
+expand_margin_top = 5.0
+expand_margin_right = 5.0
+expand_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oq0du"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_txr6y"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.7607843, 0.99215686, 1, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d0uon"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uaugt"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.7607843, 0.99215686, 1, 1)
+corner_radius_top_left = 1000
+corner_radius_top_right = 1000
+corner_radius_bottom_right = 1000
+corner_radius_bottom_left = 1000
+
+[node name="Control" type="CanvasLayer" unique_id=709053377]
 script = ExtResource("1_h3pe7")
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=672699099]
 z_index = -1
 clip_contents = true
 anchors_preset = 15
@@ -38,7 +90,7 @@ texture = ExtResource("1_ro675")
 expand_mode = 3
 stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=925137543]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -49,27 +101,29 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="Control" type="Control" parent="MarginContainer"]
+[node name="Control" type="Control" parent="MarginContainer" unique_id=896409675]
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_h3pe7")
 
-[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=444371038]
 stream = ExtResource("3_efmte")
 
-[node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
+[node name="HBoxContainer" type="Control" parent="MarginContainer/Control" unique_id=1434318691]
 custom_minimum_size = Vector2(224, 62)
-layout_mode = 2
-anchors_preset = 0
-offset_left = 218.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
 offset_top = 8.0
-offset_right = 442.0
+offset_right = 112.0
 offset_bottom = 70.0
 grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer"]
+[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer" unique_id=830583525]
 custom_minimum_size = Vector2(224, 70)
 layout_mode = 1
 anchors_preset = 5
@@ -82,7 +136,7 @@ grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=1711396975]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -98,7 +152,7 @@ grow_vertical = 2
 texture = ExtResource("4_oq0du")
 stretch_mode = 4
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=1400197450]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -112,7 +166,7 @@ text = "Info"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Nickname" type="Label" parent="MarginContainer/Control"]
+[node name="Nickname" type="Label" parent="MarginContainer/Control" unique_id=980141586]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -126,7 +180,7 @@ theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 28
 text = "MASTER YI"
 
-[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control" unique_id=1320388568]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 1
@@ -137,18 +191,18 @@ offset_bottom = 40.0
 grow_horizontal = 0
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=1930295433]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 36
 text = "1251"
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=490020799]
 layout_mode = 2
 texture = ExtResource("6_d0uon")
 stretch_mode = 5
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/Control"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/Control" unique_id=636063375]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -160,34 +214,305 @@ offset_bottom = 990.0
 grow_horizontal = 2
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer" unique_id=586775496]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="HBoxContainer_Account" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=676045156]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 alignment = 1
 
-[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top"]
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Account" unique_id=1595701530]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Account" unique_id=1951128911]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_efmte")
+
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Account" unique_id=1806386105]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Register" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=1320848600]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VBoxContainer_Login" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register" unique_id=1250745751]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Username" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Login" unique_id=737672155]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 32
+text = "Username"
+horizontal_alignment = 1
+
+[node name="Login_Input" type="LineEdit" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Login" unique_id=5467172]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_uneditable_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_efmte")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_sjvpb")
+theme_override_styles/focus = SubResource("StyleBoxFlat_oq0du")
+alignment = 1
+max_length = 11
+
+[node name="VBoxContainer_Email" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register" unique_id=442371373]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Email" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Email" unique_id=1493343889]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 32
+text = "Email"
+horizontal_alignment = 1
+
+[node name="Email_Input" type="LineEdit" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Email" unique_id=877685578]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_txr6y")
+theme_override_styles/focus = SubResource("StyleBoxFlat_d0uon")
+alignment = 1
+max_length = 254
+virtual_keyboard_type = 5
+secret_character = "*"
+
+[node name="VBoxContainer_Password" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register" unique_id=1042009734]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Password" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password" unique_id=374519524]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 32
+text = "Password"
+horizontal_alignment = 1
+
+[node name="Password_Input" type="LineEdit" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password" unique_id=1340290256]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_txr6y")
+theme_override_styles/focus = SubResource("StyleBoxFlat_d0uon")
+alignment = 1
+max_length = 16
+virtual_keyboard_type = 6
+secret = true
+secret_character = "*"
+
+[node name="Label_Error" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password" unique_id=484485436]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 20
+text = "Invalid username or password"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="TextureButton_Register" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Register" unique_id=259710481]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_oq0du")
+
+[node name="Registered" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=822735378]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VBoxContainer_Login" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered" unique_id=121565599]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Username" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Login" unique_id=1904168461]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 32
+text = "Username"
+horizontal_alignment = 1
+
+[node name="Login_Input" type="LineEdit" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Login" unique_id=1820863981]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_uneditable_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_efmte")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_sjvpb")
+theme_override_styles/focus = SubResource("StyleBoxFlat_oq0du")
+alignment = 1
+max_length = 11
+
+[node name="VBoxContainer_Email" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered" unique_id=2099125209]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Email" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Email" unique_id=447159735]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 32
+text = "Email"
+horizontal_alignment = 1
+
+[node name="Email_Input" type="LineEdit" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Email" unique_id=476723567]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_uneditable_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_txr6y")
+theme_override_styles/read_only = SubResource("StyleBoxFlat_uaugt")
+theme_override_styles/focus = SubResource("StyleBoxFlat_d0uon")
+alignment = 1
+max_length = 254
+virtual_keyboard_type = 5
+secret_character = "*"
+
+[node name="HBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered" unique_id=1632666782]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="TextureButton_Logout" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer" unique_id=858707819]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("10_d0uon")
+
+[node name="VBoxContainer_Confirm" type="VBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer" unique_id=264820809]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 4
+
+[node name="Label_Username" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm" unique_id=634936829]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 32
+text = "Delete account? Yes/no"
+horizontal_alignment = 1
+
+[node name="Confirmation_Input" type="LineEdit" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm" unique_id=1009529476]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_selected_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_outline_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/font_placeholder_color = Color(0.48235294, 0.9098039, 0.9529412, 1)
+theme_override_colors/caret_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/selection_color = Color(1, 1, 1, 1)
+theme_override_colors/clear_button_color = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_colors/clear_button_color_pressed = Color(0.13333334, 0.5411765, 0.92941177, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 46
+theme_override_styles/normal = SubResource("StyleBoxFlat_efmte")
+theme_override_styles/focus = SubResource("StyleBoxFlat_oq0du")
+placeholder_text = "Yes/no"
+alignment = 1
+max_length = 11
+
+[node name="Label_Error" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm" unique_id=1564607155]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("5_txr6y")
+theme_override_font_sizes/font_size = 20
+text = "Invalid username or password"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="TextureButton_Delete" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer" unique_id=1706126194]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("11_sjvpb")
+
+[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=994122657]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top" unique_id=1575199499]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top" unique_id=2055631040]
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("7_7ytsi")
 
-[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top"]
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/HBoxContainer_Top" unique_id=968084624]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Label" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=119785853]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 30
@@ -195,28 +520,28 @@ text = "Version 1.0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Privacy_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Privacy_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=309542590]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 alignment = 1
 
-[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title"]
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title" unique_id=153244029]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title" unique_id=1256982738]
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("8_bsc3n")
 
-[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title"]
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Privacy_Title" unique_id=1765783041]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Label_Privacy_Text" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Label_Privacy_Text" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=463768119]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 30
@@ -224,34 +549,34 @@ text = "Our privacy policy is available at:"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TextureButton_Privacy" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="TextureButton_Privacy" type="TextureButton" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=1922482779]
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("9_sii4c")
 
-[node name="Contact_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Contact_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=633417008]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 alignment = 1
 
-[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title"]
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title" unique_id=1118035889]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title" unique_id=1010000783]
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("10_ro675")
 
-[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title"]
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Contact_Title" unique_id=356156721]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Label_Studio" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Label_Studio" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=1667925988]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 30
@@ -260,28 +585,28 @@ rd.moon.games@gmail.com"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Credits_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Credits_Title" type="HBoxContainer" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=355766398]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 alignment = 1
 
-[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title"]
+[node name="Control" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title" unique_id=1820597656]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title" unique_id=795771822]
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("11_h3pe7")
 
-[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title"]
+[node name="Control2" type="Control" parent="MarginContainer/Control/ScrollContainer/VBoxContainer/Credits_Title" unique_id=64981493]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Label_Credits" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Label_Credits" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=927510193]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 30
@@ -293,7 +618,7 @@ Digitalt (Digitalt.ttf)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Label_Footer" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer"]
+[node name="Label_Footer" type="Label" parent="MarginContainer/Control/ScrollContainer/VBoxContainer" unique_id=414346595]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_txr6y")
 theme_override_font_sizes/font_size = 22
@@ -301,13 +626,13 @@ text = "© 2026 Red Moon Games. All rights reserved."
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control" unique_id=447848652]
+layout_mode = 0
 offset_right = 80.0
 offset_bottom = 86.0
 theme_override_constants/separation = 10
 
-[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=981194214]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -315,25 +640,25 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("12_7btgp")
 stretch_mode = 0
 
-[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=144172318]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("13_f7js3")
 
-[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=2109167380]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("14_t77mh")
 
-[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=509219604]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("15_ascja")
 
-[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control" unique_id=1768430484]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -344,26 +669,35 @@ grow_vertical = 0
 theme_override_constants/separation = 38
 alignment = 1
 
-[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=351216893]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_6uer7")
 
-[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1814547534]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_7frwq")
 
-[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1747666941]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("18_mpmey")
 
-[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=315694956]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_hr3he")
 
+[connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/TextureButton_Register" to="." method="_on_texture_button_register_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/TextureButton_Register" to="." method="_on_texture_button_register_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Register/TextureButton_Register" to="." method="_on_texture_button_register_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout" to="." method="_on_texture_button_logout_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout" to="." method="_on_texture_button_logout_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout" to="." method="_on_texture_button_logout_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Delete" to="." method="_on_texture_button_delete_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Delete" to="." method="_on_texture_button_delete_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Delete" to="." method="_on_texture_button_delete_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy" to="." method="_on_privacy_pressed"]

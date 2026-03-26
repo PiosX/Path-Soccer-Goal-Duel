@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://c2i6i30oh4q38"]
+[gd_scene format=3 uid="uid://c2i6i30oh4q38"]
 
 [ext_resource type="Texture2D" uid="uid://bluck1ol2yq6m" path="res://ui/game/background.png" id="1_u5sy4"]
 [ext_resource type="Script" uid="uid://ds8jqy5dwmje3" path="res://scripts/game.gd" id="2_gee14"]
@@ -27,9 +27,9 @@ corner_radius_top_right = 1000
 corner_radius_bottom_right = 1000
 corner_radius_bottom_left = 1000
 
-[node name="CanvasLayer" type="CanvasLayer"]
+[node name="CanvasLayer" type="CanvasLayer" unique_id=277258524]
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1668885040]
 z_index = -1
 clip_contents = true
 anchors_preset = 15
@@ -43,7 +43,7 @@ texture = ExtResource("1_u5sy4")
 expand_mode = 3
 stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1671467032]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -54,27 +54,29 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="Control" type="Control" parent="MarginContainer"]
+[node name="Control" type="Control" parent="MarginContainer" unique_id=1474529668]
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_gee14")
 
-[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=6963019]
 stream = ExtResource("3_5newe")
 
-[node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
+[node name="HBoxContainer" type="Control" parent="MarginContainer/Control" unique_id=1615640806]
 custom_minimum_size = Vector2(224, 62)
-layout_mode = 2
-anchors_preset = 0
-offset_left = 218.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
 offset_top = 8.0
-offset_right = 442.0
+offset_right = 112.0
 offset_bottom = 70.0
 grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer"]
+[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer" unique_id=489374028]
 custom_minimum_size = Vector2(224, 70)
 layout_mode = 1
 anchors_preset = 5
@@ -87,7 +89,7 @@ grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=1851746877]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -103,7 +105,7 @@ grow_vertical = 2
 texture = ExtResource("4_37s47")
 stretch_mode = 4
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=190002124]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -117,7 +119,7 @@ text = "Level 01"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control" unique_id=2107979336]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 1
@@ -128,24 +130,24 @@ offset_bottom = 40.0
 grow_horizontal = 0
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=517832536]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
 text = "1251"
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=653489928]
 layout_mode = 2
 texture = ExtResource("6_e1j6l")
 stretch_mode = 5
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control" unique_id=507937011]
+layout_mode = 0
 offset_right = 80.0
 offset_bottom = 86.0
 theme_override_constants/separation = 10
 
-[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1278335988]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -153,7 +155,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("12_sgl2t")
 stretch_mode = 0
 
-[node name="ScrollContainer" type="Control" parent="MarginContainer/Control"]
+[node name="ScrollContainer" type="Control" parent="MarginContainer/Control" unique_id=1719333970]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -162,7 +164,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="BoardContainer" type="Control" parent="MarginContainer/Control/ScrollContainer"]
+[node name="BoardContainer" type="Control" parent="MarginContainer/Control/ScrollContainer" unique_id=1209741118]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -172,7 +174,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("8_gee14")
 
-[node name="HBoxContainer_Players" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Players" type="HBoxContainer" parent="MarginContainer/Control" unique_id=1200801432]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -181,18 +183,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="VBoxContainer_Player1" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players"]
+[node name="VBoxContainer_Player1" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players" unique_id=806030835]
 layout_mode = 2
 size_flags_horizontal = 2
 theme_override_constants/separation = 6
 
-[node name="Player1_Rank" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1"]
+[node name="Player1_Rank" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1" unique_id=1692769092]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 24
 text = "Rank: 37"
 
-[node name="Player1_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1"]
+[node name="Player1_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1" unique_id=1202075948]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.0235294, 0.764706, 0.964706, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
@@ -201,25 +203,25 @@ theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
 text = "Player 1012"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players" unique_id=593181932]
 layout_mode = 2
 alignment = 1
 
-[node name="Turn" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer"]
+[node name="Turn" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer" unique_id=463094634]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 20
 text = "15s"
 horizontal_alignment = 1
 
-[node name="Panel_Timer" type="Panel" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer"]
+[node name="Panel_Timer" type="Panel" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer" unique_id=957824514]
 custom_minimum_size = Vector2(250, 28)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_u5sy4")
 
-[node name="Panel_Color" type="Panel" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer/Panel_Timer"]
+[node name="Panel_Color" type="Panel" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer/Panel_Timer" unique_id=897568989]
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -231,20 +233,20 @@ offset_bottom = 10.0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_gee14")
 
-[node name="VBoxContainer_Player2" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players"]
+[node name="VBoxContainer_Player2" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players" unique_id=125418557]
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_constants/separation = 6
 alignment = 2
 
-[node name="Player2_Rank" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2"]
+[node name="Player2_Rank" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2" unique_id=152755070]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 24
 text = "Rank: 4723"
 horizontal_alignment = 2
 
-[node name="Player2_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2"]
+[node name="Player2_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2" unique_id=1095658914]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.996078, 0.294118, 0.376471, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)

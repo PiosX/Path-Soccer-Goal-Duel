@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://cxnrs2tpselre"]
+[gd_scene format=3 uid="uid://cxnrs2tpselre"]
 
 [ext_resource type="Texture2D" uid="uid://cd7fm65gwl1k4" path="res://ui/common/background.png" id="1_grj6y"]
 [ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_lalcm"]
@@ -20,9 +20,9 @@
 [ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="18_5lb4h"]
 [ext_resource type="Texture2D" uid="uid://c668nr1y6pa5g" path="res://ui/common/scores-btn.png" id="19_fne7c"]
 
-[node name="CanvasLayer" type="CanvasLayer"]
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1789244903]
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1530599281]
 z_index = -1
 clip_contents = true
 anchors_preset = 15
@@ -36,7 +36,7 @@ texture = ExtResource("1_grj6y")
 expand_mode = 3
 stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1599079354]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -47,20 +47,20 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="Control" type="Control" parent="MarginContainer"]
+[node name="Control" type="Control" parent="MarginContainer" unique_id=237073875]
 layout_mode = 2
 script = ExtResource("2_lalcm")
 
-[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=682187608]
 stream = ExtResource("3_b366c")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control" unique_id=324404415]
+layout_mode = 0
 offset_right = 80.0
 offset_bottom = 86.0
 theme_override_constants/separation = 10
 
-[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1944898539]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -68,37 +68,39 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_1hu6x")
 stretch_mode = 0
 
-[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=2138280432]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("5_a5y4h")
 
-[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1339142770]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("6_2u5oy")
 
-[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1547661364]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("7_gjr4j")
 
-[node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
+[node name="HBoxContainer" type="Control" parent="MarginContainer/Control" unique_id=565035427]
 custom_minimum_size = Vector2(224, 62)
-layout_mode = 2
-anchors_preset = 0
-offset_left = 218.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
 offset_top = 8.0
-offset_right = 442.0
+offset_right = 112.0
 offset_bottom = 70.0
 grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer"]
+[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer" unique_id=379608629]
 custom_minimum_size = Vector2(224, 70)
 layout_mode = 1
 anchors_preset = 5
@@ -111,7 +113,7 @@ grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=105211546]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -127,7 +129,7 @@ grow_vertical = 2
 texture = ExtResource("8_e0vuw")
 stretch_mode = 4
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=113024100]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -141,7 +143,7 @@ text = "LEVEL 01"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Nickname" type="Label" parent="MarginContainer/Control"]
+[node name="Nickname" type="Label" parent="MarginContainer/Control" unique_id=1126732324]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -155,7 +157,7 @@ theme_override_fonts/font = ExtResource("9_l5yu4")
 theme_override_font_sizes/font_size = 28
 text = "MASTER YI"
 
-[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control" unique_id=2132798934]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 1
@@ -166,18 +168,18 @@ offset_bottom = 40.0
 grow_horizontal = 0
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=110080885]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("9_l5yu4")
 theme_override_font_sizes/font_size = 36
 text = "1251"
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=1985879968]
 layout_mode = 2
 texture = ExtResource("10_ynhbx")
 stretch_mode = 5
 
-[node name="TextureRect_Title" type="TextureRect" parent="MarginContainer/Control"]
+[node name="TextureRect_Title" type="TextureRect" parent="MarginContainer/Control" unique_id=608470064]
 z_index = -1
 layout_mode = 1
 anchors_preset = 8
@@ -194,7 +196,7 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("11_7fg1r")
 
-[node name="Control_Ball" type="Control" parent="MarginContainer/Control"]
+[node name="Control_Ball" type="Control" parent="MarginContainer/Control" unique_id=1790594302]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -204,7 +206,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("12_xxr5p")
 
-[node name="TextureRect_Shadow" type="TextureRect" parent="MarginContainer/Control/Control_Ball"]
+[node name="TextureRect_Shadow" type="TextureRect" parent="MarginContainer/Control/Control_Ball" unique_id=866609428]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -219,7 +221,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("13_ejjjn")
 
-[node name="TextureRect_Ball" type="TextureRect" parent="MarginContainer/Control/Control_Ball"]
+[node name="TextureRect_Ball" type="TextureRect" parent="MarginContainer/Control/Control_Ball" unique_id=1425887333]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -234,7 +236,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("14_o2y6n")
 
-[node name="TextureButton_Play" type="TextureButton" parent="MarginContainer/Control"]
+[node name="TextureButton_Play" type="TextureButton" parent="MarginContainer/Control" unique_id=1437653874]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -250,7 +252,7 @@ grow_vertical = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("15_266cb")
 
-[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control" unique_id=2122595226]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -261,22 +263,22 @@ grow_vertical = 0
 theme_override_constants/separation = 38
 alignment = 1
 
-[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=377087690]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_lcbe1")
 
-[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1559344715]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_n8pqw")
 
-[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1206829397]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("18_5lb4h")
 
-[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=695316309]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_fne7c")

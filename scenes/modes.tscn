@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://3njdugae47p5"]
+[gd_scene format=3 uid="uid://3njdugae47p5"]
 
 [ext_resource type="Texture2D" uid="uid://dea0ot6mdevsv" path="res://ui/common/bg-main.png" id="1_x4wi8"]
 [ext_resource type="Script" uid="uid://dmpq2185cw5v5" path="res://scripts/settings.gd" id="2_o0tdl"]
@@ -59,9 +59,9 @@ shadow_color = Color(0.184314, 0.501961, 0.929412, 1)
 shadow_size = 2
 shadow_offset = Vector2(0, 2)
 
-[node name="CanvasLayer" type="CanvasLayer"]
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1827212829]
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=61752526]
 z_index = -1
 clip_contents = true
 anchors_preset = 15
@@ -75,7 +75,7 @@ texture = ExtResource("1_x4wi8")
 expand_mode = 3
 stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=431445928]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -86,27 +86,29 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="Control" type="Control" parent="MarginContainer"]
+[node name="Control" type="Control" parent="MarginContainer" unique_id=301253313]
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_o0tdl")
 
-[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control"]
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=1674414274]
 stream = ExtResource("3_dmex2")
 
-[node name="HBoxContainer" type="Control" parent="MarginContainer/Control"]
+[node name="HBoxContainer" type="Control" parent="MarginContainer/Control" unique_id=1787787082]
 custom_minimum_size = Vector2(224, 62)
-layout_mode = 2
-anchors_preset = 0
-offset_left = 218.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
 offset_top = 8.0
-offset_right = 442.0
+offset_right = 112.0
 offset_bottom = 70.0
 grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer"]
+[node name="Control_Level" type="Control" parent="MarginContainer/Control/HBoxContainer" unique_id=834192097]
 custom_minimum_size = Vector2(224, 70)
 layout_mode = 1
 anchors_preset = 5
@@ -119,7 +121,7 @@ grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=1591320843]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -135,7 +137,7 @@ grow_vertical = 2
 texture = ExtResource("8_1qo73")
 stretch_mode = 4
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer/Control_Level" unique_id=272864259]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -149,7 +151,7 @@ text = "Modes"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Nickname" type="Label" parent="MarginContainer/Control"]
+[node name="Nickname" type="Label" parent="MarginContainer/Control" unique_id=1777206053]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -163,7 +165,7 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 28
 text = "MASTER YI"
 
-[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Coins" type="HBoxContainer" parent="MarginContainer/Control" unique_id=2035907928]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 1
 anchors_preset = 1
@@ -174,18 +176,18 @@ offset_bottom = 40.0
 grow_horizontal = 0
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="Label" type="Label" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=1419102726]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 36
 text = "1251"
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=475417501]
 layout_mode = 2
 texture = ExtResource("10_jf2v4")
 stretch_mode = 5
 
-[node name="Control_Modes" type="Control" parent="MarginContainer/Control"]
+[node name="Control_Modes" type="Control" parent="MarginContainer/Control" unique_id=2116554536]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -195,7 +197,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("7_jf2v4")
 
-[node name="Control_Main" type="Control" parent="MarginContainer/Control/Control_Modes"]
+[node name="Control_Main" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=1496968861]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -204,7 +206,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Main"]
+[node name="TextureRect_BG" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=631368548]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -221,8 +223,8 @@ mouse_filter = 2
 texture = ExtResource("11_dmex2")
 stretch_mode = 5
 
-[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Main"]
-layout_mode = 2
+[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=689299023]
+layout_mode = 0
 offset_left = 11.0
 offset_top = 170.0
 offset_right = 649.0
@@ -231,32 +233,32 @@ grow_horizontal = 2
 mouse_filter = 2
 alignment = 1
 
-[node name="TextureButton_ArrowLeft" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top"]
+[node name="TextureButton_ArrowLeft" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top" unique_id=2045649430]
 layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("11_slpjg")
 
-[node name="Control" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top"]
+[node name="Control" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top" unique_id=371070669]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top" unique_id=1567624876]
 layout_mode = 2
 texture = ExtResource("12_x4rll")
 
-[node name="Control2" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top"]
+[node name="Control2" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top" unique_id=1047773863]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextureButton_ArrowRight" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top"]
+[node name="TextureButton_ArrowRight" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Top" unique_id=856519631]
 layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("13_x4rll")
 
-[node name="GridContainer_Page1" type="GridContainer" parent="MarginContainer/Control/Control_Modes/Control_Main"]
-layout_mode = 2
+[node name="GridContainer_Page1" type="GridContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=280576698]
+layout_mode = 0
 offset_left = 52.0
 offset_top = 315.0
 offset_right = 608.0
@@ -268,12 +270,12 @@ theme_override_constants/h_separation = 14
 theme_override_constants/v_separation = 14
 columns = 5
 
-[node name="Lvl1" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl1" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1647258528]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("15_o0tdl")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl1"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl1" unique_id=1163653189]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -292,12 +294,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "1"
 
-[node name="Lvl2" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl2" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1258196577]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_0x07n")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl2"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl2" unique_id=476568119]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -316,12 +318,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "2"
 
-[node name="Lvl3" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl3" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=316875753]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl3"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl3" unique_id=332703526]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -340,12 +342,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "3"
 
-[node name="Lvl4" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl4" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=476076815]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl4"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl4" unique_id=470626733]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -364,12 +366,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "4"
 
-[node name="Lvl5" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl5" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=585905797]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl5"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl5" unique_id=87705239]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -388,12 +390,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "5"
 
-[node name="Lvl6" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl6" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=878664478]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl6"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl6" unique_id=1251469793]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -412,12 +414,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "6"
 
-[node name="Lvl7" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl7" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=798026833]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl7"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl7" unique_id=709818309]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -436,12 +438,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "7"
 
-[node name="Lvl8" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl8" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=797135890]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl8"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl8" unique_id=1430023720]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -460,12 +462,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "8"
 
-[node name="Lvl9" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl9" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1781837250]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl9"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl9" unique_id=951082795]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -484,12 +486,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "9"
 
-[node name="Lvl10" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl10" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1502090280]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl10"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl10" unique_id=1738494377]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -508,12 +510,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "10"
 
-[node name="Lvl11" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl11" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=558023592]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl11"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl11" unique_id=244442069]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -532,12 +534,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "11"
 
-[node name="Lvl12" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl12" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=949197500]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl12"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl12" unique_id=1323118222]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -556,12 +558,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "12"
 
-[node name="Lvl13" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl13" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1557029862]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl13"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl13" unique_id=733188553]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -580,12 +582,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "13"
 
-[node name="Lvl14" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl14" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1685960820]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl14"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl14" unique_id=2011685111]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -604,12 +606,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "14"
 
-[node name="Lvl15" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl15" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1892079936]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl15"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl15" unique_id=853699257]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -628,12 +630,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "15"
 
-[node name="Lvl16" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl16" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1915354127]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl16"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl16" unique_id=214482266]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -652,12 +654,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "16"
 
-[node name="Lvl17" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl17" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=1073163005]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl17"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl17" unique_id=1081919175]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -676,12 +678,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "17"
 
-[node name="Lvl18" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl18" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=226049840]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl18"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl18" unique_id=1451984728]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -700,12 +702,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "18"
 
-[node name="Lvl19" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl19" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=228472653]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl19"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl19" unique_id=1866917706]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -724,12 +726,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "19"
 
-[node name="Lvl20" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1"]
+[node name="Lvl20" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1" unique_id=873189352]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl20"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page1/Lvl20" unique_id=529764343]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -748,9 +750,9 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "20"
 
-[node name="GridContainer_Page2" type="GridContainer" parent="MarginContainer/Control/Control_Modes/Control_Main"]
+[node name="GridContainer_Page2" type="GridContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=777614126]
 visible = false
-layout_mode = 2
+layout_mode = 0
 offset_left = 52.0
 offset_top = 315.0
 offset_right = 608.0
@@ -762,12 +764,12 @@ theme_override_constants/h_separation = 14
 theme_override_constants/v_separation = 14
 columns = 5
 
-[node name="Lvl21" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl21" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=883553488]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("15_o0tdl")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl21"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl21" unique_id=321273660]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -786,12 +788,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "21"
 
-[node name="Lvl22" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl22" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=566423509]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_0x07n")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl22"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl22" unique_id=281375513]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -810,12 +812,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "22"
 
-[node name="Lvl23" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl23" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1503875152]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl23"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl23" unique_id=203312538]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -834,12 +836,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "23"
 
-[node name="Lvl24" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl24" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=863531812]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl24"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl24" unique_id=553928070]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -858,12 +860,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "24"
 
-[node name="Lvl25" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl25" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1590972485]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl25"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl25" unique_id=795284574]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -882,12 +884,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "25"
 
-[node name="Lvl26" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl26" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=538901259]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl26"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl26" unique_id=1510646351]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -906,12 +908,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "26"
 
-[node name="Lvl27" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl27" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=898496487]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl27"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl27" unique_id=2065526733]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -931,12 +933,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "27"
 
-[node name="Lvl28" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl28" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1061656279]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl28"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl28" unique_id=2021283813]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -956,12 +958,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "28"
 
-[node name="Lvl29" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl29" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1001572573]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl29"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl29" unique_id=733123029]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -981,12 +983,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "29"
 
-[node name="Lvl30" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl30" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=419061801]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl30"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl30" unique_id=1344535840]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1006,12 +1008,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "30"
 
-[node name="Lvl31" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl31" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=316889336]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl31"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl31" unique_id=1515531032]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1031,12 +1033,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "31"
 
-[node name="Lvl32" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl32" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1419767682]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl32"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl32" unique_id=333963938]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1056,12 +1058,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "32"
 
-[node name="Lvl33" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl33" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=950780452]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl33"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl33" unique_id=125681064]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1081,12 +1083,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "33"
 
-[node name="Lvl34" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl34" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1940164230]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl34"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl34" unique_id=1028257217]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1106,12 +1108,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "34"
 
-[node name="Lvl35" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl35" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1880589414]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl35"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl35" unique_id=1772283828]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1131,12 +1133,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "35"
 
-[node name="Lvl36" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl36" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1559674639]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl36"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl36" unique_id=1442554140]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1156,12 +1158,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "36"
 
-[node name="Lvl37" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl37" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1021245317]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl37"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl37" unique_id=1896729223]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1181,12 +1183,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "37"
 
-[node name="Lvl38" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl38" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1450683717]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl38"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl38" unique_id=955488446]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1206,12 +1208,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "38"
 
-[node name="Lvl39" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl39" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1943608141]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl39"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl39" unique_id=1220901926]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1231,12 +1233,12 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "39"
 
-[node name="Lvl40" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2"]
+[node name="Lvl40" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2" unique_id=1170747906]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xgm05")
 
-[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl40"]
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page2/Lvl40" unique_id=1877491956]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1255,7 +1257,7 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "40"
 
-[node name="HBoxContainer_Nav2" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Main"]
+[node name="HBoxContainer_Nav2" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=774234035]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1270,17 +1272,17 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 72
 
-[node name="TextureButton_Previous" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Nav2"]
+[node name="TextureButton_Previous" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Nav2" unique_id=634695293]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_dmex2")
 
-[node name="TextureButton_Next" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Nav2"]
+[node name="TextureButton_Next" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/HBoxContainer_Nav2" unique_id=518130751]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xglpk")
 
-[node name="Control_Online" type="Control" parent="MarginContainer/Control/Control_Modes"]
+[node name="Control_Online" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=218878556]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -1290,7 +1292,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TextureRect_Stadium" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Online"]
+[node name="TextureRect_Stadium" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=104499726]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1307,8 +1309,8 @@ mouse_filter = 2
 texture = ExtResource("16_xkyu4")
 stretch_mode = 5
 
-[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Online"]
-layout_mode = 2
+[node name="HBoxContainer_Top" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=1348084999]
+layout_mode = 0
 offset_left = 11.0
 offset_top = 170.0
 offset_right = 649.0
@@ -1316,31 +1318,31 @@ offset_bottom = 256.0
 grow_horizontal = 2
 alignment = 1
 
-[node name="TextureButton_ArrowLeft" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top"]
+[node name="TextureButton_ArrowLeft" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top" unique_id=1398890714]
 layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("11_slpjg")
 
-[node name="Control" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top"]
+[node name="Control" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top" unique_id=1696099869]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top" unique_id=953701324]
 layout_mode = 2
 texture = ExtResource("17_1qo73")
 
-[node name="Control2" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top"]
+[node name="Control2" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top" unique_id=1221219741]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextureButton_ArrowRight" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top"]
+[node name="TextureButton_ArrowRight" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/HBoxContainer_Top" unique_id=1909651231]
 layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("13_x4rll")
 
-[node name="TextureButton_FindGame" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online"]
+[node name="TextureButton_FindGame" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=1917503283]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1356,7 +1358,7 @@ grow_vertical = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("18_r2yq1")
 
-[node name="Control_Search" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online"]
+[node name="Control_Search" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=1944504391]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1370,7 +1372,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label_Searching" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Online/Control_Search"]
+[node name="Label_Searching" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Online/Control_Search" unique_id=2142957318]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1387,7 +1389,7 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 32
 text = "Finding Match..."
 
-[node name="TextureButton_Cancel" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/Control_Search"]
+[node name="TextureButton_Cancel" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/Control_Search" unique_id=419576426]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1403,7 +1405,7 @@ grow_vertical = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_jf2v4")
 
-[node name="HBoxContainer_Dots" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes"]
+[node name="HBoxContainer_Dots" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes" unique_id=457044672]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1418,27 +1420,27 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 18
 
-[node name="Panel_Dot1" type="Panel" parent="MarginContainer/Control/Control_Modes/HBoxContainer_Dots"]
+[node name="Panel_Dot1" type="Panel" parent="MarginContainer/Control/Control_Modes/HBoxContainer_Dots" unique_id=1221489362]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_0x07n")
 
-[node name="Panel_Dot2" type="Panel" parent="MarginContainer/Control/Control_Modes/HBoxContainer_Dots"]
+[node name="Panel_Dot2" type="Panel" parent="MarginContainer/Control/Control_Modes/HBoxContainer_Dots" unique_id=1932466140]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_xgm05")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control"]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control" unique_id=1530943993]
+layout_mode = 0
 offset_right = 80.0
 offset_bottom = 86.0
 theme_override_constants/separation = 10
 
-[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Settings" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1670147615]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -1446,25 +1448,25 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_xglpk")
 stretch_mode = 0
 
-[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Sound" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1386388091]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("5_0x07n")
 
-[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Music" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=563050084]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("6_xgm05")
 
-[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer"]
+[node name="Button_Info" type="TextureButton" parent="MarginContainer/Control/VBoxContainer" unique_id=1655471456]
 visible = false
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("7_xkyu4")
 
-[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control"]
+[node name="HBoxContainer_Nav" type="HBoxContainer" parent="MarginContainer/Control" unique_id=893500863]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -1475,22 +1477,22 @@ grow_vertical = 0
 theme_override_constants/separation = 38
 alignment = 1
 
-[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav1" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1130158351]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_mfnnx")
 
-[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav2" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=831996]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_hkbnr")
 
-[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav3" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1959843069]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("18_fidt4")
 
-[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav"]
+[node name="TextureButton_Nav4" type="TextureButton" parent="MarginContainer/Control/HBoxContainer_Nav" unique_id=1818336082]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_8731t")
