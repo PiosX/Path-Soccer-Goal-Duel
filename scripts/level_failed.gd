@@ -57,7 +57,9 @@ func _animate_counter(label: Label, from: int, to: int, duration: float):
 
 func _on_replay_pressed():
 	sound_click.play()
-	# narazie nic
+	await sound_click.finished
+	queue_free()
+	PlayerData.launch_level(PlayerData.current_level_index)
 
 func _on_replay_mouse_entered():
 	_scale_button(btn_replay, 0.9)

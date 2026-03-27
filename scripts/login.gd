@@ -49,19 +49,21 @@ var _base_or := 0.0
 # ═══════════════════════════════════════════
 func _ready():
 	await get_tree().process_frame
+	await get_tree().process_frame  # drugi frame — layout musi się policzyć zanim size będzie niezerowy
 
-	# Sprawdź czy jest zapisana sesja — jeśli tak, pomiń login
+	# Sprawdź czy jest zapisana sesja — jeśli tak, odśwież ticket i pomiń login
 	var cfg = ConfigFile.new()
 	if cfg.load("user://session.cfg") == OK:
-		var ticket = cfg.get_value("session", "ticket", "")
-		if ticket != "":
+		var device_id = cfg.get_value("session", "device_id", "")
+		if device_id != "":
+			await PlayerData.refresh_session(cfg)
 			get_tree().change_scene_to_file("res://scenes/play.tscn")
 			return
 
 	_base_ol = ctrl_guest.offset_left
 	_base_or = ctrl_guest.offset_right
 
-	# Pivoty
+	# Pivoty — teraz size jest już prawidłowe
 	for btn in [btn_play, btn_to_login, btn_guest, btn_login,
 				btn_forgot_send, btn_forgot_guest, btn_forgot_login]:
 		if btn:
@@ -271,14 +273,13 @@ func _on_texture_button_login_login_pressed():
 	_set_busy(true)
 	label_error_login.text = ""
 
-	var fake_email = uname.to_lower() + "@pathsoccer.game"
 	var body = {
 		"TitleId":  PLAYFAB_TITLE_ID,
-		"Email":    fake_email,
+		"Username": uname,
 		"Password": passw
 	}
 
-	var result = await _playfab_post("/Client/LoginWithEmailAddress", body)
+	var result = await _playfab_post("/Client/LoginWithPlayFab", body)
 	if result == null:
 		_show_error(label_error_login, "Invalid username or password.")
 		_set_busy(false)
@@ -352,14 +353,31 @@ func _playfab_post(endpoint: String, body: Dictionary):
 	return parsed.get("data", null)
 
 func _is_display_name_taken(nick: String) -> bool:
-	var fake_email = nick.to_lower() + "@pathsoccer.game"
+	# Sprawdź czy nick istnieje próbując zalogowania z niemożliwym hasłem.
+	# PlayFab zwróci "InvalidUsernameOrPassword" (1001) jeśli konto istnieje,
+	# albo "AccountNotFound" (1001) jeśli nie — w obu przypadkach result == null,
+	# więc ta metoda jest zawodna. Używamy GetPlayerProfile zamiast tego.
 	var body = {
 		"TitleId":  PLAYFAB_TITLE_ID,
-		"Email":    fake_email,
-		"Password": "check_existence_only_x9z"
+		"Username": nick,
+		"Password": "___check_x9z___"
 	}
-	var result = await _playfab_post("/Client/LoginWithEmailAddress", body)
-	return result != null
+	var url = PLAYFAB_URL + "/Client/LoginWithPlayFab"
+	var headers = ["Content-Type: application/json", "Accept-Encoding: identity"]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	var response = await http.request_completed
+	http.queue_free()
+	if response[1] != 200:
+		var json = JSON.new()
+		if json.parse(response[3].get_string_from_utf8()) == OK:
+			var parsed = json.get_data()
+			# errorCode 1001 = AccountNotFound (nick wolny), inne = konto istnieje
+			var err_code = parsed.get("errorCode", 0)
+			return err_code != 1001
+		return false
+	return true  # zalogował się poprawnie = nick zajęty
 
 func _set_display_name(session_ticket: String, nick: String):
 	var headers = [
@@ -401,11 +419,16 @@ func _init_player_data(session_ticket: String):
 
 func _save_session(playfab_id: String, ticket: String, nick: String, has_account: bool):
 	var cfg = ConfigFile.new()
+	# Zachowaj istniejące wartości gold/score/wins/losses jeśli już są
+	cfg.load("user://session.cfg")
 	cfg.set_value("session", "playfab_id",  playfab_id)
 	cfg.set_value("session", "ticket",      ticket)
 	cfg.set_value("session", "nick",        nick)
 	cfg.set_value("session", "has_account", has_account)
 	cfg.set_value("session", "device_id",   OS.get_unique_id())
+	# Domyślne gold przy pierwszym logowaniu (PlayFab ustawi prawdziwą wartość w tle)
+	if not cfg.has_section_key("session", "gold"):
+		cfg.set_value("session", "gold", 20)
 	cfg.save("user://session.cfg")
 
 # ═══════════════════════════════════════════

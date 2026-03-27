@@ -133,6 +133,8 @@ func _on_button_info_pressed() -> void:
 
 func _on_texturebutton_play_pressed():
 	$SoundClick.play()
+	await $SoundClick.finished
+	PlayerData.launch_level(PlayerData.get_current_level())
 
 func _on_texturebutton_play_mouse_entered():
 	_scale_button($TextureButton_Play, 0.9)
@@ -190,24 +192,33 @@ func _play_and_wait():
 
 func _load_player_info():
 	var cfg = ConfigFile.new()
-	var err = cfg.load("user://session.cfg")
 	if cfg.load("user://session.cfg") != OK:
 		return
 	var nick   = cfg.get_value("session", "nick", "")
-	var ticket = cfg.get_value("session", "ticket", "")
-	var gold   = cfg.get_value("session", "gold", 20)
+	var ticket = PlayerData.get_ticket()
+	var gold   = cfg.get_value("session", "gold", -1)
 
 	var label_nick = get_node_or_null("Nickname")
 	if label_nick and nick != "":
 		label_nick.text = nick
 
+	# Pokaż aktualny poziom
+	var current_level = PlayerData.get_current_level()
+	var label_level = get_node_or_null("HBoxContainer/Control_Level/Label")
+	if label_level:
+		label_level.text = "LEVEL " + str(current_level)
+
 	var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
-	if label_coins:
+
+	# Jeśli gold znane lokalnie — pokaż od razu, PlayFab uaktualni w tle
+	if gold >= 0 and label_coins:
 		label_coins.text = str(gold)
 
-	# PlayFab w tle — tylko aktualizuje jeśli się zmieniło
+	# PlayFab zawsze odpytaj żeby mieć aktualną wartość
 	if ticket != "":
 		_fetch_gold(ticket)
+	elif label_coins and gold < 0:
+		label_coins.text = "0"
 
 func _fetch_gold(ticket: String):
 	var headers = [

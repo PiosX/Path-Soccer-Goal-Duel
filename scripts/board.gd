@@ -377,6 +377,10 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 # ——————————————————————————————————————————
 
 func _ready():
+	# Wczytaj dane poziomu z PlayerData jeśli nie ustawiono z zewnątrz
+	if level_data.is_empty() and not PlayerData.current_level_data.is_empty():
+		level_data = PlayerData.current_level_data
+		VS_AI = PlayerData.vs_ai
 	if not level_data.is_empty():
 		_apply_level_data()
 	_scroll_container = _find_scroll_parent()
@@ -386,6 +390,19 @@ func _ready():
 		_scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 		_scroll_container.vertical_scroll_mode   = ScrollContainer.SCROLL_MODE_AUTO
 	_setup_game()
+	# Zaktualizuj label "Level X" w play.tscn
+	call_deferred("_update_level_label")
+
+# Aktualizuje label z numerem poziomu w scenie play.tscn
+# Ścieżka: MarginContainer/Control/HBoxContainer/Control_Level/Label
+func _update_level_label():
+	var p = get_parent()
+	while p:
+		var lbl = p.get_node_or_null("MarginContainer/Control/HBoxContainer/Control_Level/Label")
+		if lbl:
+			lbl.text = "LEVEL " + str(PlayerData.current_level_index)
+			return
+		p = p.get_parent()
 
 
 # Przetłumacz dane JSON na wymiary board.gd
@@ -1061,19 +1078,30 @@ func _game_over(winner: int):
 func _show_popup_win():
 	ai_thinking = true
 	_game_ended = true
+	# Najpierw synchronicznie awansuj poziom — PRZED save_game_result (który jest async)
+	# Dzięki temu get_current_level() w level_complete._on_next_pressed zwróci poprawną wartość
+	if VS_AI:
+		PlayerData.on_level_win(PlayerData.current_level_index)
+	# Zapisz wynik do PlayFab i lokalnie (on_level_win wewnątrz save_game_result jest już niegroźne — sprawdza czy level >= current)
+	PlayerData.save_game_result(true, score / 100, score, VS_AI)
 	var popup = scene_complete.instantiate()
 	# Ustaw przed add_child — _ready odczyta i animuje od 0 do tych wartości
 	var ctrl = popup.get_node("Control")
 	ctrl.score = score
 	ctrl.reward = score / 100
+	ctrl.completed_level_index = PlayerData.current_level_index  # indeks ukończonego poziomu
+	ctrl.level_name = "LEVEL " + str(PlayerData.current_level_index)
 	get_tree().root.add_child(popup)
 
 func _show_popup_fail():
 	ai_thinking = true
 	_game_ended = true
+	# Zapisz wynik do PlayFab i lokalnie (przegrana)
+	PlayerData.save_game_result(false, 0, score, VS_AI)
 	var popup = scene_failed.instantiate()
 	var ctrl = popup.get_node("Control")
 	ctrl.score = score
+	ctrl.level_name = "LEVEL " + str(PlayerData.current_level_index)
 	get_tree().root.add_child(popup)
 
 # ——————————————————————————————————————————

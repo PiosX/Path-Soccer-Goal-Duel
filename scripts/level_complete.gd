@@ -4,6 +4,8 @@ extends Control
 var level_name = "LEVEL 1"
 var score = 12500
 var reward = 200
+# Indeks właśnie ukończonego poziomu — ustawiany z board.gd razem z level_name
+var completed_level_index: int = 1
 
 # ————— WĘZŁY —————
 @onready var sound_click = $"../SoundClick"
@@ -97,7 +99,11 @@ func _animate_counter(label: Label, from: int, to: int, duration: float):
 
 func _on_next_pressed():
 	sound_click.play()
+	# Zawsze przechodzimy do poziomu NASTĘPNEGO po ukończonym,
+	# niezależnie od tego ile poziomów gracz ma odblokowanych.
+	var next_level = completed_level_index + 1
 	queue_free()
+	PlayerData.launch_level(next_level)
 
 func _on_next_mouse_entered():
 	_scale_button(btn_next, 0.9)

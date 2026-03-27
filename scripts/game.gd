@@ -5,6 +5,11 @@ extends Control
 
 var settings_popup_scene = preload("res://scenes/settings.tscn")
 
+# Przekaż dane PRZED _ready Board — używamy _init lub przez bezpośrednie ustawienie
+# właściwości w tej samej klatce co instancjonowanie sceny.
+# W Godocie kolejność _ready: najpierw dzieci, potem rodzic.
+# Więc Board._ready() wykona się PRZED game._ready() — za późno.
+# Rozwiązanie: Board sprawdza PlayerData bezpośrednio w swoim _ready.
 func _ready():
 	await get_tree().process_frame
 	if btn_settings:

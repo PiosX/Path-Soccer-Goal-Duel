@@ -102,6 +102,9 @@ func _on_shop_mouse_exited():
 
 func _on_restart_pressed():
 	sound_click.play()
+	await sound_click.finished
+	queue_free()
+	PlayerData.launch_level(PlayerData.current_level_index)
 
 func _on_restart_mouse_entered():
 	_scale_button(btn_restart, 0.9)

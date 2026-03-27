@@ -39,13 +39,11 @@ var current_panel = 0
 var current_page = 0  # 0 = strona 1, 1 = strona 2
 const LEVELS_PER_PAGE = 20
 const TOTAL_LEVELS = 40
-const LEVEL_UNLOCKED = 2
-const GRID_X = 52.0
-const GRID_Y = 315.0
 
 var level_states = []
 var search_timer: float = 0.0
 var is_searching = false
+var _ready_done: bool = false
 
 # ————— READY —————
 
@@ -77,23 +75,40 @@ func _ready():
 		btn.mouse_exited.connect(_on_level_mouse_exited.bind(btn))
 		btn.pressed.connect(_on_level_pressed.bind(btn))
 	
-	# Inicjalizuj stany poziomów
-	for i in range(TOTAL_LEVELS):
-		if i < LEVEL_UNLOCKED - 1:
-			level_states.append(1)   # ukończony
-		elif i == LEVEL_UNLOCKED - 1:
-			level_states.append(2)   # aktualny
-		else:
-			level_states.append(0)   # zablokowany
-	
 	panel_campaign.visible = true
 	panel_online.visible = false
 	search_panel.visible = false
 	grid_page2.visible = false
 	
 	_update_dots()
-	_apply_level_states()
 	_update_nav_buttons()
+	
+	_ready_done = true
+	# Odśwież stany poziomów na starcie
+	_refresh_level_states()
+
+# ————— ODŚWIEŻANIE STANÓW POZIOMÓW —————
+# Wywoływane przy każdym wejściu do sceny (np. po powrocie z gry)
+
+func _notification(what: int):
+	if what == NOTIFICATION_ENTER_TREE and _ready_done:
+		# Scena wróciła do drzewa po powrocie z game.tscn
+		_refresh_level_states()
+
+func _refresh_level_states():
+	if not _ready_done:
+		return
+	level_states.clear()
+	var current_level = PlayerData.get_current_level()
+	for i in range(TOTAL_LEVELS):
+		var level_num = i + 1  # 1-based
+		if level_num < current_level:
+			level_states.append(1)   # ukończony (niebieski)
+		elif level_num == current_level:
+			level_states.append(2)   # aktualny (zielony)
+		else:
+			level_states.append(0)   # zablokowany (szary)
+	_apply_level_states()
 
 # ————— PROCESS —————
 
@@ -180,6 +195,17 @@ func _on_level_pressed(btn: TextureButton):
 	if btn.disabled:
 		return
 	sound_click.play()
+	# Wylicz indeks poziomu na podstawie pozycji przycisku w gridzie
+	var level_index: int
+	var page1_children = grid_page1.get_children()
+	var idx_in_page1 = page1_children.find(btn)
+	if idx_in_page1 != -1:
+		level_index = idx_in_page1 + 1
+	else:
+		var idx_in_page2 = grid_page2.get_children().find(btn)
+		level_index = LEVELS_PER_PAGE + idx_in_page2 + 1
+	await get_tree().create_timer(0.1).timeout
+	PlayerData.launch_level(level_index)
 
 func _apply_level_states():
 	var all_buttons_page1 = grid_page1.get_children()
@@ -284,10 +310,10 @@ func _on_arrow_left_campaign_mouse_exited():
 	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 1.0)
 
 func _on_arrow_right_campaign_mouse_entered():
-	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowRight"), 0.9)
+	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 0.9)
 
 func _on_arrow_right_campaign_mouse_exited():
-	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowRight"), 1.0)
+	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 1.0)
 
 func _on_arrow_left_online_mouse_entered():
 	_scale_button(get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowLeft"), 0.9)
