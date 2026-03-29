@@ -36,7 +36,7 @@ const COLOR_FONT = Color.WHITE
 
 # ————— STAN —————
 var current_panel = 0
-var current_page = 0  # 0 = strona 1, 1 = strona 2
+var current_page = 0
 const LEVELS_PER_PAGE = 20
 const TOTAL_LEVELS = 40
 
@@ -49,65 +49,87 @@ var _ready_done: bool = false
 
 func _ready():
 	await get_tree().process_frame
-	
-	# Pivot strzałki i nav
+
 	var btns = [
 		get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"),
 		get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowRight"),
 		get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowLeft"),
 		get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowRight"),
-		btn_prev,
-		btn_next,
-		btn_find,
+		btn_prev, btn_next, btn_find,
 	]
 	for btn in btns:
-		if btn:
-			btn.pivot_offset = btn.size / 2
-	
+		if btn: btn.pivot_offset = btn.size / 2
+
 	await get_tree().process_frame
-	if btn_cancel:
-		btn_cancel.pivot_offset = btn_cancel.size / 2
-	
-	# Pivot + hover na przyciskach poziomów (oba gridy)
+	if btn_cancel: btn_cancel.pivot_offset = btn_cancel.size / 2
+
 	for btn in grid_page1.get_children() + grid_page2.get_children():
 		btn.pivot_offset = btn.size / 2
 		btn.mouse_entered.connect(_on_level_mouse_entered.bind(btn))
 		btn.mouse_exited.connect(_on_level_mouse_exited.bind(btn))
 		btn.pressed.connect(_on_level_pressed.bind(btn))
-	
+
 	panel_campaign.visible = true
 	panel_online.visible = false
 	search_panel.visible = false
 	grid_page2.visible = false
-	
+
 	_update_dots()
 	_update_nav_buttons()
-	
-	_ready_done = true
-	# Odśwież stany poziomów na starcie
-	_refresh_level_states()
 
-# ————— ODŚWIEŻANIE STANÓW POZIOMÓW —————
-# Wywoływane przy każdym wejściu do sceny (np. po powrocie z gry)
+	_ready_done = true
+	_refresh_level_states()
+	TimerManager.on_modes_enter()
+	# Jeśli matchmaking trwał zanim opuściliśmy scenę — przywróć stan UI
+	_restore_search_state()
+
+# ————— ODŚWIEŻANIE STANÓW —————
 
 func _notification(what: int):
 	if what == NOTIFICATION_ENTER_TREE and _ready_done:
-		# Scena wróciła do drzewa po powrocie z game.tscn
 		_refresh_level_states()
+		TimerManager.on_modes_enter()
+		_restore_search_state()
+	elif what == NOTIFICATION_EXIT_TREE:
+		TimerManager.on_modes_exit()
+
+func _restore_search_state():
+	if PlayerData._matchmaking_active:
+		is_searching = true
+		search_timer = TimerManager.search_time
+		# Wznów TimerManager jeśli był zatrzymany podczas nieobecności w scenie
+		if not TimerManager.is_searching:
+			TimerManager.is_searching = true
+			TimerManager.timer_ui.visible = true
+		# Pokaż panel online z anulowaniem
+		panel_campaign.visible = false
+		panel_online.visible = true
+		current_panel = 1
+		_update_dots()
+		search_panel.visible = true
+		btn_find.visible = false
+		# Podłącz sygnały (rozłącz najpierw żeby nie było duplikatów)
+		if PlayerData.matchmaking_found.is_connected(_on_match_found):
+			PlayerData.matchmaking_found.disconnect(_on_match_found)
+		if PlayerData.matchmaking_timeout.is_connected(_on_match_timeout):
+			PlayerData.matchmaking_timeout.disconnect(_on_match_timeout)
+		PlayerData.matchmaking_found.connect(_on_match_found, CONNECT_ONE_SHOT)
+		PlayerData.matchmaking_timeout.connect(_on_match_timeout, CONNECT_ONE_SHOT)
+	else:
+		is_searching = false
 
 func _refresh_level_states():
-	if not _ready_done:
-		return
+	if not _ready_done: return
 	level_states.clear()
 	var current_level = PlayerData.get_current_level()
 	for i in range(TOTAL_LEVELS):
-		var level_num = i + 1  # 1-based
+		var level_num = i + 1
 		if level_num < current_level:
-			level_states.append(1)   # ukończony (niebieski)
+			level_states.append(1)
 		elif level_num == current_level:
-			level_states.append(2)   # aktualny (zielony)
+			level_states.append(2)
 		else:
-			level_states.append(0)   # zablokowany (szary)
+			level_states.append(0)
 	_apply_level_states()
 
 # ————— PROCESS —————
@@ -119,21 +141,21 @@ func _process(delta):
 		var seconds = int(search_timer) % 60
 		label_searching.text = "Finding match... %d:%02d" % [minutes, seconds]
 
-# ————— STRZAŁKI PANELI — kierunkowe —————
+# ————— STRZAŁKI PANELI —————
 
 func _on_arrow_left_pressed():
 	sound_click.play()
 	if current_panel == 0:
-		_switch_panels(true, 1)   # do online, animacja w lewo
+		_switch_panels(true, 1)
 	else:
-		_switch_panels(false, 1)  # do campaign, animacja w lewo
+		_switch_panels(false, 1)
 
 func _on_arrow_right_pressed():
 	sound_click.play()
 	if current_panel == 0:
-		_switch_panels(true, -1)    # do online, animacja w prawo
+		_switch_panels(true, -1)
 	else:
-		_switch_panels(false, -1)   # do campaign, animacja w prawo
+		_switch_panels(false, -1)
 
 func _switch_panels(go_to_online: bool, direction: int):
 	if go_to_online:
@@ -145,11 +167,9 @@ func _switch_panels(go_to_online: bool, direction: int):
 	_update_dots()
 
 func _animate_panels(panel_out: Control, panel_in: Control, direction: int):
-	# direction: -1 = animacja w lewo, 1 = animacja w prawo
 	panel_in.visible = true
 	panel_in.position.x = size.x * -direction
 	panel_in.modulate.a = 0.0
-	
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(panel_out, "position:x", size.x * direction, 0.3)\
@@ -158,7 +178,6 @@ func _animate_panels(panel_out: Control, panel_in: Control, direction: int):
 	tween.tween_property(panel_in, "position:x", 0.0, 0.3)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(panel_in, "modulate:a", 1.0, 0.3)
-	
 	await tween.finished
 	panel_out.visible = false
 	panel_out.position.x = 0
@@ -189,52 +208,49 @@ func _update_dots():
 	dot1.add_theme_stylebox_override("panel", style1)
 	dot2.add_theme_stylebox_override("panel", style2)
 
-# ————— POZIOMY — aplikuj stany do obu gridów —————
+# ————— POZIOMY —————
 
 func _on_level_pressed(btn: TextureButton):
-	if btn.disabled:
-		return
+	if btn.disabled: return
 	sound_click.play()
-	# Wylicz indeks poziomu na podstawie pozycji przycisku w gridzie
+	# Kliknięcie poziomu anuluje matchmaking
+	if is_searching or PlayerData._matchmaking_active:
+		_cancel_search()
 	var level_index: int
-	var page1_children = grid_page1.get_children()
-	var idx_in_page1 = page1_children.find(btn)
+	var idx_in_page1 = grid_page1.get_children().find(btn)
 	if idx_in_page1 != -1:
 		level_index = idx_in_page1 + 1
 	else:
-		var idx_in_page2 = grid_page2.get_children().find(btn)
-		level_index = LEVELS_PER_PAGE + idx_in_page2 + 1
+		level_index = LEVELS_PER_PAGE + grid_page2.get_children().find(btn) + 1
 	await get_tree().create_timer(0.1).timeout
 	PlayerData.launch_level(level_index)
 
 func _apply_level_states():
-	var all_buttons_page1 = grid_page1.get_children()
-	var all_buttons_page2 = grid_page2.get_children()
-	
-	for i in range(all_buttons_page1.size()):
-		_apply_state_to_button(all_buttons_page1[i], level_states[i])
-	
-	for i in range(all_buttons_page2.size()):
-		var level_index = LEVELS_PER_PAGE + i
-		if level_index < TOTAL_LEVELS:
-			_apply_state_to_button(all_buttons_page2[i], level_states[level_index])
+	var all1 = grid_page1.get_children()
+	var all2 = grid_page2.get_children()
+	for i in range(all1.size()):
+		_apply_state_to_button(all1[i], level_states[i])
+	for i in range(all2.size()):
+		var li = LEVELS_PER_PAGE + i
+		if li < TOTAL_LEVELS:
+			_apply_state_to_button(all2[i], level_states[li])
 
 func _apply_state_to_button(btn: TextureButton, state: int):
 	var label = btn.get_node_or_null("Label")
 	match state:
-		0:  # disabled
+		0:
 			btn.texture_normal = tex_disabled
 			btn.disabled = true
 			if label:
 				label.add_theme_color_override("font_color", COLOR_FONT)
 				label.add_theme_color_override("font_outline_color", COLOR_DISABLED)
-		1:  # ukończony
+		1:
 			btn.texture_normal = tex_completed
 			btn.disabled = false
 			if label:
 				label.add_theme_color_override("font_color", COLOR_FONT)
 				label.add_theme_color_override("font_outline_color", COLOR_COMPLETED)
-		2:  # aktualny
+		2:
 			btn.texture_normal = tex_current
 			btn.disabled = false
 			if label:
@@ -247,29 +263,26 @@ func _update_nav_buttons():
 	btn_next.disabled = (current_page == 1)
 	btn_next.modulate = Color(0.5, 0.5, 0.5, 1) if current_page == 1 else Color(1, 1, 1, 1)
 
-# ————— PREV / NEXT — slide między gridami —————
+# ————— PREV / NEXT GRID —————
 
 func _on_previous_pressed():
-	if current_page == 0:
-		return
+	if current_page == 0: return
 	sound_click.play()
 	current_page = 0
-	_slide_grids(grid_page2, grid_page1, 1)   # slide w prawo
+	_slide_grids(grid_page2, grid_page1, 1)
 
 func _on_next_pressed():
-	if current_page == 1:
-		return
+	if current_page == 1: return
 	sound_click.play()
 	current_page = 1
-	_slide_grids(grid_page1, grid_page2, -1)  # slide w lewo
+	_slide_grids(grid_page1, grid_page2, -1)
 
 func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
-	var target_pos = grid_in.position  # pozycja z anchorów — już jest poprawna
+	var target_pos = grid_in.position
 	grid_in.visible = true
 	grid_in.position = Vector2(target_pos.x + (grid_in.size.x * -direction), target_pos.y)
 	grid_in.modulate.a = 0.0
 	_update_nav_buttons()
-
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(grid_out, "position:x", grid_out.position.x + (grid_out.size.x * direction), 0.25)\
@@ -278,10 +291,9 @@ func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
 	tween.tween_property(grid_in, "position:x", target_pos.x, 0.25)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(grid_in, "modulate:a", 1.0, 0.2)
-
 	await tween.finished
 	grid_out.visible = false
-	grid_out.position = Vector2(grid_out.position.x - (grid_out.size.x * direction), grid_out.position.y)  # reset
+	grid_out.position = Vector2(grid_out.position.x - (grid_out.size.x * direction), grid_out.position.y)
 	grid_out.modulate.a = 1.0
 
 # ————— ONLINE —————
@@ -294,36 +306,65 @@ func _on_find_game_pressed():
 	search_timer = 0.0
 	TimerManager.start_search()
 
+	if PlayerData.matchmaking_found.is_connected(_on_match_found):
+		PlayerData.matchmaking_found.disconnect(_on_match_found)
+	if PlayerData.matchmaking_timeout.is_connected(_on_match_timeout):
+		PlayerData.matchmaking_timeout.disconnect(_on_match_timeout)
+	PlayerData.matchmaking_found.connect(_on_match_found, CONNECT_ONE_SHOT)
+	PlayerData.matchmaking_timeout.connect(_on_match_timeout, CONNECT_ONE_SHOT)
+
+	var ok = PlayerData.start_matchmaking()
+	if not ok:
+		await get_tree().create_timer(1.0).timeout
+		_on_match_timeout()
+
 func _on_cancel_pressed():
 	sound_click.play()
+	_cancel_search()
+
+func _cancel_search():
+	is_searching = false
+	search_panel.visible = false
+	btn_find.visible = true
+	PlayerData.stop_matchmaking()
+	TimerManager.stop_search()
+	if PlayerData.matchmaking_found.is_connected(_on_match_found):
+		PlayerData.matchmaking_found.disconnect(_on_match_found)
+	if PlayerData.matchmaking_timeout.is_connected(_on_match_timeout):
+		PlayerData.matchmaking_timeout.disconnect(_on_match_timeout)
+
+func _on_match_found():
 	is_searching = false
 	search_panel.visible = false
 	btn_find.visible = true
 	TimerManager.stop_search()
+	PlayerData.launch_online_duel()
+
+func _on_match_timeout():
+	if not is_searching: return
+	is_searching = false
+	search_panel.visible = false
+	btn_find.visible = true
+	TimerManager.stop_search()
+	PlayerData.online_opponent_name = ""
+	PlayerData.launch_online_duel()
 
 # ————— HOVER STRZAŁKI —————
 
 func _on_arrow_left_campaign_mouse_entered():
 	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 0.9)
-
 func _on_arrow_left_campaign_mouse_exited():
 	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 1.0)
-
 func _on_arrow_right_campaign_mouse_entered():
-	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 0.9)
-
+	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowRight"), 0.9)
 func _on_arrow_right_campaign_mouse_exited():
-	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"), 1.0)
-
+	_scale_button(get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowRight"), 1.0)
 func _on_arrow_left_online_mouse_entered():
 	_scale_button(get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowLeft"), 0.9)
-
 func _on_arrow_left_online_mouse_exited():
 	_scale_button(get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowLeft"), 1.0)
-
 func _on_arrow_right_online_mouse_entered():
 	_scale_button(get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowRight"), 0.9)
-
 func _on_arrow_right_online_mouse_exited():
 	_scale_button(get_node_or_null("Control_Online/HBoxContainer_Top/TextureButton_ArrowRight"), 1.0)
 
@@ -331,13 +372,10 @@ func _on_arrow_right_online_mouse_exited():
 
 func _on_previous_mouse_entered():
 	_scale_button(btn_prev, 0.9)
-
 func _on_previous_mouse_exited():
 	_scale_button(btn_prev, 1.0)
-
 func _on_next_mouse_entered():
 	_scale_button(btn_next, 0.9)
-
 func _on_next_mouse_exited():
 	_scale_button(btn_next, 1.0)
 
@@ -345,30 +383,24 @@ func _on_next_mouse_exited():
 
 func _on_find_game_mouse_entered():
 	_scale_button(btn_find, 0.9)
-
 func _on_find_game_mouse_exited():
 	_scale_button(btn_find, 1.0)
-
 func _on_cancel_mouse_entered():
 	_scale_button(btn_cancel, 0.9)
-
 func _on_cancel_mouse_exited():
 	_scale_button(btn_cancel, 1.0)
 
-# ————— HOVER POZIOMY (przez bind w _ready) —————
+# ————— HOVER POZIOMY —————
 
 func _on_level_mouse_entered(btn: TextureButton):
 	_scale_button(btn, 0.9)
-
 func _on_level_mouse_exited(btn: TextureButton):
 	_scale_button(btn, 1.0)
 
 # ————— HELPER —————
 
 func _scale_button(btn: Control, target_scale: float):
-	if btn == null:
-		return
+	if btn == null: return
 	var tween = create_tween()
 	tween.tween_property(btn, "scale", Vector2(target_scale, target_scale), 0.1)\
-		.set_trans(Tween.TRANS_BACK)\
-		.set_ease(Tween.EASE_OUT)
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

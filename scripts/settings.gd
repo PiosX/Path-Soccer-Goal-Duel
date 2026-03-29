@@ -127,13 +127,18 @@ func _scale_button(btn: Control, target_scale: float):
 func _on_button_info_pressed() -> void:
 	$SoundClick.play() 
 	await _play_and_wait()
-	get_tree().change_scene_to_file("res://scenes/info.tscn")
+	SceneTransition.go_to("res://scenes/info.tscn")
 
 # ————— PLAY BUTTON —————
 
 func _on_texturebutton_play_pressed():
 	$SoundClick.play()
 	await $SoundClick.finished
+	# Anuluj matchmaking jeśli trwało szukanie w tle
+	if PlayerData._matchmaking_active:
+		PlayerData.stop_matchmaking()
+		TimerManager.stop_search()
+	PlayerData.online_mode = false
 	PlayerData.launch_level(PlayerData.get_current_level())
 
 func _on_texturebutton_play_mouse_entered():
@@ -152,7 +157,7 @@ func _on_nav1_mouse_exited():
 
 func _on_nav1_pressed():
 	await _play_and_wait()
-	get_tree().change_scene_to_file("res://scenes/play.tscn")
+	SceneTransition.go_to("res://scenes/play.tscn")
 	
 func _on_nav2_mouse_entered():
 	_scale_button($HBoxContainer_Nav/TextureButton_Nav2, 0.9)
@@ -162,7 +167,7 @@ func _on_nav2_mouse_exited():
 
 func _on_nav2_pressed():
 	await _play_and_wait()
-	get_tree().change_scene_to_file("res://scenes/modes.tscn")
+	SceneTransition.go_to("res://scenes/modes.tscn")
 
 func _on_nav3_mouse_entered():
 	_scale_button($HBoxContainer_Nav/TextureButton_Nav3, 0.9)
@@ -172,7 +177,7 @@ func _on_nav3_mouse_exited():
 
 func _on_nav3_pressed():
 	await _play_and_wait()
-	get_tree().change_scene_to_file("res://scenes/shop.tscn")
+	SceneTransition.go_to("res://scenes/shop.tscn")
 
 func _on_nav4_mouse_entered():
 	_scale_button($HBoxContainer_Nav/TextureButton_Nav4, 0.9)
@@ -182,7 +187,7 @@ func _on_nav4_mouse_exited():
 
 func _on_nav4_pressed():
 	await _play_and_wait()
-	get_tree().change_scene_to_file("res://scenes/scores.tscn")
+	SceneTransition.go_to("res://scenes/scores.tscn")
 
 func _play_and_wait():
 	$SoundClick.play()

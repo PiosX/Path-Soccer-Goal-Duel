@@ -212,6 +212,7 @@ mouse_filter = 2
 script = ExtResource("7_5lclc")
 
 [node name="Control_Collection" type="Control" parent="MarginContainer/Control/Control_Shop" unique_id=1634763437]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1348,7 +1349,6 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_lrmib")
 
 [node name="Control_Premium" type="Control" parent="MarginContainer/Control/Control_Shop" unique_id=829123320]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -2287,11 +2287,11 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("28_76u24")
 
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_campaign_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_campaign_mouse_exited"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_collection_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_collection_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_pressed"]
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_campaign_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_campaign_mouse_exited"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_collection_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_collection_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Shop" method="_on_previous_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Nav2/TextureButton_Previous" to="MarginContainer/Control/Control_Shop" method="_on_previous_mouse_exited"]
@@ -2299,11 +2299,11 @@ texture_normal = ExtResource("28_76u24")
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Shop" method="_on_next_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Shop" method="_on_next_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Collection/HBoxContainer_Nav2/TextureButton_Next" to="MarginContainer/Control/Control_Shop" method="_on_next_pressed"]
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_campaign_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_campaign_mouse_exited"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_premium_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_premium_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowLeft" to="MarginContainer/Control/Control_Shop" method="_on_arrow_left_pressed"]
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_campaign_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_campaign_mouse_exited"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_premium_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_premium_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Shop/Control_Premium/HBoxContainer_Top/TextureButton_ArrowRight" to="MarginContainer/Control/Control_Shop" method="_on_arrow_right_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]

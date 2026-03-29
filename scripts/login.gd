@@ -57,7 +57,7 @@ func _ready():
 		var device_id = cfg.get_value("session", "device_id", "")
 		if device_id != "":
 			await PlayerData.refresh_session(cfg)
-			get_tree().change_scene_to_file("res://scenes/play.tscn")
+			SceneTransition.go_to("res://scenes/play.tscn")
 			return
 
 	_base_ol = ctrl_guest.offset_left
@@ -250,7 +250,7 @@ func _on_texture_button_play_pressed():
 
 	_save_session(result.get("PlayFabId", ""), session_ticket, nick, false)
 	_set_busy(false)
-	get_tree().change_scene_to_file("res://scenes/play.tscn")
+	SceneTransition.go_to("res://scenes/play.tscn")
 
 # ═══════════════════════════════════════════
 #  LOGIN (nick + hasło)
@@ -289,7 +289,7 @@ func _on_texture_button_login_login_pressed():
 	var nick = login_input.text.strip_edges()
 	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true)
 	_set_busy(false)
-	get_tree().change_scene_to_file("res://scenes/play.tscn")
+	SceneTransition.go_to("res://scenes/play.tscn")
 
 # ═══════════════════════════════════════════
 #  FORGOT PASSWORD — wyślij email

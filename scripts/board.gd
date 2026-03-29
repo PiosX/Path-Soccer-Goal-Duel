@@ -56,11 +56,23 @@ var combo_count: int = 0           # ile ruchów z rzędu w tej turze
 var combo_label: Label = null      # etykieta COMBO nad piłką
 
 # ————— TRYB GRY —————
-var VS_AI: bool = true             # ustaw z zewnątrz przed _ready
+var VS_AI: bool = true
 const AI_PLAYER: int = 2
+var _ai_is_player1: bool = false   # true = bot jest Player1 (gracz jest P2)
 const AI_DEPTH: int = 3
 var ai_thinking: bool = false
 var _game_ended: bool = false
+
+func _is_my_turn() -> bool:
+	# W trybie VS AI lub kampanii — zawsze tura gracza (AI jest blokowane przez ai_thinking)
+	if not PlayerData.online_mode:
+		return true
+	# W online — moja tura gdy current_player odpowiada mojemu numerowi gracza
+	var my_player_num = 1 if PlayerData.player1_is_me else 2
+	return current_player == my_player_num
+
+func _get_ai_player() -> int:
+	return 1 if _ai_is_player1 else 2
 
 # ————— TIMER (tryb 2 graczy) —————
 const TURN_TIME: float = 15.0
@@ -377,24 +389,24 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 # ——————————————————————————————————————————
 
 func _ready():
-	# Wczytaj dane poziomu z PlayerData jeśli nie ustawiono z zewnątrz
-	if level_data.is_empty() and not PlayerData.current_level_data.is_empty():
+	if PlayerData.online_mode:
+		level_data = {}
+		VS_AI = (PlayerData.online_opponent_name == "")
+		_ai_is_player1 = VS_AI and not PlayerData.player1_is_me
+	elif level_data.is_empty() and not PlayerData.current_level_data.is_empty():
 		level_data = PlayerData.current_level_data
 		VS_AI = PlayerData.vs_ai
 	if not level_data.is_empty():
 		_apply_level_data()
 	_scroll_container = _find_scroll_parent()
 	_build_board()
-	# Wymuś recalc scroll po ustawieniu custom_minimum_size
 	if _scroll_container:
 		_scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 		_scroll_container.vertical_scroll_mode   = ScrollContainer.SCROLL_MODE_AUTO
 	_setup_game()
-	# Zaktualizuj label "Level X" w play.tscn
-	call_deferred("_update_level_label")
+	if not PlayerData.online_mode:
+		call_deferred("_update_level_label")
 
-# Aktualizuje label z numerem poziomu w scenie play.tscn
-# Ścieżka: MarginContainer/Control/HBoxContainer/Control_Level/Label
 func _update_level_label():
 	var p = get_parent()
 	while p:
@@ -548,8 +560,13 @@ func _setup_game():
 
 	_init_timer_ui()
 	_refresh_active_dots()
-	# Wyśrodkuj ScrollContainer na planszy po zbudowaniu
 	call_deferred("_center_scroll")
+
+	# Jeśli bot jest Player1 — bot zaczyna od razu, gracz (Player2) czeka
+	if VS_AI and _ai_is_player1:
+		ai_thinking = true
+		_hide_active_dots()
+		call_deferred("_ai_take_turn")
 
 func _center_scroll():
 	if not _scroll_container: return
@@ -808,7 +825,7 @@ func _input(event: InputEvent):
 			return
 		if is_touch and not event.pressed:
 			_drag_active = false
-			if not _touch_moved and not ai_thinking:
+			if not _touch_moved and not ai_thinking and _is_my_turn():
 				_try_move(get_global_transform().affine_inverse() * event.position)
 			_touch_moved = false
 			get_viewport().set_input_as_handled()
@@ -824,6 +841,7 @@ func _input(event: InputEvent):
 		click_pos = event.position
 	if not pressed: return
 	if ai_thinking: return
+	if not _is_my_turn(): return
 	_try_move(get_global_transform().affine_inverse() * click_pos)
 
 func _try_move(local_pos: Vector2):
@@ -900,14 +918,14 @@ func _do_move(target: Vector2i):
 		score += combo_count * 10
 		_show_combo(target, false)
 		# Odbicie — ten sam gracz gra dalej, przedłuż timer o 3s (max do TURN_TIME)
-		if not VS_AI:
+		if not VS_AI or PlayerData.online_mode:
 			turn_timer = minf(turn_timer + 3.0, TURN_TIME)
 	else:
 		combo_count = 0
 		_hide_combo()
 		current_player = 2 if current_player == 1 else 1
 		# Zmiana tury — restart timera
-		if not VS_AI:
+		if not VS_AI or PlayerData.online_mode:
 			_start_turn_timer()
 
 	var moves = get_valid_moves(ball_grid_pos)
@@ -925,7 +943,7 @@ func _do_move(target: Vector2i):
 	_check_cutoff()
 
 	# AI rusza gdy to jego kolej
-	if VS_AI and current_player == AI_PLAYER:
+	if VS_AI and current_player == _get_ai_player():
 		ai_thinking = true
 		_hide_active_dots()
 		# Czekaj aż animacja piłki się skończy (ok 0.25s) zanim AI zacznie liczyć
@@ -969,7 +987,7 @@ func _rollback_until_moves() -> void:
 			ai_thinking = false
 			_refresh_active_dots()
 			# Jeśli po zmianie tury gra AI — niech ruszy
-			if VS_AI and current_player == AI_PLAYER:
+			if VS_AI and current_player == _get_ai_player():
 				ai_thinking = true
 				_hide_active_dots()
 				await get_tree().create_timer(0.2).timeout
@@ -1057,10 +1075,23 @@ func _on_goal_anim():
 	print("GOL! Gracz %d strzelił!" % scorer)
 	_hide_combo()
 	var player_scored: bool
-	if level_data.get("orientation", "vertical") == "horizontal":
-		player_scored = (ball_grid_pos.x < 0)  # lewa bramka = bramka AI = gracz strzelił
+	if PlayerData.online_mode:
+		# W online: Player1 atakuje dolną bramkę (y>ROWS), Player2 atakuje górną (y<0)
+		if level_data.get("orientation", "vertical") == "horizontal":
+			if PlayerData.player1_is_me:
+				player_scored = (ball_grid_pos.x < 0)   # ja=P1, lewa=bramka AI = moja wygrana
+			else:
+				player_scored = (ball_grid_pos.x > COLS) # ja=P2, prawa=bramka AI = moja wygrana
+		else:
+			if PlayerData.player1_is_me:
+				player_scored = (ball_grid_pos.y > ROWS)  # ja=P1, strzelam do dołu = wygrana
+			else:
+				player_scored = (ball_grid_pos.y < 0)     # ja=P2, strzelam do góry = wygrana
 	else:
-		player_scored = (ball_grid_pos.y < 0)  # górna bramka = bramka AI = gracz strzelił
+		if level_data.get("orientation", "vertical") == "horizontal":
+			player_scored = (ball_grid_pos.x < 0)
+		else:
+			player_scored = (ball_grid_pos.y < 0)  # górna bramka = bramka AI = gracz strzelił
 	if player_scored:
 		score += 500
 		_show_popup_win()
@@ -1078,30 +1109,38 @@ func _game_over(winner: int):
 func _show_popup_win():
 	ai_thinking = true
 	_game_ended = true
-	# Najpierw synchronicznie awansuj poziom — PRZED save_game_result (który jest async)
-	# Dzięki temu get_current_level() w level_complete._on_next_pressed zwróci poprawną wartość
-	if VS_AI:
-		PlayerData.on_level_win(PlayerData.current_level_index)
-	# Zapisz wynik do PlayFab i lokalnie (on_level_win wewnątrz save_game_result jest już niegroźne — sprawdza czy level >= current)
-	PlayerData.save_game_result(true, score / 100, score, VS_AI)
-	var popup = scene_complete.instantiate()
-	# Ustaw przed add_child — _ready odczyta i animuje od 0 do tych wartości
-	var ctrl = popup.get_node("Control")
-	ctrl.score = score
-	ctrl.reward = score / 100
-	ctrl.completed_level_index = PlayerData.current_level_index  # indeks ukończonego poziomu
-	ctrl.level_name = "LEVEL " + str(PlayerData.current_level_index)
-	get_tree().root.add_child(popup)
+	if PlayerData.online_mode:
+		PlayerData.save_game_result(true, score / 100, score, false)
+		var popup = scene_complete.instantiate()
+		var ctrl = popup.get_node("Control")
+		ctrl.score = score
+		ctrl.reward = score / 100
+		ctrl.completed_level_index = 0
+		ctrl.level_name = "VICTORY!"
+		ctrl.is_online_mode = true
+		get_tree().root.add_child(popup)
+	else:
+		if VS_AI:
+			PlayerData.on_level_win(PlayerData.current_level_index)
+		PlayerData.save_game_result(true, score / 100, score, VS_AI)
+		var popup = scene_complete.instantiate()
+		var ctrl = popup.get_node("Control")
+		ctrl.score = score
+		ctrl.reward = score / 100
+		ctrl.completed_level_index = PlayerData.current_level_index
+		ctrl.level_name = "LEVEL " + str(PlayerData.current_level_index)
+		ctrl.is_online_mode = false
+		get_tree().root.add_child(popup)
 
 func _show_popup_fail():
 	ai_thinking = true
 	_game_ended = true
-	# Zapisz wynik do PlayFab i lokalnie (przegrana)
-	PlayerData.save_game_result(false, 0, score, VS_AI)
+	PlayerData.save_game_result(false, 0, score, not PlayerData.online_mode and VS_AI)
 	var popup = scene_failed.instantiate()
 	var ctrl = popup.get_node("Control")
 	ctrl.score = score
-	ctrl.level_name = "LEVEL " + str(PlayerData.current_level_index)
+	ctrl.level_name = "DEFEAT!" if PlayerData.online_mode else ("LEVEL " + str(PlayerData.current_level_index))
+	ctrl.is_online_mode = PlayerData.online_mode
 	get_tree().root.add_child(popup)
 
 # ——————————————————————————————————————————
@@ -1111,7 +1150,7 @@ func _show_popup_fail():
 func _ai_take_turn():
 	if _game_ended: return
 	# Minimax bez wątku — używamy call_deferred żeby nie blokować animacji
-	var best = _minimax_root(ball_grid_pos, used_edges.duplicate(), AI_PLAYER, AI_DEPTH)
+	var best = _minimax_root(ball_grid_pos, used_edges.duplicate(), _get_ai_player(), AI_DEPTH)
 	if best == null:
 		ai_thinking = false
 		_refresh_active_dots()
@@ -1139,10 +1178,16 @@ func _do_move_silent(target: Vector2i):
 		_hide_combo()
 		score += 500
 		var player_scored: bool
-		if level_data.get("orientation", "vertical") == "horizontal":
-			player_scored = (ball_grid_pos.x < 0)
+		if PlayerData.online_mode:
+			if level_data.get("orientation", "vertical") == "horizontal":
+				player_scored = (PlayerData.player1_is_me and ball_grid_pos.x < 0) or (not PlayerData.player1_is_me and ball_grid_pos.x > COLS)
+			else:
+				player_scored = (PlayerData.player1_is_me and ball_grid_pos.y > ROWS) or (not PlayerData.player1_is_me and ball_grid_pos.y < 0)
 		else:
-			player_scored = (ball_grid_pos.y < 0)
+			if level_data.get("orientation", "vertical") == "horizontal":
+				player_scored = (ball_grid_pos.x < 0)
+			else:
+				player_scored = (ball_grid_pos.y < 0)
 		await get_tree().create_timer(0.25).timeout
 		if player_scored:
 			_show_popup_win()
@@ -1175,15 +1220,14 @@ func _do_move_silent(target: Vector2i):
 
 	await get_tree().create_timer(0.12).timeout
 
-	if current_player == AI_PLAYER:
+	if current_player == _get_ai_player():
 		await get_tree().create_timer(0.12).timeout
 		_ai_take_turn()
 	else:
 		ai_thinking = false
 		_refresh_active_dots()
-		# Tura gracza
-		ai_thinking = false
-		_refresh_active_dots()
+		# Tura gracza — wystartuj timer
+		_start_turn_timer()
 
 # Korzeń minimax — zwraca najlepszy ruch
 func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) -> Variant:
@@ -1540,23 +1584,23 @@ func _check_cutoff():
 # ——————————————————————————————————————————
 
 func _init_timer_ui():
-	# Szukamy węzłów w scenie nadrzędnej (BoardContainer jest dzieckiem ScrollContainer itd.)
 	var root = get_tree().root
 	ui_turn_label     = _find_node_by_name(root, "Turn")
 	ui_panel_timer    = _find_node_by_name(root, "Panel_Timer")
 	ui_panel_color    = _find_node_by_name(root, "Panel_Color")
-	ui_timer_container = ui_panel_timer  # kontener to sam Panel_Timer
+	ui_timer_container = ui_panel_timer
 
-	if VS_AI:
-		# Tryb AI — ukryj cały timer
+	var use_timer = (not VS_AI) or PlayerData.online_mode
+	if use_timer:
+		if ui_panel_timer: ui_panel_timer.get_parent().visible = true
+		if ui_turn_label: ui_turn_label.visible = true
+		# Nie startuj timera jeśli bot jest Player1 — on zacznie, a timer odpali się po jego ruchu
+		if not (VS_AI and _ai_is_player1):
+			_start_turn_timer()
+	else:
 		if ui_panel_timer: ui_panel_timer.get_parent().visible = false
 		if ui_turn_label: ui_turn_label.visible = false
 		timer_running = false
-	else:
-		# Tryb 2 graczy — pokaż i wystartuj
-		if ui_panel_timer: ui_panel_timer.get_parent().visible = true
-		if ui_turn_label: ui_turn_label.visible = true
-		_start_turn_timer()
 
 func _find_node_by_name(node: Node, target_name: String) -> Node:
 	if node.name == target_name:
@@ -1568,7 +1612,7 @@ func _find_node_by_name(node: Node, target_name: String) -> Node:
 	return null
 
 func _start_turn_timer():
-	if VS_AI:
+	if VS_AI and not PlayerData.online_mode:
 		return
 	turn_timer = TURN_TIME
 	timer_running = true
@@ -1582,7 +1626,7 @@ func _process(delta: float):
 	_process_timer(delta)
 
 func _process_timer(delta: float):
-	if not timer_running or VS_AI:
+	if not timer_running or (VS_AI and not PlayerData.online_mode):
 		return
 	turn_timer -= delta
 	if turn_timer <= 0.0:
@@ -1594,7 +1638,9 @@ func _process_timer(delta: float):
 
 func _update_timer_ui(time_left: float):
 	if ui_turn_label and is_instance_valid(ui_turn_label):
-		if current_player == 1:
+		# "YOUR TURN" gdy to moja tura — mój gracz to Player1 jeśli player1_is_me, inaczej Player2
+		var my_player_num = 1 if (not PlayerData.online_mode or PlayerData.player1_is_me) else 2
+		if current_player == my_player_num:
 			ui_turn_label.text = "YOUR TURN: %ds" % int(ceil(time_left))
 		else:
 			ui_turn_label.text = "RIVAL TURN: %ds" % int(ceil(time_left))
@@ -1640,8 +1686,15 @@ func _on_timer_expired():
 	combo_count = 0
 	_hide_combo()
 	current_player = 2 if current_player == 1 else 1
-	_refresh_active_dots()
 	_start_turn_timer()
+	# Jeśli teraz tura AI — niech ruszy i zablokuj gracza
+	if VS_AI and current_player == _get_ai_player():
+		ai_thinking = true
+		_hide_active_dots()
+		await get_tree().create_timer(0.3).timeout
+		_ai_take_turn()
+	else:
+		_refresh_active_dots()
 
 # ——————————————————————————————————————————
 #  COMBO LABEL
@@ -1813,11 +1866,11 @@ func _do_teleport(from_node: Vector2i, target_node: Vector2i):
 		_hide_combo()
 		bounce_active = false
 		current_player = 2 if current_player == 1 else 1
-		if not VS_AI:
+		if not VS_AI or PlayerData.online_mode:
 			_start_turn_timer()
 		_refresh_active_dots()
 		_check_cutoff()
-		if VS_AI and current_player == AI_PLAYER:
+		if VS_AI and current_player == _get_ai_player():
 			ai_thinking = true
 			_hide_active_dots()
 			await get_tree().create_timer(0.28).timeout

@@ -24,6 +24,7 @@ config/icon="res://icon.svg"
 TimerManager="*res://scenes/search_timer.tscn"
 LevelEditor="*res://scripts/level_editor.gd"
 PlayerData="*uid://cerdimkmo0pxm"
+SceneTransition="*uid://bxvmvubefydat"
 
 [display]
 

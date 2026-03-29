@@ -1,11 +1,5 @@
 extends Control
 
-# ————— DANE GRACZY —————
-var player1_name = "PLAYER_1"
-var player1_rank = "#42"
-var player2_name = "PLAYER_2"
-var player2_rank = "#87"
-
 # ————— WĘZŁY —————
 @onready var tex_red = $TextureRect_Red
 @onready var tex_blue = $TextureRect_Blue
@@ -21,12 +15,6 @@ var player2_rank = "#87"
 const SCREEN_H = 1280.0
 
 func _ready():
-	# Ustaw dane graczy
-	label_name1.text = player1_name
-	label_rank1.text = player1_rank
-	label_name2.text = player2_name
-	label_rank2.text = player2_rank
-	
 	# Ukryj wszystko na start
 	tex_red.position.y = -SCREEN_H
 	tex_blue.position.y = SCREEN_H + 432.0
@@ -35,8 +23,42 @@ func _ready():
 	panel_vs.scale = Vector2(0.0, 0.0)
 	ctrl1.modulate.a = 0.0
 	ctrl2.modulate.a = 0.0
-	
+
 	await get_tree().process_frame
+
+	# Pobierz moją rangę z PlayFab (jeśli jeszcze nie mamy)
+	if PlayerData.my_rank == "#0":
+		await PlayerData.fetch_my_rank()
+
+	# Losuj kto jest Player1 (niebieski, zaczyna) — 50/50
+	# player1_decided resetuje się w launch_online_duel co sesję gry
+	if not PlayerData.player1_decided:
+		PlayerData.player1_is_me = (randi() % 2 == 0)
+		PlayerData.player1_decided = true
+
+	# Ustaw dane graczy w UI
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	var my_nick = cfg.get_value("session", "nick", "YOU")
+	var opponent_name = PlayerData.online_opponent_name if PlayerData.online_opponent_name != "" else "BOT"
+	var opponent_rank = PlayerData.online_opponent_rank if PlayerData.online_opponent_name != "" else "#0"
+
+	# ctrl1 = góra-lewa (czerwona strona), ctrl2 = dół-prawa (niebieska strona)
+	if PlayerData.player1_is_me:
+		# Ja jestem niebieski (Player1, zaczyna) — idę do ctrl2 (dół-prawa/niebieski)
+		label_name1.text = opponent_name
+		label_rank1.text = opponent_rank
+		label_name2.text = my_nick
+		label_rank2.text = PlayerData.my_rank
+	else:
+		# Ja jestem czerwony (Player2) — idę do ctrl1 (góra-lewa/czerwony)
+		label_name1.text = my_nick
+		label_rank1.text = PlayerData.my_rank
+		label_name2.text = opponent_name
+		label_rank2.text = opponent_rank
+
+	# Fade in po przejściu z modes
+	SceneTransition.fade_in_only()
 	_run_intro()
 
 func _run_intro():
@@ -63,14 +85,12 @@ func _run_intro():
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await tween3.finished
 
-	# KROK 4 — gracze wjeżdżają (0.4s)
-	# Player1 z lewej
+	# KROK 4 — gracze wjeżdżają z boków (0.4s)
 	var p1_target_x = ctrl1.position.x
 	ctrl1.position.x = -400.0
-	# Player2 z prawej
 	var p2_target_x = ctrl2.position.x
 	ctrl2.position.x = 1200.0
-	
+
 	var tween4 = create_tween()
 	tween4.set_parallel(true)
 	tween4.tween_property(ctrl1, "modulate:a", 1.0, 0.4)
@@ -81,6 +101,6 @@ func _run_intro():
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	await tween4.finished
 
-	# KROK 5 — pauza i przejście do gry
+	# KROK 5 — pauza i przejście do gry (fade)
 	await get_tree().create_timer(1.2).timeout
-	get_tree().change_scene_to_file("res://scenes/game.tscn")
+	SceneTransition.go_to("res://scenes/game.tscn")

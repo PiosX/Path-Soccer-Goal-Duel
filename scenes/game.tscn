@@ -115,7 +115,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 44
-text = "Level 01"
+text = "1v1 match"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -134,7 +134,6 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
-text = "1251"
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/Control/HBoxContainer_Coins" unique_id=653489928]
 layout_mode = 2
@@ -243,7 +242,7 @@ alignment = 2
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 24
-text = "Rank: 4723"
+text = "Rank: 0"
 horizontal_alignment = 2
 
 [node name="Player2_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2" unique_id=1095658914]
@@ -253,7 +252,7 @@ theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
-text = "Player 2204"
+text = "Bot Player"
 horizontal_alignment = 2
 
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]

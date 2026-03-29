@@ -198,7 +198,6 @@ mouse_filter = 2
 script = ExtResource("7_jf2v4")
 
 [node name="Control_Main" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=1496968861]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1300,6 +1299,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xglpk")
 
 [node name="Control_Online" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=218878556]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

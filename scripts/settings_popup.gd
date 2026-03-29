@@ -90,7 +90,7 @@ func _on_music_mouse_exited():
 func _on_shop_pressed():
 	sound_click.play()
 	await sound_click.finished
-	get_tree().change_scene_to_file("res://scenes/shop.tscn")
+	SceneTransition.go_to("res://scenes/shop.tscn")
 
 func _on_shop_mouse_entered():
 	_scale_button(btn_shop, 0.9)
@@ -102,9 +102,6 @@ func _on_shop_mouse_exited():
 
 func _on_restart_pressed():
 	sound_click.play()
-	await sound_click.finished
-	queue_free()
-	PlayerData.launch_level(PlayerData.current_level_index)
 
 func _on_restart_mouse_entered():
 	_scale_button(btn_restart, 0.9)
@@ -117,7 +114,11 @@ func _on_restart_mouse_exited():
 func _on_leave_pressed():
 	sound_click.play()
 	await sound_click.finished
-	get_tree().change_scene_to_file("res://scenes/play.tscn")
+	if PlayerData.online_mode:
+		# Opuszczenie meczu online = przegrana dla opuszczającego
+		PlayerData.save_game_result(false, 0, 0, false)
+		PlayerData.online_mode = false
+	SceneTransition.go_to("res://scenes/play.tscn")
 
 func _on_leave_mouse_entered():
 	_scale_button(btn_leave, 0.9)

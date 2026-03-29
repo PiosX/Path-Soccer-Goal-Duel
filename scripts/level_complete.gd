@@ -4,8 +4,11 @@ extends Control
 var level_name = "LEVEL 1"
 var score = 12500
 var reward = 200
-# Indeks właśnie ukończonego poziomu — ustawiany z board.gd razem z level_name
 var completed_level_index: int = 1
+var is_online_mode: bool = false
+
+# ————— TEXTURY —————
+var tex_btn_ok = preload("res://ui/common/ok-btn.png")
 
 # ————— WĘZŁY —————
 @onready var sound_click = $"../SoundClick"
@@ -26,7 +29,11 @@ func _ready():
 	# Ustaw teksturę promieni
 	rays.texture = tex_rays
 	rays.pivot_offset = rays.size / 2
-	
+
+	# W trybie online zmień przycisk Next na OK → modes
+	if is_online_mode:
+		btn_next.texture_normal = tex_btn_ok
+
 	# Ustaw dane
 	label_level.text = level_name
 	label_score.text = "0"
@@ -99,11 +106,13 @@ func _animate_counter(label: Label, from: int, to: int, duration: float):
 
 func _on_next_pressed():
 	sound_click.play()
-	# Zawsze przechodzimy do poziomu NASTĘPNEGO po ukończonym,
-	# niezależnie od tego ile poziomów gracz ma odblokowanych.
-	var next_level = completed_level_index + 1
 	queue_free()
-	PlayerData.launch_level(next_level)
+	if is_online_mode:
+		PlayerData.online_mode = false
+		SceneTransition.go_to("res://scenes/modes.tscn")
+	else:
+		var next_level = completed_level_index + 1
+		PlayerData.launch_level(next_level)
 
 func _on_next_mouse_entered():
 	_scale_button(btn_next, 0.9)

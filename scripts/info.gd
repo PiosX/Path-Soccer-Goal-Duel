@@ -135,7 +135,7 @@ func _on_texture_button_logout_pressed():
 	var dir = DirAccess.open("user://")
 	if dir:
 		dir.remove("session.cfg")
-	get_tree().change_scene_to_file("res://scenes/login.tscn")
+	SceneTransition.go_to("res://scenes/login.tscn")
 
 # ═══════════════════════════════════════════
 #  DELETE ACCOUNT
@@ -177,7 +177,7 @@ func _on_texture_button_delete_pressed():
 		dir.remove("session.cfg")
 
 	_set_busy(false)
-	get_tree().change_scene_to_file("res://scenes/login.tscn")
+	SceneTransition.go_to("res://scenes/login.tscn")
 
 # ═══════════════════════════════════════════
 #  PLAYFAB HELPER

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://br4ktlwxwvm74"]
+[gd_scene format=3 uid="uid://br4ktlwxwvm74"]
 
 [ext_resource type="Script" uid="uid://7t8chrxs1xim" path="res://scripts/match_intro.gd" id="1_gjy6u"]
 [ext_resource type="Texture2D" uid="uid://dgkh5jyrs6vie" path="res://ui/common/im-red.png" id="1_ugvww"]
@@ -15,9 +15,9 @@ corner_radius_top_right = 1000
 corner_radius_bottom_right = 1000
 corner_radius_bottom_left = 1000
 
-[node name="CanvasLayer" type="CanvasLayer"]
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1361027407]
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=1752230222]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,13 +26,13 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gjy6u")
 
-[node name="TextureRect_Red" type="TextureRect" parent="Control"]
+[node name="TextureRect_Red" type="TextureRect" parent="Control" unique_id=1927525499]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 texture = ExtResource("1_ugvww")
 
-[node name="TextureRect_Blue" type="TextureRect" parent="Control"]
+[node name="TextureRect_Blue" type="TextureRect" parent="Control" unique_id=498326219]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -46,7 +46,7 @@ grow_horizontal = 2
 grow_vertical = 0
 texture = ExtResource("2_6pml4")
 
-[node name="Panel_Line" type="Panel" parent="Control"]
+[node name="Panel_Line" type="Panel" parent="Control" unique_id=615785943]
 custom_minimum_size = Vector2(2000, 20)
 layout_mode = 1
 anchors_preset = 5
@@ -59,7 +59,7 @@ grow_horizontal = 2
 rotation = 0.523599
 theme_override_styles/panel = SubResource("StyleBoxFlat_xop33")
 
-[node name="Panel_VS" type="Panel" parent="Control"]
+[node name="Panel_VS" type="Panel" parent="Control" unique_id=139819074]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -74,7 +74,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_q1ab2")
 
-[node name="Label_VS" type="Label" parent="Control/Panel_VS"]
+[node name="Label_VS" type="Label" parent="Control/Panel_VS" unique_id=879188206]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -96,32 +96,32 @@ theme_override_fonts/font = ExtResource("3_rd7p5")
 theme_override_font_sizes/font_size = 120
 text = "VS"
 
-[node name="Control_Player1" type="Control" parent="Control"]
+[node name="Control_Player1" type="Control" parent="Control" unique_id=1769214718]
 anchors_preset = 0
 offset_left = 46.0
 offset_top = 46.0
 offset_right = 86.0
 offset_bottom = 86.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Player1"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Player1" unique_id=1531843371]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Label_Name1" type="Label" parent="Control/Control_Player1/VBoxContainer"]
+[node name="Label_Name1" type="Label" parent="Control/Control_Player1/VBoxContainer" unique_id=139748668]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_rd7p5")
 theme_override_font_sizes/font_size = 60
 text = "12. PlayerName1"
 
-[node name="Label_Rank1" type="Label" parent="Control/Control_Player1/VBoxContainer"]
+[node name="Label_Rank1" type="Label" parent="Control/Control_Player1/VBoxContainer" unique_id=366259456]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.854902, 0.996078, 1)
 theme_override_fonts/font = ExtResource("3_rd7p5")
 theme_override_font_sizes/font_size = 40
 text = "#47"
 
-[node name="Control_Player2" type="Control" parent="Control"]
+[node name="Control_Player2" type="Control" parent="Control" unique_id=1919032519]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -135,7 +135,7 @@ offset_bottom = -46.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Player2"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Player2" unique_id=1603343471]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -147,7 +147,7 @@ offset_top = -106.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Label_Rank2" type="Label" parent="Control/Control_Player2/VBoxContainer"]
+[node name="Label_Rank2" type="Label" parent="Control/Control_Player2/VBoxContainer" unique_id=2023760520]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.854902, 0.996078, 1)
 theme_override_fonts/font = ExtResource("3_rd7p5")
@@ -155,7 +155,7 @@ theme_override_font_sizes/font_size = 40
 text = "#123"
 horizontal_alignment = 2
 
-[node name="Label_Name2" type="Label" parent="Control/Control_Player2/VBoxContainer"]
+[node name="Label_Name2" type="Label" parent="Control/Control_Player2/VBoxContainer" unique_id=742308764]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_rd7p5")
 theme_override_font_sizes/font_size = 60

@@ -3,6 +3,7 @@ extends Control
 # ————— DANE —————
 var level_name = "LEVEL 1"
 var score = 0
+var is_online_mode: bool = false
 
 # ————— WĘZŁY —————
 @onready var overlay = $ColorRect_Overlay
@@ -59,7 +60,11 @@ func _on_replay_pressed():
 	sound_click.play()
 	await sound_click.finished
 	queue_free()
-	PlayerData.launch_level(PlayerData.current_level_index)
+	if is_online_mode:
+		PlayerData.online_mode = false
+		SceneTransition.go_to("res://scenes/modes.tscn")
+	else:
+		PlayerData.launch_level(PlayerData.current_level_index)
 
 func _on_replay_mouse_entered():
 	_scale_button(btn_replay, 0.9)
@@ -70,7 +75,8 @@ func _on_replay_mouse_exited():
 func _on_exit_pressed():
 	sound_click.play()
 	await sound_click.finished
-	get_tree().change_scene_to_file("res://scenes/play.tscn")
+	PlayerData.online_mode = false
+	SceneTransition.go_to("res://scenes/play.tscn")
 
 func _on_exit_mouse_entered():
 	_scale_button(btn_exit, 0.9)
