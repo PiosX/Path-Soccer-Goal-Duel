@@ -314,6 +314,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("11_dfcnn")
 
 [node name="GridContainer_Page1" type="GridContainer" parent="MarginContainer/Control/Control_Shop/Control_Collection" unique_id=1614515138]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -847,7 +848,6 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("37_rtigo")
 
 [node name="GridContainer_Page2" type="GridContainer" parent="MarginContainer/Control/Control_Shop/Control_Collection" unique_id=1303225356]
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

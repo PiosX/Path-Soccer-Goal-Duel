@@ -10,30 +10,43 @@ const BALL_START_Y = 520.0 + MARGIN_TOP
 const BALL_BOTTOM_Y = 600.0 + MARGIN_TOP
 const SHADOW_Y = 696.0 + MARGIN_TOP
 
-const SHADOW_MAX_SCALE = 0.8     # skala cienia gdy piłka na dole
-const SHADOW_MIN_SCALE = 0.2     # skala cienia gdy piłka na górze
+const SHADOW_MAX_SCALE = 0.8
+const SHADOW_MIN_SCALE = 0.2
 
-const BOUNCE_DURATION = 0.45     # czas spadania w dół
-const SQUISH_X = 1.3             # rozciągnięcie poziome przy odbiciu
-const SQUISH_Y = 0.7             # spłaszczenie pionowe przy odbiciu
-const SQUISH_DURATION = 0.08     # czas trwania squish
+const BOUNCE_DURATION = 0.45
+const SQUISH_X = 1.3
+const SQUISH_Y = 0.7
+const SQUISH_DURATION = 0.08
 
 # ————— READY —————
 
 func _ready():
 	await get_tree().process_frame
+
+	# Wczytaj aktywny skin gracza
+	_apply_equipped_skin()
+
 	ball.pivot_offset = ball.size / 2
 	shadow.pivot_offset = Vector2(shadow.size.x / 2, shadow.size.y / 2)
-	
-	# Ustaw pozycje Y
+
 	ball.position.y = BALL_START_Y
 	shadow.position.y = SHADOW_Y
-	
-	# Wyśrodkuj X względem Control_Ball (Full Rect = cały ekran)
+
 	ball.position.x = (size.x / 2) - (ball.size.x / 2)
 	shadow.position.x = (size.x / 2) - (shadow.size.x / 2)
-	
+
 	_bounce_down()
+
+# ————— SKIN —————
+
+func _apply_equipped_skin():
+	var skin_index = PlayerData.get_equipped_skin()
+	# Indeks 0 = skin1.png, indeks 1 = skin2.png, itd.
+	var skin_num = skin_index + 1
+	var path = "res://ui/skins/skin%d.png" % skin_num
+	var tex = load(path)
+	if tex:
+		ball.texture = tex
 
 # ————— ANIMACJA BOUNCE —————
 
@@ -47,7 +60,6 @@ func _bounce_down():
 	_squish()
 
 func _squish():
-	# Spłaszczenie przy kontakcie z ziemią
 	var tween = create_tween()
 	tween.tween_property(ball, "scale", Vector2(SQUISH_X, SQUISH_Y), SQUISH_DURATION)\
 		.set_trans(Tween.TRANS_QUAD)\
@@ -60,7 +72,6 @@ func _bounce_up():
 	tween.tween_property(ball, "position:y", BALL_START_Y, BOUNCE_DURATION)\
 		.set_trans(Tween.TRANS_QUAD)\
 		.set_ease(Tween.EASE_OUT)
-	# Przywróć normalną skalę
 	tween.parallel().tween_property(ball, "scale", Vector2(1.0, 1.0), BOUNCE_DURATION * 0.3)\
 		.set_trans(Tween.TRANS_QUAD)\
 		.set_ease(Tween.EASE_OUT)
@@ -71,6 +82,5 @@ func _bounce_up():
 # ————— CIEŃ —————
 
 func _update_shadow(progress: float):
-	# progress 0.0 = piłka na górze, 1.0 = piłka na dole
 	var s = lerp(SHADOW_MIN_SCALE, SHADOW_MAX_SCALE, progress)
 	shadow.scale = Vector2(s, s)

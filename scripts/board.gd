@@ -5,7 +5,7 @@ var quad_f1 = preload("res://scenes/quad_f1.tscn")
 var quad_f2 = preload("res://scenes/quad_f2.tscn")
 var quad_f3 = preload("res://scenes/quad_f3.tscn")  # niebieskie — bramka gracza (dół)
 var quad_f4 = preload("res://scenes/quad_f4.tscn")  # czerwone — bramka AI (góra)
-var tex_skin = preload("res://ui/skins/skin1.png")
+var tex_skin: Texture2D = null  # wczytywany dynamicznie z equipped_skin
 var scene_complete = preload("res://scenes/level_complete.tscn")
 var scene_failed  = preload("res://scenes/level_failed.tscn")
 
@@ -533,11 +533,18 @@ func _setup_game():
 
 	_draw_grid_dots()
 
-	# Piłka
+	# Piłka — wczytaj aktywny skin gracza
+	var _equipped_idx = PlayerData.get_equipped_skin()
+	var _skin_path = "res://ui/skins/skin%d.png" % (_equipped_idx + 1)
+	tex_skin = load(_skin_path)
+	if tex_skin == null:
+		tex_skin = load("res://ui/skins/skin1.png")
 	ball_node = Sprite2D.new()
 	ball_node.texture = tex_skin
 	ball_node.z_index = 10
-	ball_node.scale = Vector2(36.0 / 88.0, 36.0 / 88.0)
+	# Skaluj wg rzeczywistego rozmiaru tekstury — wszystkie skiny wyglądają jak 88x88
+	var tex_w = tex_skin.get_width() if tex_skin else 88
+	ball_node.scale = Vector2(36.0 / tex_w, 36.0 / tex_w)
 	ball_node.position = grid_to_pixel(ball_grid_pos.x, ball_grid_pos.y)
 	add_child(ball_node)
 
@@ -1021,7 +1028,8 @@ func _animate_ball(target: Vector2i, is_goal: bool):
 		target_px = _goal_side_pixel(target.x, target.y)
 	else:
 		target_px = grid_to_pixel(target.x, target.y)
-	var base_scale = 36.0 / 88.0
+	var tex_w = ball_node.texture.get_width() if ball_node.texture else 88
+	var base_scale = 36.0 / tex_w
 	var tween = create_tween().set_parallel(false)
 
 	# Ruch + spłaszczenie (kopnięcie)
@@ -1850,7 +1858,8 @@ func _find_teleport_node_partner(current: Vector2i, nodes: Array) -> Variant:
 
 # Animacja teleportacji: skurczenie → teleport → pojawienie → koniec tury
 func _do_teleport(from_node: Vector2i, target_node: Vector2i):
-	var base_scale = 36.0 / 88.0
+	var tex_w = ball_node.texture.get_width() if ball_node.texture else 88
+	var base_scale = 36.0 / tex_w
 	var target_px = grid_to_pixel(target_node.x, target_node.y)
 	var tween = create_tween().set_parallel(false)
 	tween.tween_property(ball_node, "scale", Vector2.ZERO, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)

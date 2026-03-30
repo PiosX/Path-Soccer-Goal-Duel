@@ -20,17 +20,59 @@ extends Control
 @onready var sound_click = $"../SoundClick"
 
 # ————— TEXTURY PRZYCISKÓW —————
-var tex_buy = preload("res://ui/shop/pay-200.png")
+# tex_buy jest ładowany dynamicznie per skin (wg ceny) — patrz _get_price_texture()
 var tex_equip = preload("res://ui/shop/equip.png")
 var tex_active = preload("res://ui/shop/active.png")
+
+# Cache tekstur cen — klucz = cena (int), wartość = Texture2D
+var _price_tex_cache: Dictionary = {}
+
+func _get_price_texture(price: int) -> Texture2D:
+	if _price_tex_cache.has(price):
+		return _price_tex_cache[price]
+	var path = "res://ui/shop/prices/%d.png" % price
+	var tex = load(path)
+	if tex == null:
+		# Fallback — pierwsza dostępna tekstura ceny
+		tex = load("res://ui/shop/prices/100.png")
+	_price_tex_cache[price] = tex
+	return tex
+
+# ————— CENY SKINÓW —————
+# Skin 1 jest zawsze darmowy (domyślny). Skiny 2-8 = rarity1, 9-16 = rarity2, 17-20 = rarity3
+# Max gold z premium = 10 000. Za wygraną ~50-200 gold.
+# Rarity1 (2-8):  tanie, dostępne szybko
+# Rarity2 (9-16): średnie, kilka godzin gry
+# Rarity3 (17-20): premium, długi grind lub premium shop
+const SKIN_PRICES = [
+	0,     # skin 1  — domyślny, zawsze odblokowany
+	100,   # skin 2  — rarity1
+	150,   # skin 3  — rarity1
+	200,   # skin 4  — rarity1
+	300,   # skin 5  — rarity1
+	350,   # skin 6  — rarity1
+	400,   # skin 7  — rarity1
+	450,   # skin 8  — rarity1
+	600,   # skin 9  — rarity2
+	800,  # skin 10 — rarity2
+	1000,  # skin 11 — rarity2
+	1100,  # skin 12 — rarity2
+	1200,  # skin 13 — rarity2
+	1300,  # skin 14 — rarity2
+	1500,  # skin 15 — rarity2
+	1700,  # skin 16 — rarity2
+	2100,  # skin 17 — rarity3
+	2500,  # skin 18 — rarity3
+	3000,  # skin 19 — rarity3
+	4000,  # skin 20 — rarity3
+]
 
 # ————— STAN —————
 var current_panel = 0
 var current_page = 0
 
-var skin_states = []
-const TOTAL_SKINS = 24
-const SKIN_PRICE = 200
+var skin_states = []   # 0=locked, 1=owned, 2=equipped
+const TOTAL_SKINS = 20
 var active_skin_index = 0
 var active_tween: Tween = null
 var active_skin_ctrl: Control = null
@@ -56,35 +98,66 @@ func _ready():
 	for btn in btns:
 		if btn:
 			btn.pivot_offset = btn.size / 2
-	
-	skin_states.append(2)
-	skin_states.append(1)
-	for i in range(TOTAL_SKINS - 2):
-		skin_states.append(0)
-	
-	active_skin_index = 0
-	
+
+	# Wczytaj stany skinów (owned + equipped) z PlayFab/session
+	_load_skin_states()
+
 	await get_tree().process_frame
 	_setup_skin_grid(grid_page1, 0)
 	_setup_skin_grid(grid_page2, 12)
-	
+
 	await get_tree().process_frame
 	_setup_premium_grid()
-	
+
 	panel_collection.visible = true
 	panel_premium.visible = false
 	grid_page2.visible = false
-	
+
 	_update_dots()
 	_update_nav_buttons()
 	_apply_skin_states()
-	
-	# Start animacji dla domyślnie aktywnego skina
-	var first_skin = grid_page1.get_child(0)
-	if first_skin:
-		active_skin_ctrl = first_skin
-		active_skin_base_y = first_skin.position.y
-		_start_active_animation(first_skin)
+
+	# Start animacji dla aktywnego skina
+	var page = 0 if active_skin_index < 12 else 1
+	var grid = grid_page1 if page == 0 else grid_page2
+	var idx_in_grid = active_skin_index if page == 0 else active_skin_index - 12
+	if idx_in_grid < grid.get_child_count():
+		var skin_ctrl = grid.get_child(idx_in_grid)
+		active_skin_ctrl = skin_ctrl
+		active_skin_base_y = skin_ctrl.position.y
+		_start_active_animation(skin_ctrl)
+
+# ————— WCZYTAJ STANY SKINÓW —————
+
+func _load_skin_states():
+	skin_states.clear()
+	for i in range(TOTAL_SKINS):
+		skin_states.append(0)
+
+	# Skin 1 zawsze odblokowany
+	skin_states[0] = 1
+
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") != OK:
+		skin_states[0] = 2
+		active_skin_index = 0
+		return
+
+	# Wczytaj kupione skiny
+	var owned_str: String = cfg.get_value("session", "owned_skins", "0")
+	for part in owned_str.split(","):
+		var idx = int(part.strip_edges())
+		if idx >= 0 and idx < TOTAL_SKINS:
+			skin_states[idx] = 1
+
+	# Wczytaj aktywny skin
+	var equipped = cfg.get_value("session", "equipped_skin", 0)
+	if equipped >= 0 and equipped < TOTAL_SKINS and skin_states[equipped] >= 1:
+		active_skin_index = equipped
+		skin_states[equipped] = 2
+	else:
+		active_skin_index = 0
+		skin_states[0] = 2
 
 # ————— SETUP GRIDU —————
 
@@ -92,15 +165,30 @@ func _setup_skin_grid(grid: Control, offset: int):
 	for i in range(grid.get_child_count()):
 		var skin_ctrl = grid.get_child(i)
 		var skin_index = offset + i
+		if skin_index >= TOTAL_SKINS:
+			break
 		skin_ctrl.pivot_offset = skin_ctrl.size / 2
-		
+
 		var btn_buy = skin_ctrl.get_node_or_null("TextureButton_Buy")
 		if btn_buy:
 			btn_buy.pivot_offset = btn_buy.size / 2
-			# Hover TYLKO na przycisku
 			btn_buy.mouse_entered.connect(_on_buy_btn_mouse_entered.bind(btn_buy))
 			btn_buy.mouse_exited.connect(_on_buy_btn_mouse_exited.bind(btn_buy))
 			btn_buy.pressed.connect(_on_buy_pressed.bind(skin_index, skin_ctrl))
+
+		# Ustaw teksturę ceny (lub domyślną)
+		_update_price_label(skin_ctrl, skin_index)
+
+# ————— ETYKIETA CENY —————
+
+func _update_price_label(skin_ctrl: Control, skin_index: int):
+	var lbl = skin_ctrl.get_node_or_null("Label_Price")
+	if lbl:
+		var price = SKIN_PRICES[skin_index]
+		if price == 0:
+			lbl.text = "FREE"
+		else:
+			lbl.text = str(price) + " g"
 
 # ————— STANY SKINÓW —————
 
@@ -117,10 +205,11 @@ func _apply_grid_states(grid: Control, offset: int):
 		var btn_buy = skin_ctrl.get_node_or_null("TextureButton_Buy")
 		if not btn_buy:
 			continue
+		var price = SKIN_PRICES[skin_index]
 		match skin_states[skin_index]:
 			0:  # do kupienia
-				btn_buy.texture_normal = tex_buy
-				if player_gold >= SKIN_PRICE:
+				btn_buy.texture_normal = _get_price_texture(price)
+				if player_gold >= price:
 					btn_buy.disabled = false
 					btn_buy.modulate = Color(1, 1, 1, 1)
 				else:
@@ -138,21 +227,34 @@ func _apply_grid_states(grid: Control, offset: int):
 func _on_buy_pressed(skin_index: int, skin_ctrl: Control):
 	sound_click.play()
 	var state = skin_states[skin_index]
+	var price = SKIN_PRICES[skin_index]
 	match state:
-		0:  # kup za 200 gold
-			if player_gold < SKIN_PRICE:
+		0:  # kup za gold
+			if player_gold < price:
 				return
-			player_gold -= SKIN_PRICE
+			player_gold -= price
 			skin_states[skin_index] = 1
-			# Zapisz nowy gold do session.cfg
+			# Zapisz gold do session.cfg
 			var cfg = ConfigFile.new()
 			cfg.load("user://session.cfg")
 			cfg.set_value("session", "gold", player_gold)
+			# Dodaj do owned_skins
+			var owned_str: String = cfg.get_value("session", "owned_skins", "0")
+			var owned_set: Array = []
+			for part in owned_str.split(","):
+				var idx = int(part.strip_edges())
+				if not owned_set.has(idx):
+					owned_set.append(idx)
+			if not owned_set.has(skin_index):
+				owned_set.append(skin_index)
+			cfg.set_value("session", "owned_skins", _owned_to_string(owned_set))
 			cfg.save("user://session.cfg")
 			# Zaktualizuj label goldów jeśli jest na scenie
 			var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
 			if label_coins:
 				label_coins.text = str(player_gold)
+			# Wyślij do PlayFab
+			PlayerData.save_skin_data_to_playfab()
 		1:  # załóż skin
 			if skin_states[active_skin_index] == 2:
 				skin_states[active_skin_index] = 1
@@ -162,9 +264,22 @@ func _on_buy_pressed(skin_index: int, skin_ctrl: Control):
 			active_skin_ctrl = skin_ctrl
 			active_skin_base_y = skin_ctrl.position.y
 			_start_active_animation(skin_ctrl)
+			# Zapisz equipped skin
+			var cfg = ConfigFile.new()
+			cfg.load("user://session.cfg")
+			cfg.set_value("session", "equipped_skin", skin_index)
+			cfg.save("user://session.cfg")
+			# Wyślij do PlayFab
+			PlayerData.save_skin_data_to_playfab()
 		2:
 			return
 	_apply_skin_states()
+
+func _owned_to_string(arr: Array) -> String:
+	var parts = []
+	for v in arr:
+		parts.append(str(v))
+	return ",".join(parts)
 
 # ————— ANIMACJA AKTYWNEGO SKINA —————
 
@@ -277,7 +392,7 @@ func _on_next_pressed():
 	_slide_grids(grid_page1, grid_page2, -1)
 
 func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
-	var target_pos = grid_in.position  # pozycja z anchorów — poprawna dla każdej rozdzielczości
+	var target_pos = grid_in.position
 	grid_in.visible = true
 	grid_in.position = Vector2(target_pos.x + (grid_in.size.x * -direction), target_pos.y)
 	grid_in.modulate.a = 0.0
@@ -292,7 +407,7 @@ func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
 	tween.tween_property(grid_in, "modulate:a", 1.0, 0.2)
 	await tween.finished
 	grid_out.visible = false
-	grid_out.position.x = target_pos.x  # reset do tej samej pozycji bazowej
+	grid_out.position.x = target_pos.x
 	grid_out.modulate.a = 1.0
 
 func _update_nav_buttons():
@@ -358,13 +473,13 @@ func _setup_premium_grid():
 		return
 	for item in grid.get_children():
 		item.pivot_offset = item.size / 2
-		
+
 		# Obracające się promienie
 		var rays = item.get_node_or_null("Control_Icon/TextureRect_Rays")
 		if rays:
 			rays.pivot_offset = rays.size / 2
 			_start_rays_rotation(rays)
-		
+
 		# Hover + animacja na przycisk
 		var btn = item.get_node_or_null("TextureButton_Buy")
 		if btn:

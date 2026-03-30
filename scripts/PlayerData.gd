@@ -10,17 +10,10 @@ var _cached_ticket: String = ""
 
 # ——————————————————————————————————————————
 #  ODŚWIEŻANIE SESJI
-#  - Goście: LoginWithCustomID (device_id)
-#  - Konta z hasłem: LoginWithCustomID też działa, bo PlayFab
-#    powiązał CustomID z kontem podczas rejestracji na tym urządzeniu.
-#    Jeśli jednak device_id nie ma w cfg (np. stara sesja), zostawiamy
-#    stary ticket i kierujemy do formularza logowania.
 # ——————————————————————————————————————————
 func refresh_session(cfg: ConfigFile) -> void:
 	var device_id = cfg.get_value("session", "device_id", "")
 
-	# Brak device_id = nie możemy odświeżyć przez CustomID
-	# (np. stara sesja zapisana przed tą zmianą)
 	if device_id == "":
 		_cached_ticket = cfg.get_value("session", "ticket", "")
 		return
@@ -57,13 +50,12 @@ func refresh_session(cfg: ConfigFile) -> void:
 		_cached_ticket = new_ticket
 		cfg.set_value("session", "ticket", new_ticket)
 		cfg.save("user://session.cfg")
-		# Pobierz dane gracza z PlayFab (gold, current_level itp.)
 		await _fetch_and_sync_player_data(new_ticket, cfg)
 	else:
 		_cached_ticket = cfg.get_value("session", "ticket", "")
 
 # ——————————————————————————————————————————
-#  SYNC DANYCH Z PLAYFAB (gold, current_level)
+#  SYNC DANYCH Z PLAYFAB (gold, current_level, skiny)
 # ——————————————————————————————————————————
 func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	var headers = [
@@ -71,7 +63,7 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 		"Accept-Encoding: identity",
 		"X-Authorization: " + ticket
 	]
-	var body = { "Keys": ["gold", "score", "wins", "losses", "current_level"] }
+	var body = { "Keys": ["gold", "score", "wins", "losses", "current_level", "owned_skins", "equipped_skin"] }
 	var http = HTTPRequest.new()
 	add_child(http)
 	http.request(PLAYFAB_URL + "/Client/GetUserData",
@@ -89,11 +81,13 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 		return
 
 	var data = parsed.get("data", {}).get("Data", {})
-	var gold_str  = data.get("gold",          {}).get("Value", "")
-	var score_str = data.get("score",         {}).get("Value", "")
-	var wins_str  = data.get("wins",          {}).get("Value", "")
-	var losses_str= data.get("losses",        {}).get("Value", "")
-	var level_str = data.get("current_level", {}).get("Value", "")
+	var gold_str         = data.get("gold",          {}).get("Value", "")
+	var score_str        = data.get("score",         {}).get("Value", "")
+	var wins_str         = data.get("wins",          {}).get("Value", "")
+	var losses_str       = data.get("losses",        {}).get("Value", "")
+	var level_str        = data.get("current_level", {}).get("Value", "")
+	var owned_skins_str  = data.get("owned_skins",   {}).get("Value", "")
+	var equipped_str     = data.get("equipped_skin", {}).get("Value", "")
 
 	# Aktualizuj session.cfg danymi z PlayFab (PlayFab = źródło prawdy)
 	if gold_str   != "": cfg.set_value("session", "gold",          int(gold_str))
@@ -101,11 +95,25 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	if wins_str   != "": cfg.set_value("session", "wins",          int(wins_str))
 	if losses_str != "": cfg.set_value("session", "losses",        int(losses_str))
 	if level_str  != "": cfg.set_value("session", "current_level", int(level_str))
+
+	# Skiny — PlayFab przechowuje jako "0,1,5" (indeksy posiadanych skinów)
+	if owned_skins_str != "":
+		cfg.set_value("session", "owned_skins", owned_skins_str)
+	else:
+		# Nowy gracz — skin 0 zawsze odblokowany
+		if cfg.get_value("session", "owned_skins", "") == "":
+			cfg.set_value("session", "owned_skins", "0")
+
+	if equipped_str != "":
+		cfg.set_value("session", "equipped_skin", int(equipped_str))
+	else:
+		if cfg.get_value("session", "equipped_skin", -1) == -1:
+			cfg.set_value("session", "equipped_skin", 0)
+
 	cfg.save("user://session.cfg")
 
 # ——————————————————————————————————————————
 #  POBIERZ AKTUALNY TICKET
-#  Używaj tej funkcji zamiast czytać ticket z cfg bezpośrednio
 # ——————————————————————————————————————————
 func get_ticket() -> String:
 	if _cached_ticket != "":
@@ -114,6 +122,50 @@ func get_ticket() -> String:
 	if cfg.load("user://session.cfg") == OK:
 		return cfg.get_value("session", "ticket", "")
 	return ""
+
+# ——————————————————————————————————————————
+#  SKINY — HELPER: aktualnie założony skin (indeks 0-19)
+# ——————————————————————————————————————————
+func get_equipped_skin() -> int:
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") != OK:
+		return 0
+	return cfg.get_value("session", "equipped_skin", 0)
+
+# ——————————————————————————————————————————
+#  SKINY — WYŚLIJ DO PLAYFAB
+#  Wywołaj po zakupie lub zmianie skina
+# ——————————————————————————————————————————
+func save_skin_data_to_playfab() -> void:
+	var ticket = get_ticket()
+	if ticket == "":
+		return
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") != OK:
+		return
+
+	var owned_skins = cfg.get_value("session", "owned_skins", "0")
+	var equipped_skin = cfg.get_value("session", "equipped_skin", 0)
+	var gold = cfg.get_value("session", "gold", 0)
+
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var data_body = {
+		"Data": {
+			"owned_skins":   owned_skins,
+			"equipped_skin": str(equipped_skin),
+			"gold":          str(gold),
+		}
+	}
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
+		headers, HTTPClient.METHOD_POST, JSON.stringify(data_body))
+	await http.request_completed
+	http.queue_free()
 
 
 var current_level_data: Dictionary = {}
@@ -127,8 +179,8 @@ var online_mode: bool = false
 var online_opponent_name: String = ""
 var online_opponent_rank: String = ""
 var my_rank: String = "#0"
-var player1_is_me: bool = true       # czy JA jestem Player1 (niebieski, zaczyna)
-var player1_decided: bool = false    # losowanie już wykonano w tej sesji
+var player1_is_me: bool = true
+var player1_decided: bool = false
 var _matchmaking_ticket_id: String = ""
 var _matchmaking_active: bool = false
 
@@ -197,7 +249,7 @@ func stop_matchmaking() -> void:
 	_matchmaking_active = false
 	_matchmaking_ticket_id = ""
 	if matchmaking_found.is_connected(_dummy_slot):
-		pass  # sygnały rozłącza modes.gd
+		pass
 
 func _create_matchmaking_ticket(ticket: String) -> void:
 	var cfg = ConfigFile.new()
@@ -310,7 +362,7 @@ func _cancel_matchmaking_ticket(auth_ticket: String) -> void:
 	http.queue_free()
 	_matchmaking_ticket_id = ""
 
-func _dummy_slot(): pass  # placeholder — nigdy nie jest podłączony
+func _dummy_slot(): pass
 
 # ——————————————————————————————————————————
 #  POSTĘP POZIOMÓW
@@ -346,16 +398,14 @@ func launch_level(level_index: int) -> void:
 	SceneTransition.go_to("res://scenes/game.tscn")
 
 # ——————————————————————————————————————————
-#  OPUSZCZENIE GRY (Leave) — bezpieczna funkcja dla settings popup
-#  Nie zapisuje porażki jeśli grasz z botem (vs_ai = true)
+#  OPUSZCZENIE GRY
 # ——————————————————————————————————————————
 func leave_game() -> void:
 	if online_mode and not vs_ai:
-		# Prawdziwy PvP online — zapisz porażkę
 		save_game_result(false, 0, 0, false)
-	# Jeśli vs_ai (bot) — nie zapisuj nic, tylko wróć do menu
 	online_mode = false
 	SceneTransition.go_to("res://scenes/play.tscn")
+
 func on_level_win(level_index: int) -> void:
 	var current = get_current_level()
 	if level_index >= current:
@@ -363,8 +413,6 @@ func on_level_win(level_index: int) -> void:
 
 # ——————————————————————————————————————————
 #  WZÓR RANKINGOWY
-#  wins * 1000 + win_ratio * 500 + score / 1000
-#  Win/lose TYLKO z PvP, score z kampanii jako tiebreaker
 # ——————————————————————————————————————————
 func _calc_rating(wins: int, losses: int, score: int) -> int:
 	var total = wins + losses
@@ -382,7 +430,6 @@ func save_game_result(is_win: bool, reward: int, game_score: int, vs_ai_mode: bo
 	if ticket == "":
 		return
 
-	# Awansuj poziom jeśli wygrana w kampanii
 	if vs_ai_mode and is_win:
 		on_level_win(current_level_index)
 
@@ -395,7 +442,7 @@ func save_game_result(is_win: bool, reward: int, game_score: int, vs_ai_mode: bo
 	if is_win:
 		score += game_score
 
-	if not vs_ai_mode:  # win/lose TYLKO z PvP
+	if not vs_ai_mode:
 		if is_win:
 			wins += 1
 		else:
@@ -407,8 +454,6 @@ func save_game_result(is_win: bool, reward: int, game_score: int, vs_ai_mode: bo
 	cfg.set_value("session", "losses", losses)
 	cfg.save("user://session.cfg")
 
-	# Policz nowy rating i wyślij do PlayFab
-	# Zapisz też aktualny poziom (mógł się zmienić przez on_level_win wyżej)
 	var updated_cfg = ConfigFile.new()
 	updated_cfg.load("user://session.cfg")
 	var current_level = updated_cfg.get_value("session", "current_level", 1)
@@ -427,7 +472,12 @@ func _push_to_playfab(ticket: String, gold: int, score: int,
 		"X-Authorization: " + ticket
 	]
 
-	# 1. Zapisz surowe dane gracza (gold, score, wins, losses, current_level)
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	var owned_skins  = cfg.get_value("session", "owned_skins",   "0")
+	var equipped_skin = cfg.get_value("session", "equipped_skin", 0)
+
+	# 1. Zapisz surowe dane gracza
 	var data_body = {
 		"Data": {
 			"gold":          str(gold),
@@ -435,6 +485,8 @@ func _push_to_playfab(ticket: String, gold: int, score: int,
 			"wins":          str(wins),
 			"losses":        str(losses),
 			"current_level": str(current_level),
+			"owned_skins":   owned_skins,
+			"equipped_skin": str(equipped_skin),
 		}
 	}
 	var http1 = HTTPRequest.new()
@@ -444,7 +496,7 @@ func _push_to_playfab(ticket: String, gold: int, score: int,
 	await http1.request_completed
 	http1.queue_free()
 
-	# 2. Zaktualizuj statystykę rankingową (leaderboard)
+	# 2. Zaktualizuj statystykę rankingową
 	var stat_body = {
 		"Statistics": [
 			{ "StatisticName": LEADERBOARD_NAME, "Value": rating },
