@@ -12,6 +12,7 @@ var tex_btn_ok = preload("res://ui/common/ok-btn.png")
 
 # ————— WĘZŁY —————
 @onready var sound_click = $"../SoundClick"
+@onready var sound_win = $"../AudioStreamPlayer_Win"  # <-- NOWY: sounds/win.mp3, bus=Sound
 @onready var overlay = $ColorRect_Overlay
 @onready var popup = $Control_Popup
 @onready var rays = $Control_Popup/TextureRect_Rays
@@ -20,6 +21,7 @@ var tex_btn_ok = preload("res://ui/common/ok-btn.png")
 @onready var label_score = $Control_Popup/VBoxContainer/VBoxContainer/Panel_ScoreBG/Label_Score
 @onready var label_amount = $Control_Popup/VBoxContainer/VBoxContainer2/HBoxContainer_Reward/Label_Amount
 @onready var btn_next = $Control_Popup/TextureButton_Next
+@onready var sound_win2 = $"../AudioStreamPlayer_Win2"
 
 # ————— FONT —————
 var font = preload("res://fonts/Digitalt.ttf")
@@ -38,7 +40,6 @@ func _ready():
 	label_level.text = level_name
 	label_score.text = "0"
 	label_amount.text = "0"
-	# Ukryj żeby nie mignął stary wynik przed animacją
 	label_score.modulate.a = 0.0
 	label_amount.modulate.a = 0.0
 	
@@ -53,6 +54,17 @@ func _ready():
 	popup.pivot_offset = popup.size / 2
 	rays.pivot_offset = rays.size / 2
 	btn_next.pivot_offset = btn_next.size / 2
+
+	# Odegraj dźwięk wygranej
+	if sound_win:
+		sound_win.play()
+	
+	if sound_win2:
+		sound_win2.play(15.0)
+		get_tree().create_timer(22.0).timeout.connect(func(): if is_instance_valid(sound_win2): sound_win2.stop())
+
+	# Wycisz muzykę w tle
+	MusicManager.stop_music()
 	
 	_run_intro()
 
@@ -104,15 +116,46 @@ func _animate_counter(label: Label, from: int, to: int, duration: float):
 
 # ————— PRZYCISK NEXT —————
 
+var scene_rating = preload("res://scenes/rating.tscn")
+
+# Zapisz co zrobic po zamknieciu rating popup
+var _next_level_after_rating: int = 0
+var _online_after_rating: bool = false
+
 func _on_next_pressed():
+	if sound_win and sound_win.playing:
+		sound_win.stop()
+	if sound_win2 and sound_win2.playing:
+		sound_win2.stop()
 	sound_click.play()
 	queue_free()
+	# Pokaż Rate Us po 5. poziomie kampanii (nie w online)
+	if not is_online_mode and completed_level_index >= 5 and RatingNode.should_show():
+		_next_level_after_rating = completed_level_index + 1
+		_show_rating_popup()
+		return
+	_go_next()
+
+func _go_next():
 	if is_online_mode:
 		PlayerData.online_mode = false
 		SceneTransition.go_to("res://scenes/modes.tscn")
 	else:
 		var next_level = completed_level_index + 1
 		PlayerData.launch_level(next_level)
+
+func _show_rating_popup():
+	var rating_node = scene_rating.instantiate()
+	# Podłącz sygnał zamknięcia — po zamknięciu popupu przejdź dalej
+	rating_node.connect("closed", Callable(self, "_on_rating_closed"))
+	get_tree().root.add_child(rating_node)
+
+func _on_rating_closed():
+	if is_online_mode:
+		PlayerData.online_mode = false
+		SceneTransition.go_to("res://scenes/modes.tscn")
+	else:
+		PlayerData.launch_level(_next_level_after_rating)
 
 func _on_next_mouse_entered():
 	_scale_button(btn_next, 0.9)

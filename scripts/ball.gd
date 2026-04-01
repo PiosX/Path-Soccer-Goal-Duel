@@ -3,6 +3,7 @@ extends Control
 # ————— WĘZŁY —————
 @onready var ball = $TextureRect_Ball
 @onready var shadow = $TextureRect_Shadow
+@onready var sound_bounce = $AudioStreamPlayer_Bounce
 
 # ————— USTAWIENIA —————
 const MARGIN_TOP = 30.0
@@ -23,7 +24,6 @@ const SQUISH_DURATION = 0.08
 func _ready():
 	await get_tree().process_frame
 
-	# Wczytaj aktywny skin gracza
 	_apply_equipped_skin()
 
 	ball.pivot_offset = ball.size / 2
@@ -41,7 +41,6 @@ func _ready():
 
 func _apply_equipped_skin():
 	var skin_index = PlayerData.get_equipped_skin()
-	# Indeks 0 = skin1.png, indeks 1 = skin2.png, itd.
 	var skin_num = skin_index + 1
 	var path = "res://ui/skins/skin%d.png" % skin_num
 	var tex = load(path)
@@ -60,6 +59,11 @@ func _bounce_down():
 	_squish()
 
 func _squish():
+	# FIX: stop() + play() zamiast "not playing" — dźwięk trwa dłużej niż cykl bounca
+	if sound_bounce:
+		sound_bounce.stop()
+		sound_bounce.play()
+
 	var tween = create_tween()
 	tween.tween_property(ball, "scale", Vector2(SQUISH_X, SQUISH_Y), SQUISH_DURATION)\
 		.set_trans(Tween.TRANS_QUAD)\

@@ -13,6 +13,8 @@ var is_online_mode: bool = false
 @onready var btn_replay = $Control_Popup/TextureButton_Replay
 @onready var btn_exit = $Control_Popup/TextureButton_Exit
 @onready var sound_click = $"../SoundClick"
+@onready var sound_lose = $"../AudioStreamPlayer_Lose"  # <-- NOWY: sounds/lose.mp3, bus=Sound
+@onready var sound_lose2 = $"../AudioStreamPlayer_Lose2"
 
 func _ready():
 	label_level.text = level_name
@@ -27,6 +29,15 @@ func _ready():
 	popup.pivot_offset = popup.size / 2
 	btn_replay.pivot_offset = btn_replay.size / 2
 	btn_exit.pivot_offset = btn_exit.size / 2
+
+	# Odegraj dźwięk przegranej
+	if sound_lose:
+		sound_lose.play()
+	if sound_lose2:
+		sound_lose2.play()
+
+	# Wycisz muzykę w tle
+	MusicManager.stop_music()
 	
 	_run_intro()
 
@@ -57,6 +68,10 @@ func _animate_counter(label: Label, from: int, to: int, duration: float):
 # ————— PRZYCISKI —————
 
 func _on_replay_pressed():
+	if sound_lose and sound_lose.playing:
+		sound_lose.stop()
+	if sound_lose2 and sound_lose2.playing:
+		sound_lose2.stop()
 	sound_click.play()
 	await sound_click.finished
 	queue_free()
@@ -73,6 +88,10 @@ func _on_replay_mouse_exited():
 	_scale_button(btn_replay, 1.0)
 
 func _on_exit_pressed():
+	if sound_lose and sound_lose.playing:
+		sound_lose.stop()
+	if sound_lose2 and sound_lose2.playing:
+		sound_lose2.stop()
 	sound_click.play()
 	await sound_click.finished
 	PlayerData.online_mode = false

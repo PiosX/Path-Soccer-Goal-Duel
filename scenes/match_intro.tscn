@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dgkh5jyrs6vie" path="res://ui/common/im-red.png" id="1_ugvww"]
 [ext_resource type="Texture2D" uid="uid://dxk3i6uq6beeb" path="res://ui/common/im-blue.png" id="2_6pml4"]
 [ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="3_rd7p5"]
+[ext_resource type="AudioStream" uid="uid://c86e0rdlam4mm" path="res://sounds/intro.mp3" id="5_rd7p5"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xop33"]
 bg_color = Color(1, 1, 1, 1)
@@ -161,3 +162,6 @@ theme_override_fonts/font = ExtResource("3_rd7p5")
 theme_override_font_sizes/font_size = 60
 text = "32. PlayerName1"
 horizontal_alignment = 2
+
+[node name="AudioStreamPlayer_Intro" type="AudioStreamPlayer" parent="Control" unique_id=1433053124]
+stream = ExtResource("5_rd7p5")

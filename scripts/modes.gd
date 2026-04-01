@@ -49,6 +49,7 @@ var _ready_done: bool = false
 
 func _ready():
 	await get_tree().process_frame
+	MusicManager.play_music("res://sounds/music.mp3")
 
 	var btns = [
 		get_node_or_null("Control_Main/HBoxContainer_Top/TextureButton_ArrowLeft"),

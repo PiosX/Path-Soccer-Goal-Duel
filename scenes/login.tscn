@@ -65,6 +65,7 @@ layout_mode = 2
 
 [node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=1292163239]
 stream = ExtResource("3_gk31c")
+bus = &"Sound"
 
 [node name="TextureRect_Title" type="TextureRect" parent="MarginContainer/Control" unique_id=451382463]
 z_index = -1

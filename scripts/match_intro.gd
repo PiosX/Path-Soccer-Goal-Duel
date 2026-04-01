@@ -11,11 +11,17 @@ extends Control
 @onready var label_rank1 = $Control_Player1/VBoxContainer/Label_Rank1
 @onready var label_name2 = $Control_Player2/VBoxContainer/Label_Name2
 @onready var label_rank2 = $Control_Player2/VBoxContainer/Label_Rank2
+@onready var sound_intro = $AudioStreamPlayer_Intro
 
 const SCREEN_H = 1280.0
 
+# Ile sekund przed końcem animacji wjazdowej odpala się dźwięk.
+# Animacja trwa 0.7s. intro.mp3 = 4.05s.
+# Ustaw 0.0 żeby odpalał się dokładnie gdy tła się stykają,
+# wartość ujemna = wcześniej (np. -0.15 = 150ms przed zetknięciem).
+const INTRO_SOUND_OFFSET: float = -0.17
+
 func _ready():
-	# Ukryj wszystko na start
 	tex_red.position.y = -SCREEN_H
 	tex_blue.position.y = SCREEN_H + 432.0
 	panel_line.modulate.a = 0.0
@@ -26,58 +32,65 @@ func _ready():
 
 	await get_tree().process_frame
 
-	# Pobierz moją rangę z PlayFab (jeśli jeszcze nie mamy)
 	if PlayerData.my_rank == "#0":
 		await PlayerData.fetch_my_rank()
 
-	# Losuj kto jest Player1 (niebieski, zaczyna) — 50/50
-	# player1_decided resetuje się w launch_online_duel co sesję gry
 	if not PlayerData.player1_decided:
 		PlayerData.player1_is_me = (randi() % 2 == 0)
 		PlayerData.player1_decided = true
 
-	# Ustaw dane graczy w UI
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
 	var my_nick = cfg.get_value("session", "nick", "YOU")
 	var opponent_name = PlayerData.online_opponent_name if PlayerData.online_opponent_name != "" else "BOT"
 	var opponent_rank = PlayerData.online_opponent_rank if PlayerData.online_opponent_name != "" else "#0"
 
-	# ctrl1 = góra-lewa (czerwona strona), ctrl2 = dół-prawa (niebieska strona)
 	if PlayerData.player1_is_me:
-		# Ja jestem niebieski (Player1, zaczyna) — idę do ctrl2 (dół-prawa/niebieski)
 		label_name1.text = opponent_name
 		label_rank1.text = opponent_rank
 		label_name2.text = my_nick
 		label_rank2.text = PlayerData.my_rank
 	else:
-		# Ja jestem czerwony (Player2) — idę do ctrl1 (góra-lewa/czerwony)
 		label_name1.text = my_nick
 		label_rank1.text = PlayerData.my_rank
 		label_name2.text = opponent_name
 		label_rank2.text = opponent_rank
 
-	# Fade in po przejściu z modes
 	SceneTransition.fade_in_only()
 	_run_intro()
 
 func _run_intro():
-	# KROK 1 — tła wjeżdżają (0.7s)
+	var slide_duration = 0.7
+
+	# Jeśli INTRO_SOUND_OFFSET < 0 — odpal dźwięk wcześniej, przed startem animacji
+	if INTRO_SOUND_OFFSET < 0.0 and sound_intro:
+		sound_intro.play()
+		await get_tree().create_timer(-INTRO_SOUND_OFFSET).timeout
+
+	# KROK 1 — tła wjeżdżają
 	var tween1 = create_tween()
 	tween1.set_parallel(true)
-	tween1.tween_property(tex_red, "position:y", 0.0, 0.7)\
+	tween1.tween_property(tex_red,  "position:y", 0.0,   slide_duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween1.tween_property(tex_blue, "position:y", 432.0, 0.7)\
+	tween1.tween_property(tex_blue, "position:y", 432.0, slide_duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+	# Odpal dźwięk z offsetem względem momentu zetknięcia (INTRO_SOUND_OFFSET = 0 → dokładnie po zetknięciu)
+	if INTRO_SOUND_OFFSET >= 0.0:
+		tween1.tween_callback(func():
+			if sound_intro:
+				sound_intro.play()
+		).set_delay(slide_duration + INTRO_SOUND_OFFSET)
+
 	await tween1.finished
 
-	# KROK 2 — linia (0.25s)
+	# KROK 2 — linia
 	var tween2 = create_tween()
 	tween2.tween_property(panel_line, "modulate:a", 1.0, 0.25)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween2.finished
 
-	# KROK 3 — VS wyskakuje (0.4s)
+	# KROK 3 — VS wyskakuje
 	var tween3 = create_tween()
 	tween3.set_parallel(true)
 	tween3.tween_property(panel_vs, "modulate:a", 1.0, 0.2)
@@ -85,7 +98,7 @@ func _run_intro():
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await tween3.finished
 
-	# KROK 4 — gracze wjeżdżają z boków (0.4s)
+	# KROK 4 — gracze wjeżdżają z boków
 	var p1_target_x = ctrl1.position.x
 	ctrl1.position.x = -400.0
 	var p2_target_x = ctrl2.position.x
@@ -101,6 +114,6 @@ func _run_intro():
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	await tween4.finished
 
-	# KROK 5 — pauza i przejście do gry (fade)
+	# KROK 5 — pauza i przejście do gry
 	await get_tree().create_timer(1.2).timeout
 	SceneTransition.go_to("res://scenes/game.tscn")

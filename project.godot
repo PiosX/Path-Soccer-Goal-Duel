@@ -25,6 +25,7 @@ TimerManager="*res://scenes/search_timer.tscn"
 LevelEditor="*res://scripts/level_editor.gd"
 PlayerData="*uid://cerdimkmo0pxm"
 SceneTransition="*uid://bxvmvubefydat"
+MusicManager="*uid://dvfu7ed1u7wfy"
 
 [display]
 

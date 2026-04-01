@@ -153,6 +153,7 @@ func _slide_forgot_to_login():
 
 func _on_check_box_toggled(toggled_on: bool):
 	sound_click.play()
+	checkbox_terms.pivot_offset = checkbox_terms.size / 2
 	var tw = create_tween()
 	if toggled_on:
 		tw.tween_property(checkbox_terms, "scale", Vector2(1.2, 1.2), 0.08)\
@@ -508,6 +509,7 @@ func _on_texture_button_forgot_login_mouse_exited():
 func _scale_button(btn: Control, target_scale: float):
 	if btn == null:
 		return
+	btn.pivot_offset = btn.size / 2
 	var tween = create_tween()
 	tween.tween_property(btn, "scale", Vector2(target_scale, target_scale), 0.1)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

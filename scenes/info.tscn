@@ -109,6 +109,7 @@ script = ExtResource("2_h3pe7")
 
 [node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=444371038]
 stream = ExtResource("3_efmte")
+bus = &"Sound"
 
 [node name="HBoxContainer" type="Control" parent="MarginContainer/Control" unique_id=1434318691]
 custom_minimum_size = Vector2(224, 62)

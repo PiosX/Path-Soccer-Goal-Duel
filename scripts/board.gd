@@ -83,6 +83,12 @@ var timer_node: Timer = null       # Godot Timer do tickowania
 # ————— WĘZŁY UI —————
 var ball_node: Sprite2D
 
+# ————— DŹWIĘKI (pobierane z drzewa sceny po _ready) —————
+var snd_bounce: AudioStreamPlayer = null
+var snd_teleport: AudioStreamPlayer = null
+var snd_kick: AudioStreamPlayer = null
+var _bounce_stop_timer: SceneTreeTimer = null
+
 # ————— DRAG BOISKA —————
 var _drag_active: bool = false
 var _drag_start_mouse: Vector2 = Vector2.ZERO
@@ -406,6 +412,9 @@ func _ready():
 	_setup_game()
 	if not PlayerData.online_mode:
 		call_deferred("_update_level_label")
+
+	# ————— DŹWIĘKI — szukaj węzłów po załadowaniu sceny —————
+	_start_sound_init()
 
 func _update_level_label():
 	var p = get_parent()
@@ -897,6 +906,11 @@ func _do_move(target: Vector2i):
 	_animate_ball(target, false)
 	ball_grid_pos = target
 
+	# ————— DŹWIĘK KOPNIĘCIA —————
+	if snd_kick:
+		snd_kick.stop()
+		snd_kick.play()
+
 	if scored:
 		_game_ended = true
 		ai_thinking = true
@@ -924,6 +938,8 @@ func _do_move(target: Vector2i):
 		combo_count += 1
 		score += combo_count * 10
 		_show_combo(target, false)
+		# ————— DŹWIĘK ODBICIA OD ŚCIANKI —————
+		_play_bounce_sound()
 		# Odbicie — ten sam gracz gra dalej, przedłuż timer o 3s (max do TURN_TIME)
 		if not VS_AI or PlayerData.online_mode:
 			turn_timer = minf(turn_timer + 3.0, TURN_TIME)
@@ -1180,6 +1196,11 @@ func _do_move_silent(target: Vector2i):
 	_animate_ball(target, false)
 	ball_grid_pos = target
 
+	# ————— DŹWIĘK KOPNIĘCIA (AI) —————
+	if snd_kick:
+		snd_kick.stop()
+		snd_kick.play()
+
 	if scored:
 		_game_ended = true
 		ai_thinking = false
@@ -1212,6 +1233,8 @@ func _do_move_silent(target: Vector2i):
 		combo_count += 1
 		score += combo_count * 10
 		_show_combo(target, false)
+		# ————— DŹWIĘK ODBICIA OD ŚCIANKI (AI) —————
+		_play_bounce_sound()
 	else:
 		combo_count = 0
 		_hide_combo()
@@ -1610,6 +1633,37 @@ func _init_timer_ui():
 		if ui_turn_label: ui_turn_label.visible = false
 		timer_running = false
 
+func _start_sound_init():
+	await get_tree().create_timer(0.1).timeout
+	var control_node = get_parent().get_parent()
+	snd_bounce   = control_node.get_node_or_null("AudioStreamPlayer_Bounce")
+	snd_teleport = control_node.get_node_or_null("AudioStreamPlayer_Teleport")
+	snd_kick     = control_node.get_node_or_null("AudioStreamPlayer_Kick")
+	if not snd_bounce:
+		push_warning("board.gd: NIE ZNALEZIONO AudioStreamPlayer_Bounce")
+	if not snd_teleport:
+		push_warning("board.gd: NIE ZNALEZIONO AudioStreamPlayer_Teleport")
+	if not snd_kick:
+		push_warning("board.gd: NIE ZNALEZIONO AudioStreamPlayer_Kick")
+
+func _init_sound_nodes():
+	pass  # nieużywane — zastąpione przez _start_sound_init
+
+func _deep_find_audio(node: Node, target_name: String) -> AudioStreamPlayer:
+	if node.name == target_name and node is AudioStreamPlayer:
+		return node as AudioStreamPlayer
+	for child in node.get_children():
+		var result = _deep_find_audio(child, target_name)
+		if result:
+			return result
+	return null
+
+func _find_node_by_name_safe(node: Node, target_name: String) -> AudioStreamPlayer:
+	var found = _find_node_by_name(node, target_name)
+	if found is AudioStreamPlayer:
+		return found
+	return null
+
 func _find_node_by_name(node: Node, target_name: String) -> Node:
 	if node.name == target_name:
 		return node
@@ -1858,6 +1912,9 @@ func _find_teleport_node_partner(current: Vector2i, nodes: Array) -> Variant:
 
 # Animacja teleportacji: skurczenie → teleport → pojawienie → koniec tury
 func _do_teleport(from_node: Vector2i, target_node: Vector2i):
+	if snd_teleport:
+		snd_teleport.stop()
+		snd_teleport.play()
 	var tex_w = ball_node.texture.get_width() if ball_node.texture else 88
 	var base_scale = 36.0 / tex_w
 	var target_px = grid_to_pixel(target_node.x, target_node.y)
@@ -1903,7 +1960,7 @@ func _build_board():
 		# Orientacja pozioma: bramki po bokach, goal_h=0 (brak bramek góra/dół)
 		goal_h = 0
 		# board_w = lewa_bramka + inner + pole + inner + prawa_bramka
-		var board_w = step + inner * 2 + field_w
+		var board_w = step * 2 + inner * 2 + field_w  # step*2 = lewa + prawa bramka
 		var board_h = inner * 2 + field_h
 		custom_minimum_size = Vector2(board_w, board_h)
 		anchor_left = 0.5; anchor_right  = 0.5
@@ -2345,3 +2402,9 @@ func _draw_arc(node: Node2D, center: Vector2, radius: float, angle_from: float, 
 		var angle = angle_from + (angle_to - angle_from) * float(i) / float(steps)
 		points.append(center + Vector2(cos(angle), sin(angle)) * radius)
 	node.draw_polyline(points, color, width, true)
+
+func _play_bounce_sound():
+	if not snd_bounce:
+		return
+	snd_bounce.stop()
+	snd_bounce.play()

@@ -7,7 +7,15 @@
 [ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="5_bt5mj"]
 [ext_resource type="Texture2D" uid="uid://c2j6ug0hr832v" path="res://ui/common/coin.png" id="6_e1j6l"]
 [ext_resource type="Script" uid="uid://cg0wnplr1ov0i" path="res://scripts/board.gd" id="8_gee14"]
+[ext_resource type="AudioStream" uid="uid://dqsg6lp5dk372" path="res://sounds/game2.mp3" id="9_kvuet"]
+[ext_resource type="AudioStream" uid="uid://f7850efvvmke" path="res://sounds/kick2.mp3" id="10_ca42v"]
+[ext_resource type="AudioStream" uid="uid://mxulijkpebr0" path="res://sounds/win.mp3" id="12_kvuet"]
 [ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="12_sgl2t"]
+[ext_resource type="AudioStream" uid="uid://81g2elxc44qo" path="res://sounds/win2.mp3" id="13_ir15t"]
+[ext_resource type="AudioStream" uid="uid://dowf2jh4ge2gj" path="res://sounds/lose.mp3" id="13_trtic"]
+[ext_resource type="AudioStream" uid="uid://b4sh363vykom8" path="res://sounds/lose2.mp3" id="15_ca42v"]
+[ext_resource type="AudioStream" uid="uid://cl203o6v4ohga" path="res://sounds/teleport.mp3" id="16_ca42v"]
+[ext_resource type="AudioStream" uid="uid://byfckpx6mxs3o" path="res://sounds/bounce.mp3" id="16_rysoc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u5sy4"]
 bg_color = Color(1, 1, 1, 1)
@@ -61,6 +69,7 @@ script = ExtResource("2_gee14")
 
 [node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=6963019]
 stream = ExtResource("3_5newe")
+bus = &"Sound"
 
 [node name="HBoxContainer" type="Control" parent="MarginContainer/Control" unique_id=1615640806]
 custom_minimum_size = Vector2(224, 62)
@@ -254,6 +263,44 @@ theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
 text = "Bot Player"
 horizontal_alignment = 2
+
+[node name="AudioStreamPlayer_Music" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=1095363346]
+stream = ExtResource("9_kvuet")
+volume_db = -12.0
+autoplay = true
+bus = &"Music"
+playback_type = 1
+parameters/looping = true
+
+[node name="AudioStreamPlayer_Kick" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=1629869490]
+stream = ExtResource("10_ca42v")
+bus = &"Sound"
+
+[node name="AudioStreamPlayer_Win" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=529234158]
+stream = ExtResource("12_kvuet")
+bus = &"Sound"
+
+[node name="AudioStreamPlayer_Win2" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=508644867]
+stream = ExtResource("13_ir15t")
+bus = &"Sound"
+
+[node name="AudioStreamPlayer_Lose" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=1710822883]
+stream = ExtResource("13_trtic")
+bus = &"Sound"
+
+[node name="AudioStreamPlayer_Lose2" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=1420833301]
+stream = ExtResource("15_ca42v")
+bus = &"Sound"
+
+[node name="AudioStreamPlayer_Bounce" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=150246209]
+stream = ExtResource("16_rysoc")
+volume_db = -20.0
+bus = &"Sound"
+
+[node name="AudioStreamPlayer_Teleport" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=209055635]
+stream = ExtResource("16_ca42v")
+volume_db = -15.0
+bus = &"Sound"
 
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]

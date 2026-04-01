@@ -34,6 +34,7 @@ var _busy := false
 # ═══════════════════════════════════════════
 func _ready():
 	await get_tree().process_frame
+	MusicManager.play_music("res://sounds/music.mp3")
 
 	for btn in [btn_privacy, btn_terms, btn_register, btn_logout, btn_delete]:
 		if btn:

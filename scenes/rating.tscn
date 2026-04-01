@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://cp8j3ar6rysv0"]
+[gd_scene format=3 uid="uid://cp8j3ar6rysv0"]
 
 [ext_resource type="Script" uid="uid://etg13hthr3n" path="res://scripts/rating.gd" id="1_4vm60"]
 [ext_resource type="Texture2D" uid="uid://bmsrk7vy5fr86" path="res://ui/rating/rating-bg.png" id="2_4vm60"]
@@ -8,9 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://nim8y4lexm3c" path="res://ui/rating/no-btn.png" id="6_jehr0"]
 [ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="6_sfvo8"]
 
-[node name="CanvasLayer" type="CanvasLayer"]
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1791203957]
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=274957514]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,7 +19,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_4vm60")
 
-[node name="ColorRect_Overlay" type="ColorRect" parent="Control"]
+[node name="ColorRect_Overlay" type="ColorRect" parent="Control" unique_id=430289348]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,7 +28,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="Control_Popup" type="Control" parent="Control"]
+[node name="Control_Popup" type="Control" parent="Control" unique_id=1732067157]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -42,7 +42,7 @@ offset_bottom = 251.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect_BG" type="TextureRect" parent="Control/Control_Popup"]
+[node name="TextureRect_BG" type="TextureRect" parent="Control/Control_Popup" unique_id=312317915]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -57,7 +57,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_4vm60")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup" unique_id=1135383075]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -68,12 +68,12 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup/VBoxContainer" unique_id=1230321922]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 8
 
-[node name="Label_Title" type="Label" parent="Control/Control_Popup/VBoxContainer/VBoxContainer"]
+[node name="Label_Title" type="Label" parent="Control/Control_Popup/VBoxContainer/VBoxContainer" unique_id=1143904682]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.184314, 0.501961, 0.929412, 1)
 theme_override_fonts/font = ExtResource("3_313av")
@@ -81,11 +81,11 @@ theme_override_font_sizes/font_size = 32
 text = "love the game ?"
 horizontal_alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="Control/Control_Popup/VBoxContainer/VBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="Control/Control_Popup/VBoxContainer/VBoxContainer" unique_id=526073282]
 layout_mode = 2
 texture = ExtResource("4_313av")
 
-[node name="Label_Title2" type="Label" parent="Control/Control_Popup/VBoxContainer"]
+[node name="Label_Title2" type="Label" parent="Control/Control_Popup/VBoxContainer" unique_id=289024316]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.184314, 0.501961, 0.929412, 1)
 theme_override_fonts/font = ExtResource("3_313av")
@@ -93,7 +93,7 @@ theme_override_font_sizes/font_size = 32
 text = "give us a star rating"
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Control/Control_Popup"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Control_Popup" unique_id=1853211909]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -108,18 +108,19 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 56
 
-[node name="TextureButton_Yes" type="TextureButton" parent="Control/Control_Popup/HBoxContainer"]
+[node name="TextureButton_Yes" type="TextureButton" parent="Control/Control_Popup/HBoxContainer" unique_id=1878864075]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("5_8jlxh")
 
-[node name="TextureButton_No" type="TextureButton" parent="Control/Control_Popup/HBoxContainer"]
+[node name="TextureButton_No" type="TextureButton" parent="Control/Control_Popup/HBoxContainer" unique_id=138702128]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("6_jehr0")
 
-[node name="SoundClick" type="AudioStreamPlayer2D" parent="."]
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="." unique_id=1576040584]
 stream = ExtResource("6_sfvo8")
+bus = &"Sound"
 
 [connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_mouse_entered"]
 [connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_mouse_exited"]

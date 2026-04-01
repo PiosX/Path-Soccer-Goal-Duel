@@ -32,6 +32,7 @@ var is_loading = false
 
 func _ready():
 	await get_tree().process_frame
+	MusicManager.play_music("res://sounds/music.mp3")
 
 	for btn in [btn_prev, btn_next]:
 		if btn:

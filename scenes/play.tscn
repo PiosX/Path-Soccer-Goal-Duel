@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://d1fysmfkxncr" path="res://ui/common/shadow.png" id="13_ejjjn"]
 [ext_resource type="Texture2D" uid="uid://ibfvdiw27tkl" path="res://ui/common/ball.png" id="14_o2y6n"]
 [ext_resource type="Texture2D" uid="uid://bsgr6mqqkdval" path="res://ui/common/play.png" id="15_266cb"]
+[ext_resource type="AudioStream" uid="uid://8by80qhduhs7" path="res://sounds/bouncing.mp3" id="15_lalcm"]
 [ext_resource type="Texture2D" uid="uid://dshgnnpr53ck1" path="res://ui/common/play-btn.png" id="16_lcbe1"]
 [ext_resource type="Texture2D" uid="uid://rvtdcfucieib" path="res://ui/common/modes-btn.png" id="17_n8pqw"]
 [ext_resource type="Texture2D" uid="uid://io42di0dstei" path="res://ui/common/shop-btn.png" id="18_5lb4h"]
@@ -53,6 +54,7 @@ script = ExtResource("2_lalcm")
 
 [node name="SoundClick" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=682187608]
 stream = ExtResource("3_b366c")
+bus = &"Sound"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control" unique_id=324404415]
 layout_mode = 0
@@ -235,6 +237,10 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("14_o2y6n")
 
+[node name="AudioStreamPlayer_Bounce" type="AudioStreamPlayer2D" parent="MarginContainer/Control/Control_Ball" unique_id=1825633874]
+stream = ExtResource("15_lalcm")
+bus = &"Sound"
+
 [node name="TextureButton_Play" type="TextureButton" parent="MarginContainer/Control" unique_id=1437653874]
 layout_mode = 1
 anchors_preset = 7
@@ -281,6 +287,11 @@ texture_normal = ExtResource("18_5lb4h")
 layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_fne7c")
+
+[node name="AudioStreamPlayer_Music" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=1589140494]
+visible = false
+volume_db = -30.0
+bus = &"Music"
 
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_exited"]

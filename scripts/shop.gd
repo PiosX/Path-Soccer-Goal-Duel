@@ -81,6 +81,7 @@ var player_gold: int = 0
 
 func _ready():
 	await get_tree().process_frame
+	MusicManager.play_music("res://sounds/music.mp3")
 
 	# Wczytaj gold z session.cfg
 	var cfg = ConfigFile.new()
