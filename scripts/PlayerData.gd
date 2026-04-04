@@ -7,7 +7,7 @@ const LEADERBOARD_NAME = "rating_score"
 
 # ————— TICKET W PAMIĘCI (aktualny, odświeżony) —————
 var _cached_ticket: String = ""
-
+const MAX_LEVEL = 80
 # ——————————————————————————————————————————
 #  ODŚWIEŻANIE SESJI
 # ——————————————————————————————————————————
@@ -409,7 +409,7 @@ func leave_game() -> void:
 func on_level_win(level_index: int) -> void:
 	var current = get_current_level()
 	if level_index >= current:
-		set_current_level(level_index + 1)
+		set_current_level(mini(level_index + 1, MAX_LEVEL))
 
 # ——————————————————————————————————————————
 #  WZÓR RANKINGOWY

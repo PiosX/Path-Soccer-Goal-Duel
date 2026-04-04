@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://0tasnp8gop16"]
+
+[ext_resource type="Script" uid="uid://ch64jdj1ehd58" path="res://scripts/splash.gd" id="1_10vqf"]
+[ext_resource type="Texture2D" uid="uid://bv5xdih8e70mc" path="res://ui/common/redmoon.png" id="1_86pdq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_10vqf"]
+bg_color = Color(0, 0, 0, 1)
+
+[node name="Splash" type="Control" unique_id=598403657]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_10vqf")
+
+[node name="Panel" type="Panel" parent="." unique_id=326402241]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_10vqf")
+
+[node name="TextureRect" type="TextureRect" parent="Panel" unique_id=393079120]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -360.0
+offset_right = 360.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_86pdq")
+expand_mode = 1

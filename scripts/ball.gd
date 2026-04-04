@@ -26,7 +26,7 @@ func _ready():
 
 	_apply_equipped_skin()
 
-	ball.pivot_offset = ball.size / 2
+	ball.pivot_offset = Vector2(66, 66)
 	shadow.pivot_offset = Vector2(shadow.size.x / 2, shadow.size.y / 2)
 
 	ball.position.y = BALL_START_Y
@@ -46,6 +46,12 @@ func _apply_equipped_skin():
 	var tex = load(path)
 	if tex:
 		ball.texture = tex
+	# Wymuś rozmiar 132x132 niezależnie od tekstury
+	ball.ignore_texture_size = true
+	ball.stretch_mode = TextureRect.STRETCH_SCALE
+	ball.custom_minimum_size = Vector2(132, 132)
+	ball.size = Vector2(132, 132)
+	ball.pivot_offset = Vector2(66, 66)
 
 # ————— ANIMACJA BOUNCE —————
 

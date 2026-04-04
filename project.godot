@@ -15,9 +15,11 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Path Soccer: Goal Duel"
-run/main_scene="uid://c3xvkmrm5fls3"
+run/main_scene="uid://0tasnp8gop16"
 config/features=PackedStringArray("4.6", "Mobile")
-config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/image="uid://bv5xdih8e70mc"
+config/icon="uid://74ssrigvikl4"
 
 [autoload]
 
@@ -26,6 +28,8 @@ LevelEditor="*res://scripts/level_editor.gd"
 PlayerData="*uid://cerdimkmo0pxm"
 SceneTransition="*uid://bxvmvubefydat"
 MusicManager="*uid://dvfu7ed1u7wfy"
+AdMobManager="*uid://b76r5a3fnpog6"
+IAPManager="*uid://cmonbkrchilk3"
 
 [display]
 
@@ -35,6 +39,11 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GodotGooglePlayBilling/plugin.cfg", "res://addons/admob/plugin.cfg")
+
 [rendering]
 
 renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true

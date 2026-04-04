@@ -128,8 +128,23 @@ func _on_next_pressed():
 	if sound_win2 and sound_win2.playing:
 		sound_win2.stop()
 	sound_click.play()
-	queue_free()
-	# Pokaż Rate Us po 5. poziomie kampanii (nie w online)
+
+	# Pokaż reklamę, przejdź dalej po jej zamknięciu
+	var admob = get_node_or_null("/root/AdMobManager")
+	if admob and not admob.ads_disabled:
+		admob.interstitial_closed.connect(_on_ad_closed, CONNECT_ONE_SHOT)
+		admob.show_interstitial()
+	else:
+		_handle_next()
+		
+func _on_ad_closed():
+	if not is_online_mode and completed_level_index >= 5 and RatingNode.should_show():
+		_next_level_after_rating = completed_level_index + 1
+		_show_rating_popup()
+		return
+	_go_next()
+
+func _handle_next():
 	if not is_online_mode and completed_level_index >= 5 and RatingNode.should_show():
 		_next_level_after_rating = completed_level_index + 1
 		_show_rating_popup()
@@ -141,7 +156,7 @@ func _go_next():
 		PlayerData.online_mode = false
 		SceneTransition.go_to("res://scenes/modes.tscn")
 	else:
-		var next_level = completed_level_index + 1
+		var next_level = mini(completed_level_index + 1, 80)
 		PlayerData.launch_level(next_level)
 
 func _show_rating_popup():
@@ -155,7 +170,7 @@ func _on_rating_closed():
 		PlayerData.online_mode = false
 		SceneTransition.go_to("res://scenes/modes.tscn")
 	else:
-		PlayerData.launch_level(_next_level_after_rating)
+		PlayerData.launch_level(mini(_next_level_after_rating, 80))
 
 func _on_next_mouse_entered():
 	_scale_button(btn_next, 0.9)

@@ -51,15 +51,6 @@ func _ready():
 	await get_tree().process_frame
 	await get_tree().process_frame  # drugi frame — layout musi się policzyć zanim size będzie niezerowy
 
-	# Sprawdź czy jest zapisana sesja — jeśli tak, odśwież ticket i pomiń login
-	var cfg = ConfigFile.new()
-	if cfg.load("user://session.cfg") == OK:
-		var device_id = cfg.get_value("session", "device_id", "")
-		if device_id != "":
-			await PlayerData.refresh_session(cfg)
-			SceneTransition.go_to("res://scenes/play.tscn")
-			return
-
 	_base_ol = ctrl_guest.offset_left
 	_base_or = ctrl_guest.offset_right
 

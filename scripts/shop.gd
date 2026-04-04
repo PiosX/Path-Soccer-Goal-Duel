@@ -251,9 +251,7 @@ func _on_buy_pressed(skin_index: int, skin_ctrl: Control):
 			cfg.set_value("session", "owned_skins", _owned_to_string(owned_set))
 			cfg.save("user://session.cfg")
 			# Zaktualizuj label goldów jeśli jest na scenie
-			var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
-			if label_coins:
-				label_coins.text = str(player_gold)
+			_refresh_gold_label()
 			# Wyślij do PlayFab
 			PlayerData.save_skin_data_to_playfab()
 		1:  # załóż skin
@@ -275,6 +273,27 @@ func _on_buy_pressed(skin_index: int, skin_ctrl: Control):
 		2:
 			return
 	_apply_skin_states()
+	
+func _refresh_gold_label():
+	# Szukaj labela goldów w rodzicu sceny (play.tscn lub podobna)
+	var root = get_tree().current_scene
+	var label = _find_node_by_name(root, "Label_Gold")
+	if label:
+		label.text = str(player_gold)
+		return
+	# Fallback — szukaj bezpośrednio po ścieżce relative
+	var label2 = get_node_or_null("../HBoxContainer_Coins/Label")
+	if label2:
+		label2.text = str(player_gold)
+
+func _find_node_by_name(node: Node, target: String) -> Node:
+	if node.name == target:
+		return node
+	for child in node.get_children():
+		var found = _find_node_by_name(child, target)
+		if found:
+			return found
+	return null
 
 func _owned_to_string(arr: Array) -> String:
 	var parts = []
