@@ -16,7 +16,7 @@ func _ready():
 	if SceneTransition:
 		SceneTransition.fade_in_only()
 
-	_update_ui()
+	await _update_ui()
 
 func _update_ui():
 	var cfg = ConfigFile.new()
@@ -28,6 +28,8 @@ func _update_ui():
 	var label_coins = get_node_or_null("HBoxContainer_Coins/Label")
 	if label_coins:
 		label_coins.text = str(gold)
+		
+	await PlayerData.fetch_my_rank()
 
 	if PlayerData.online_mode:
 		# ————— TRYB ONLINE —————

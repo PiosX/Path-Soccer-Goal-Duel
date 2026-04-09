@@ -185,7 +185,7 @@ var _matchmaking_ticket_id: String = ""
 var _matchmaking_active: bool = false
 
 const MATCHMAKING_QUEUE = "StandardQueue"
-const MATCHMAKING_TIMEOUT = 60.0
+const MATCHMAKING_TIMEOUT = 30.0
 
 signal matchmaking_found()
 signal matchmaking_timeout()
@@ -279,7 +279,7 @@ func _create_matchmaking_ticket(ticket: String) -> void:
 		return
 	if response[1] != 200:
 		push_warning("PlayerData: matchmaking API error %d — bot fallback" % response[1])
-		await get_tree().create_timer(5.0).timeout
+		await get_tree().create_timer(29.0).timeout
 		if not _matchmaking_active: return
 		_matchmaking_active = false
 		matchmaking_timeout.emit()

@@ -11,7 +11,7 @@ extends Control
 # ————— ONLINE —————
 @onready var btn_find = $Control_Online/TextureButton_FindGame
 @onready var search_panel = $Control_Online/Control_Search
-@onready var label_searching = $Control_Online/Control_Search/Label_Searching
+@onready var label_searching = $Control_Online/Label_Searching
 @onready var btn_cancel = $Control_Online/Control_Search/TextureButton_Cancel
 
 # ————— POZIOMY — 2 gridy —————
@@ -44,6 +44,9 @@ var level_states = []
 var search_timer: float = 0.0
 var is_searching = false
 var _ready_done: bool = false
+var queue_count: int = 0
+var _queue_poll_timer: float = 0.0
+const QUEUE_POLL_INTERVAL = 5.0
 
 # ————— READY —————
 
@@ -73,6 +76,7 @@ func _ready():
 	panel_campaign.visible = true
 	panel_online.visible = false
 	search_panel.visible = false
+	label_searching.visible = true
 	grid_page2.visible = false
 
 	_update_dots()
@@ -141,6 +145,12 @@ func _process(delta):
 		var minutes = int(search_timer) / 60
 		var seconds = int(search_timer) % 60
 		label_searching.text = "Finding match... %d:%02d" % [minutes, seconds]
+	else:
+		_queue_poll_timer += delta
+		if _queue_poll_timer >= QUEUE_POLL_INTERVAL:
+			_queue_poll_timer = 0.0
+			_fetch_queue_count()
+		label_searching.text = "Players in queue: %d" % queue_count
 
 # ————— STRZAŁKI PANELI —————
 
@@ -326,6 +336,7 @@ func _on_cancel_pressed():
 func _cancel_search():
 	is_searching = false
 	search_panel.visible = false
+	label_searching.visible = true
 	btn_find.visible = true
 	PlayerData.stop_matchmaking()
 	TimerManager.stop_search()
@@ -337,6 +348,7 @@ func _cancel_search():
 func _on_match_found():
 	is_searching = false
 	search_panel.visible = false
+	label_searching.visible = true
 	btn_find.visible = true
 	TimerManager.stop_search()
 	PlayerData.launch_online_duel()
@@ -345,10 +357,34 @@ func _on_match_timeout():
 	if not is_searching: return
 	is_searching = false
 	search_panel.visible = false
+	label_searching.visible = true
 	btn_find.visible = true
 	TimerManager.stop_search()
 	PlayerData.online_opponent_name = ""
 	PlayerData.launch_online_duel()
+	
+func _fetch_queue_count():
+	var ticket = PlayerData.get_ticket()
+	if ticket == "": return
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(
+		PlayerData.PLAYFAB_URL + "/Match/GetQueueStatistics",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"QueueName": PlayerData.MATCHMAKING_QUEUE})
+	)
+	var response = await http.request_completed
+	http.queue_free()
+	if response[1] != 200: return
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK: return
+	var data = json.get_data().get("data", {})
+	queue_count = data.get("NumPlayersMatching", 0)
 
 # ————— HOVER STRZAŁKI —————
 

@@ -199,6 +199,7 @@ mouse_filter = 2
 script = ExtResource("7_jf2v4")
 
 [node name="Control_Main" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=1496968861]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1300,7 +1301,6 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xglpk")
 
 [node name="Control_Online" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=218878556]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1381,21 +1381,7 @@ grow_vertical = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("18_r2yq1")
 
-[node name="Control_Search" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=1944504391]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Label_Searching" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Online/Control_Search" unique_id=2142957318]
+[node name="Label_Searching" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=2142957318]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1411,6 +1397,20 @@ grow_vertical = 2
 theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 32
 text = "Finding Match..."
+
+[node name="Control_Search" type="Control" parent="MarginContainer/Control/Control_Modes/Control_Online" unique_id=1944504391]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="TextureButton_Cancel" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Online/Control_Search" unique_id=419576426]
 layout_mode = 1

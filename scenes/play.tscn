@@ -290,7 +290,6 @@ texture_normal = ExtResource("19_fne7c")
 
 [node name="AudioStreamPlayer_Music" type="AudioStreamPlayer2D" parent="MarginContainer/Control" unique_id=1589140494]
 visible = false
-volume_db = -30.0
 bus = &"Music"
 
 [connection signal="mouse_entered" from="MarginContainer/Control/VBoxContainer/Button_Settings" to="MarginContainer/Control" method="_on_button_settings_mouse_entered"]

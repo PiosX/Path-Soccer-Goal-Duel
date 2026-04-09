@@ -21,13 +21,14 @@ const C_GRID       = Color(1,1,1,0.10)
 const C_BORDER     = Color.WHITE
 const C_TELEPORT_A = Color("#aa44ff")    # teleport fioletowy (para A)
 const C_TELEPORT_B = Color("#ff8800")    # teleport pomarańczowy (para B)
+const C_TELEPORT_C = Color("#00ffaa")
 const C_PANEL      = Color(0.12, 0.12, 0.18, 1.0)
 const C_BTN        = Color(0.22, 0.22, 0.30, 1.0)
 const C_BTN_HOV    = Color(0.32, 0.32, 0.42, 1.0)
 const C_BTN_ACT    = Color("#1a6faa")
 const C_ACCENT     = Color("#06c3f6")
 
-enum Cell { EMPTY=0, FIELD=1, GOAL_BLUE=2, GOAL_RED=3, OBSTACLE=4, TELEPORT_A=5, TELEPORT_B=6 }
+enum Cell { EMPTY=0, FIELD=1, GOAL_BLUE=2, GOAL_RED=3, OBSTACLE=4, TELEPORT_A=5, TELEPORT_B=6, TELEPORT_C=7 }
 
 var cols: int = 8
 var rows: int = 10
@@ -35,6 +36,7 @@ var grid: Array = []
 # Teleporty jako węzły siatki [{gx,gy}] — oddzielnie od gridu
 var teleport_nodes_a: Array = []  # para fioletowych (max 2)
 var teleport_nodes_b: Array = []  # para pomarańczowych (max 2)
+var teleport_nodes_c: Array = []
 
 var draw_mode: int = 1
 var is_lmb: bool = false
@@ -74,14 +76,6 @@ func _input(event: InputEvent):
 	if not visible:
 		return
 
-	if event is InputEventKey and event.pressed:
-		match event.keycode:
-			KEY_1: _set_mode(1)
-			KEY_2: _set_mode(2)
-			KEY_3: _set_mode(3)
-			KEY_4: _set_mode(5)
-			KEY_5: _set_mode(6)
-
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			is_lmb = event.pressed
@@ -94,7 +88,7 @@ func _input(event: InputEvent):
 		var ctrl = canvas_node.get_meta("ctrl_ref") as Control
 		if not is_instance_valid(ctrl): return
 		var lpos = ctrl.get_local_mouse_position()
-		if draw_mode == 5 or draw_mode == 6:
+		if draw_mode == 5 or draw_mode == 6 or draw_mode == 7:
 			pass  # węzły tylko na klik, nie na drag
 		else:
 			var cell = _pixel_to_cell(lpos)
@@ -106,10 +100,16 @@ func _input(event: InputEvent):
 		var ctrl = canvas_node.get_meta("ctrl_ref") as Control
 		if not is_instance_valid(ctrl): return
 		var lpos = ctrl.get_local_mouse_position()
+		# Sprawdź czy klik był w obszarze canvasa (nie poza nim / nie na sidebarze)
+		var canvas_rect = Rect2(Vector2.ZERO, ctrl.size)
+		if not canvas_rect.has_point(lpos):
+			return  # klik poza mapą — ignoruj
 		if draw_mode == 5:
-			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, true)
+			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, 0)  # było: true
 		elif draw_mode == 6:
-			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, false)
+			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, 1)  # było: false
+		elif draw_mode == 7:
+			_handle_teleport_click(lpos, event.button_index == MOUSE_BUTTON_LEFT, 2)
 		else:
 			var cell = _pixel_to_cell(lpos)
 			if cell.x >= 0:
@@ -125,6 +125,7 @@ func _reset_grid():
 		grid.append(row)
 	teleport_nodes_a = []
 	teleport_nodes_b = []
+	teleport_nodes_c = []
 	_place_default_goals()
 	_redraw()
 
@@ -198,19 +199,24 @@ func _paint_cell(cell: Vector2i, lmb: bool):
 	_redraw()
 
 # Tryb 5/6: klikanie węzłów ustawia teleporty (max 2 na parę)
-func _handle_teleport_click(lpos: Vector2, lmb: bool, is_a: bool):
+func _handle_teleport_click(lpos: Vector2, lmb: bool, tp_index: int):
 	var node = _pixel_to_node(lpos)
-	var arr = teleport_nodes_a if is_a else teleport_nodes_b
+	var arr: Array
+	match tp_index:
+		0: arr = teleport_nodes_a
+		1: arr = teleport_nodes_b
+		2: arr = teleport_nodes_c
+		_: return
 	if not lmb:
-		# PPM — usuń teleport na tym węźle
 		var new_arr = []
 		for t in arr:
 			if t != node: new_arr.append(t)
-		if is_a: teleport_nodes_a = new_arr
-		else: teleport_nodes_b = new_arr
+		match tp_index:
+			0: teleport_nodes_a = new_arr
+			1: teleport_nodes_b = new_arr
+			2: teleport_nodes_c = new_arr
 		_redraw()
 		return
-	# LPM — dodaj węzeł (max 2 na parę; jeśli już 2 — zamień najstarszy)
 	var exists = false
 	for t in arr:
 		if t == node: exists = true; break
@@ -218,8 +224,10 @@ func _handle_teleport_click(lpos: Vector2, lmb: bool, is_a: bool):
 		arr.append(node)
 		if arr.size() > 2:
 			arr.pop_front()
-		if is_a: teleport_nodes_a = arr
-		else: teleport_nodes_b = arr
+		match tp_index:
+			0: teleport_nodes_a = arr
+			1: teleport_nodes_b = arr
+			2: teleport_nodes_c = arr
 	_redraw()
 
 func _apply_symmetry(r: int, c: int, val: int):
@@ -324,6 +332,15 @@ func _draw_editor(cn: Node2D):
 		cn.draw_circle(pp, 11.0, Color(C_TELEPORT_B.r, C_TELEPORT_B.g, C_TELEPORT_B.b, 0.3))
 		cn.draw_circle(pp, 7.0, C_TELEPORT_B)
 		cn.draw_circle(pp, 3.5, Color.WHITE)
+	for t in teleport_nodes_c:
+		var pp = _node_to_pixel(t.x, t.y)
+		cn.draw_circle(pp, 11.0, Color(C_TELEPORT_C.r, C_TELEPORT_C.g, C_TELEPORT_C.b, 0.3))
+		cn.draw_circle(pp, 7.0, C_TELEPORT_C)
+		cn.draw_circle(pp, 3.5, Color.WHITE)
+	if teleport_nodes_c.size() == 2:
+		var p1 = _node_to_pixel(teleport_nodes_c[0].x, teleport_nodes_c[0].y)
+		var p2 = _node_to_pixel(teleport_nodes_c[1].x, teleport_nodes_c[1].y)
+		cn.draw_dashed_line(p1, p2, Color(C_TELEPORT_C.r, C_TELEPORT_C.g, C_TELEPORT_C.b, 0.5), 1.5, 6.0)
 	# Linia łącząca parę teleportów (podgląd)
 	if teleport_nodes_a.size() == 2:
 		var p1 = _node_to_pixel(teleport_nodes_a[0].x, teleport_nodes_a[0].y)
@@ -381,10 +398,13 @@ func _save_level():
 	var tp_b_data = []
 	for t in teleport_nodes_b:
 		tp_b_data.append({"gx": t.x, "gy": t.y})
+	var tp_c_data = []
+	for t in teleport_nodes_c:
+		tp_c_data.append({"gx": t.x, "gy": t.y})
 	var data = {
 		"id": id, "cols": cols, "rows": rows,
 		"orientation": orientation, "grid": [],
-		"teleport_a": tp_a_data, "teleport_b": tp_b_data
+		"teleport_a": tp_a_data, "teleport_b": tp_b_data, "teleport_c": tp_c_data
 	}
 	for row in grid:
 		data["grid"].append(row.duplicate())
@@ -431,6 +451,9 @@ func _load_level():
 	teleport_nodes_b = []
 	for t in parsed.get("teleport_b", []):
 		teleport_nodes_b.append(Vector2i(int(t.get("gx",0)), int(t.get("gy",0))))
+	teleport_nodes_c = []
+	for t in parsed.get("teleport_c", []):
+		teleport_nodes_c.append(Vector2i(int(t.get("gx",0)), int(t.get("gy",0))))
 	cols_spin.set_value_no_signal(cols)
 	rows_spin.set_value_no_signal(rows)
 	_update_orient_buttons()
@@ -458,6 +481,7 @@ func _reload_board(data: Dictionary):
 	board.obstacle_cells = []
 	board.teleport_a_nodes = []
 	board.teleport_b_nodes = []
+	board.teleport_c_nodes = []
 	board._apply_level_data()
 	# Upewnij się że scroll container jest znaleziony przed build
 	if not board._scroll_container:
@@ -542,6 +566,7 @@ func _build_ui():
 		[3, "3 - Bramka czerwona",   C_GOAL_RED],
 		[5, "4 - Teleport (fiol.)",  C_TELEPORT_A],
 		[6, "5 - Teleport (pom.)",   C_TELEPORT_B],
+		[7, "6 - Teleport (turk.)",   C_TELEPORT_C],
 	]
 	btn_modes.clear()
 	for md in modes_data:

@@ -20,6 +20,7 @@ corner_radius_bottom_left = 1000
 [node name="CanvasLayer" type="CanvasLayer" unique_id=313880104]
 
 [node name="Control" type="Control" parent="." unique_id=1800208234]
+z_index = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

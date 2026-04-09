@@ -13,7 +13,7 @@
 extends Node
 
 const AUDIO_CFG_PATH = "user://audio_settings.cfg"
-const MUSIC_VOLUME_DB = -30.0  # ~50% głośności
+const MUSIC_VOLUME_DB = -15.0
 
 var _music_player: AudioStreamPlayer = null
 var _current_stream_path: String = ""
