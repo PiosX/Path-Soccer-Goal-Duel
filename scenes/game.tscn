@@ -200,7 +200,6 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 24
-text = "Rank: 37"
 
 [node name="Player1_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player1" unique_id=1202075948]
 layout_mode = 2
@@ -209,7 +208,6 @@ theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
-text = "Player 1012"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Control/HBoxContainer_Players" unique_id=593181932]
 layout_mode = 2
@@ -251,7 +249,6 @@ alignment = 2
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 24
-text = "Rank: 0"
 horizontal_alignment = 2
 
 [node name="Player2_Name" type="Label" parent="MarginContainer/Control/HBoxContainer_Players/VBoxContainer_Player2" unique_id=1095658914]
@@ -261,7 +258,6 @@ theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_constants/outline_size = 4
 theme_override_fonts/font = ExtResource("5_bt5mj")
 theme_override_font_sizes/font_size = 36
-text = "Bot Player"
 horizontal_alignment = 2
 
 [node name="AudioStreamPlayer_Music" type="AudioStreamPlayer" parent="MarginContainer/Control" unique_id=1095363346]

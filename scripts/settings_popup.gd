@@ -17,6 +17,7 @@ var tex_music_off = preload("res://ui/settings/unchecked.png")
 
 func _ready():
 	# FIX: overlay blokuje myszkę — kliknięcie w tło nie przechodzi do gry
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	overlay.modulate.a = 0.0

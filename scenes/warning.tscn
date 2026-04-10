@@ -1,0 +1,140 @@
+[gd_scene format=3 uid="uid://t5f8vvk7yifd"]
+
+[ext_resource type="Script" uid="uid://cnksfx7d7yo15" path="res://scripts/warning.gd" id="1_28mqh"]
+[ext_resource type="Texture2D" uid="uid://bqt6a2s72i3x" path="res://ui/rating/warning-bg.png" id="2_28mqh"]
+[ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="3_vjpo3"]
+[ext_resource type="Texture2D" uid="uid://deqf07nwoad20" path="res://ui/rating/yes-btn.png" id="5_7w4se"]
+[ext_resource type="Texture2D" uid="uid://nim8y4lexm3c" path="res://ui/rating/no-btn.png" id="6_yqs2c"]
+[ext_resource type="AudioStream" uid="uid://slr836vxw1p5" path="res://sounds/select.mp3" id="7_b51vd"]
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1791203957]
+
+[node name="Control" type="Control" parent="." unique_id=274957514]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_28mqh")
+
+[node name="ColorRect_Overlay" type="ColorRect" parent="Control" unique_id=430289348]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Control_Popup" type="Control" parent="Control" unique_id=1732067157]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -208.0
+offset_top = -251.0
+offset_right = 208.0
+offset_bottom = 251.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect_BG" type="TextureRect" parent="Control/Control_Popup" unique_id=312317915]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -191.0
+offset_top = -189.0
+offset_right = 191.0
+offset_bottom = 189.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_28mqh")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup" unique_id=1135383075]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -173.5
+offset_top = 90.0
+offset_right = 173.5
+offset_bottom = 305.0
+grow_horizontal = 2
+theme_override_constants/separation = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Control_Popup/VBoxContainer" unique_id=1230321922]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Label_Title" type="Label" parent="Control/Control_Popup/VBoxContainer/VBoxContainer" unique_id=1143904682]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("3_vjpo3")
+theme_override_font_sizes/font_size = 32
+text = "WArning!"
+horizontal_alignment = 1
+
+[node name="Label_Desc" type="Label" parent="Control/Control_Popup/VBoxContainer/VBoxContainer" unique_id=519379197]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_fonts/font = ExtResource("3_vjpo3")
+theme_override_font_sizes/font_size = 22
+text = "You're playing as a guest.
+If you uninstall the game,
+your purchases may be lost. 
+Create an account in Settings
+to save them permanently."
+horizontal_alignment = 1
+
+[node name="Label_Title2" type="Label" parent="Control/Control_Popup/VBoxContainer" unique_id=289024316]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8980392, 0.25490198, 0.28627452, 1)
+theme_override_fonts/font = ExtResource("3_vjpo3")
+theme_override_font_sizes/font_size = 26
+text = "Would you like to buy anyway?"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Control_Popup" unique_id=1853211909]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -136.0
+offset_top = -177.0
+offset_right = 136.0
+offset_bottom = -105.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 56
+
+[node name="TextureButton_Yes" type="TextureButton" parent="Control/Control_Popup/HBoxContainer" unique_id=1878864075]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("5_7w4se")
+
+[node name="TextureButton_No" type="TextureButton" parent="Control/Control_Popup/HBoxContainer" unique_id=138702128]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_yqs2c")
+
+[node name="SoundClick" type="AudioStreamPlayer2D" parent="." unique_id=1576040584]
+stream = ExtResource("7_b51vd")
+bus = &"Sound"
+
+[connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/HBoxContainer/TextureButton_Yes" to="Control" method="_on_yes_pressed"]
+[connection signal="mouse_entered" from="Control/Control_Popup/HBoxContainer/TextureButton_No" to="Control" method="_on_no_mouse_entered"]
+[connection signal="mouse_exited" from="Control/Control_Popup/HBoxContainer/TextureButton_No" to="Control" method="_on_no_mouse_exited"]
+[connection signal="pressed" from="Control/Control_Popup/HBoxContainer/TextureButton_No" to="Control" method="_on_no_pressed"]

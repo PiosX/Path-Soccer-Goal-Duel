@@ -69,6 +69,11 @@ func _on_button_settings_pressed():
 	sound_click.play()
 	var popup = settings_popup_scene.instantiate()
 	add_child(popup)
+	
+	var board = get_node_or_null("ScrollContainer/BoardContainer")
+	if board:
+		board._popup_open = true
+		popup.tree_exited.connect(func(): board._popup_open = false)
 
 func _on_button_settings_mouse_entered():
 	_scale_button(btn_settings, 0.9)

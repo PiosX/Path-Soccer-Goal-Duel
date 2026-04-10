@@ -18,6 +18,7 @@ extends Control
 
 # ————— SOUND —————
 @onready var sound_click = $"../SoundClick"
+const WARNING_SCENE = preload("res://scenes/warning.tscn")
 
 # ————— TEXTURY PRZYCISKÓW —————
 # tex_buy jest ładowany dynamicznie per skin (wg ceny) — patrz _get_price_texture()
@@ -65,6 +66,16 @@ const SKIN_PRICES = [
 	2500,  # skin 18 — rarity3
 	3000,  # skin 19 — rarity3
 	4000,  # skin 20 — rarity3
+]
+
+const PREMIUM_PRODUCT_IDS = [
+	"coins_200",   # CHEAPEST
+	"coins_450",   # SMALL
+	"coins_900",   # STANDARD
+	"coins_2000",  # POPULAR
+	"coins_4500",  # MEGA
+	"coins_10000", # ULTIMATE
+	"no_ads",      # SPECIAL
 ]
 
 # ————— STAN —————
@@ -127,6 +138,10 @@ func _ready():
 		active_skin_ctrl = skin_ctrl
 		active_skin_base_y = skin_ctrl.position.y
 		_start_active_animation(skin_ctrl)
+		
+	IAPManager.purchase_completed.connect(_on_iap_completed)
+	IAPManager.purchase_failed.connect(_on_iap_failed)
+	IAPManager.purchase_cancelled.connect(_on_iap_cancelled)
 
 # ————— WCZYTAJ STANY SKINÓW —————
 
@@ -491,16 +506,19 @@ func _setup_premium_grid():
 	var grid = get_node_or_null("Control_Premium/GridContainer_Premium")
 	if not grid:
 		return
-	for item in grid.get_children():
+	for i in range(grid.get_child_count()):
+		var item = grid.get_child(i)
 		item.pivot_offset = item.size / 2
 
-		# Obracające się promienie
+		# Przypisz product_id
+		if i < PREMIUM_PRODUCT_IDS.size():
+			item.set_meta("product_id", PREMIUM_PRODUCT_IDS[i])
+
 		var rays = item.get_node_or_null("Control_Icon/TextureRect_Rays")
 		if rays:
 			rays.pivot_offset = rays.size / 2
 			_start_rays_rotation(rays)
 
-		# Hover + animacja na przycisk
 		var btn = item.get_node_or_null("TextureButton_Buy")
 		if btn:
 			btn.pivot_offset = btn.size / 2
@@ -519,9 +537,46 @@ func _on_premium_buy_pressed(item: Control):
 	sound_click.play()
 	_squish_item(item)
 
+	var product_id = item.get_meta("product_id", "")
+	if product_id == "":
+		return
+
+	# Sprawdź czy gość
+	var cfg = ConfigFile.new()
+	var is_guest = true
+	if cfg.load("user://session.cfg") == OK:
+		is_guest = not cfg.get_value("session", "has_account", false)
+
+	if is_guest:
+		var warning = WARNING_SCENE.instantiate()
+		warning.product_id = product_id
+		get_tree().current_scene.add_child(warning)
+	else:
+		if IAPManager.is_available():
+			IAPManager.purchase_product(product_id)
+
 func _squish_item(item: Control):
 	var tween = create_tween()
 	tween.tween_property(item, "scale", Vector2(1.1, 0.9), 0.08)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(item, "scale", Vector2(1.0, 1.0), 0.15)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _on_iap_completed(product_id: String):
+	# Jeśli coins — odśwież gold label (PlayerData.add_gold już to zrobił w IAPManager)
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") == OK:
+		player_gold = cfg.get_value("session", "gold", player_gold)
+	_refresh_gold_label()
+	_apply_skin_states()
+
+func _on_iap_failed(error: String):
+	var err = get_node_or_null("../Error_Purchase")
+	if err:
+		err.text = "Purchase failed. Try again."
+		err.visible = true
+		await get_tree().create_timer(3.0).timeout
+		err.visible = false
+
+func _on_iap_cancelled():
+	pass  # Użytkownik sam zamknął okno Google Play — nic nie rób

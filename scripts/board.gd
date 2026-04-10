@@ -72,6 +72,7 @@ var _ai_is_player1: bool = false   # true = bot jest Player1 (gracz jest P2)
 const AI_DEPTH: int = 3
 var ai_thinking: bool = false
 var _game_ended: bool = false
+var _popup_open: bool = false
 
 func _is_my_turn() -> bool:
 	# W trybie VS AI lub kampanii — zawsze tura gracza (AI jest blokowane przez ai_thinking)
@@ -202,15 +203,14 @@ func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
 			var side_a = Vector2i(b.x, a.y)
 			var side_b = Vector2i(a.x, b.y)
 			
-			# Sprawdź czy OBA węzły boczne są całkowicie niedostępne (poza grą)
+			# Sprawdź czy KTÓRYKOLWIEK z węzłów bocznych jest niedostępny
 			var a_invalid = not is_valid_node(side_a.x, side_a.y)
 			var b_invalid = not is_valid_node(side_b.x, side_b.y)
 			
-			# Blokuj TYLKO gdy oba są niedostępne (np. w rogu planszy poza bramkami)
-			if a_invalid and b_invalid:
+			# Jeśli któryś jest niedostępny - zablokuj przekątną
+			if a_invalid or b_invalid:
 				return true
 			
-			# W przeciwnym razie — przepuść! Przeszkody (obstacle) NIE blokują przekątnych.
 			return false
 		var a_is_goal2 = (a.x < 0 or a.x > COLS)
 		var b_is_goal2 = (b.x < 0 or b.x > COLS)
@@ -273,12 +273,10 @@ func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
 	# Górna/dolna linia boiska — ruch poziomy wzdłuż niej poza zakresem bramki
 	if a.y == 0 and b.y == 0:
 		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
-		# Zablokuj jeśli ruch nie jest w ŚRODKU bramki (oba węzły muszą być wewnątrz)
-		if not (mn >= GOAL_COL_START_RED and mx <= GOAL_COL_START_RED + GOAL_COLS_RED):
-			return true
-		# Dodatkowy blok: nie pozwól na ruch przez słupek (jeden węzeł na słupku, drugi poza)
-		if mn == GOAL_COL_START_RED or mx == GOAL_COL_START_RED + GOAL_COLS_RED:
-			return true
+		# Sprawdź czy ruch jest w CAŁEJ bramce (łącznie ze słupkami)
+		if mn >= GOAL_COL_START_RED and mx <= GOAL_COL_START_RED + GOAL_COLS_RED:
+			return false  # dozwolone - jesteśmy w bramce lub na słupkach
+		return true  # zabronione - poza bramką
 	if a.y == ROWS and b.y == ROWS:
 		var mn = mini(a.x, b.x); var mx = maxi(a.x, b.x)
 		if not (mn >= GOAL_COL_START_BLUE and mx <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE):
@@ -327,11 +325,25 @@ func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
 				var bot_r = _cell_is_wall(a.y, maxi(a.x, b.x) - 1)
 				if top_l and top_r and bot_l and bot_r: return true
 		elif a.x == b.x and abs(a.y - b.y) == 1:
-			var lft_t = _cell_is_wall(mini(a.y, b.y),     a.x - 1)
-			var lft_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x - 1)
-			var rgt_t = _cell_is_wall(mini(a.y, b.y),     a.x)
-			var rgt_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x)
-			if lft_t and lft_b and rgt_t and rgt_b: return true
+			# Ruch wzdłuż lewej ściany boiska
+			if a.x == 0:
+				var mn = mini(a.y, b.y); var mx = maxi(a.y, b.y)
+				var in_blue = (GOAL_COL_START_BLUE == 0 and mn >= GOAL_COL_START_BLUE and mx <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE + 1)
+				var in_red  = (GOAL_COL_START_RED  == 0 and mn >= GOAL_COL_START_RED  and mx <= GOAL_COL_START_RED  + GOAL_COLS_RED  + 1)
+				if not in_blue and not in_red: return true
+			# Ruch wzdłuż prawej ściany boiska
+			elif a.x == COLS:
+				var mn = mini(a.y, b.y); var mx = maxi(a.y, b.y)
+				var in_blue = (GOAL_COL_START_BLUE + GOAL_COLS_BLUE == COLS and mn >= GOAL_COL_START_BLUE and mx <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE + 1)
+				var in_red  = (GOAL_COL_START_RED  + GOAL_COLS_RED  == COLS and mn >= GOAL_COL_START_RED  and mx <= GOAL_COL_START_RED  + GOAL_COLS_RED  + 1)
+				if not in_blue and not in_red: return true
+			# Ruch wzdłuż granicy obstacle (nie na ścianie)
+			else:
+				var lft_t = _cell_is_wall(mini(a.y, b.y),     a.x - 1)
+				var lft_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x - 1)
+				var rgt_t = _cell_is_wall(mini(a.y, b.y),     a.x)
+				var rgt_b = _cell_is_wall(maxi(a.y, b.y) - 1, a.x)
+				if lft_t and lft_b and rgt_t and rgt_b: return true
 
 	return false
 
@@ -420,9 +432,10 @@ func node_has_any_trail(pos: Vector2i) -> bool:
 	else:
 		if pos.x == 0: count += 1
 		if pos.x == COLS: count += 1
-		var in_goal_interior = (pos.x > GOAL_COL_START and pos.x < GOAL_COL_START + GOAL_COLS)
-		if pos.y == 0 and not in_goal_interior: count += 1
-		if pos.y == ROWS and not in_goal_interior: count += 1
+		var in_red_interior  = (pos.x > GOAL_COL_START_RED  and pos.x < GOAL_COL_START_RED  + GOAL_COLS_RED)
+		var in_blue_interior = (pos.x > GOAL_COL_START_BLUE and pos.x < GOAL_COL_START_BLUE + GOAL_COLS_BLUE)
+		if pos.y == 0    and not in_red_interior:  count += 1
+		if pos.y == ROWS and not in_blue_interior: count += 1
 	for dr in [-1, 0]:
 		for dc in [-1, 0]:
 			var cr = pos.y + dr; var cc = pos.x + dc
@@ -683,8 +696,15 @@ func _setup_game():
 	_refresh_active_dots()
 	call_deferred("_center_scroll")
 
-	# Jeśli bot jest Player1 — bot zaczyna od razu, gracz (Player2) czeka
-	if VS_AI and _ai_is_player1:
+	if VS_AI and not PlayerData.online_mode:
+		current_player = 2  # bot (Player2) zaczyna
+		ai_thinking = true
+		_hide_active_dots()
+		get_tree().create_timer(0.5).timeout.connect(func():
+			if is_instance_valid(self):
+				_ai_take_turn()
+			)
+	elif VS_AI and _ai_is_player1:
 		ai_thinking = true
 		_hide_active_dots()
 		get_tree().create_timer(1.0).timeout.connect(func():
@@ -718,6 +738,7 @@ func _on_scroll_gui_input(_event: InputEvent):
 # ——————————————————————————————————————————
 
 func _unhandled_input(event: InputEvent):
+	if _popup_open: return
 	# Środkowy lub prawy przycisk myszy — drag planszy (tylko oś X)
 	var is_rmb = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT
 	var is_mmb = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE
@@ -950,6 +971,7 @@ func _kill_all_tweens():
 # ——————————————————————————————————————————
 
 func _input(event: InputEvent):
+	if _popup_open: return
 	# ── Touch drag boiska ──────────────────────────────────────────────────
 	if _scroll_container:
 		var is_touch      = event is InputEventScreenTouch

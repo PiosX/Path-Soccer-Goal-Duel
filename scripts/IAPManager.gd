@@ -17,15 +17,44 @@ const PRODUCTS = {
 		"type": "non_consumable",
 		"title": "Remove Ads Forever",
 		"description": "Removes all advertisements permanently",
+		"price_display": "$1.99"
+	},
+	"coins_200": {
+		"type": "consumable",
+		"title": "200 Coins",
+		"amount": 200,
 		"price_display": "$0.99"
-	}
-	# Tutaj dodasz więcej produktów (gold packi itp.) gdy będziesz gotowy
-	# "gold_small": {
-	#     "type": "consumable",
-	#     "title": "100 Gold",
-	#     "amount": 100,
-	#     "price_display": "$0.99"
-	# },
+	},
+	"coins_450": {
+		"type": "consumable",
+		"title": "450 Coins",
+		"amount": 450,
+		"price_display": "$1.99"
+	},
+	"coins_900": {
+		"type": "consumable",
+		"title": "900 Coins",
+		"amount": 900,
+		"price_display": "$2.99"
+	},
+	"coins_2000": {
+		"type": "consumable",
+		"title": "2000 Coins",
+		"amount": 2000,
+		"price_display": "$4.99"
+	},
+	"coins_4500": {
+		"type": "consumable",
+		"title": "4500 Coins",
+		"amount": 4500,
+		"price_display": "$9.99"
+	},
+	"coins_10000": {
+		"type": "consumable",
+		"title": "10000 Coins",
+		"amount": 10000,
+		"price_display": "$19.99"
+	},
 }
 
 func _ready():
@@ -130,6 +159,10 @@ func handle_new_purchase(purchase: Dictionary):
 			var admob = get_node_or_null("/root/AdMobManager")
 			if admob:
 				admob.disable_ads()
+				var cfg2 = ConfigFile.new()
+				cfg2.load("user://session.cfg")
+				cfg2.set_value("session", "no_ads", true)
+				cfg2.save("user://session.cfg")
 		billing_client.acknowledge_purchase(purchase_token)
 
 	elif product.type == "consumable":
@@ -145,6 +178,10 @@ func handle_owned_product(product_id: String):
 		var admob = get_node_or_null("/root/AdMobManager")
 		if admob:
 			admob.disable_ads()
+			var cfg2 = ConfigFile.new()
+			cfg2.load("user://session.cfg")
+			cfg2.set_value("session", "no_ads", true)
+			cfg2.save("user://session.cfg")
 
 func restore_purchases():
 	query_purchases()
