@@ -30,6 +30,7 @@ SceneTransition="*uid://bxvmvubefydat"
 MusicManager="*uid://dvfu7ed1u7wfy"
 AdMobManager="*uid://b76r5a3fnpog6"
 IAPManager="*uid://cmonbkrchilk3"
+ConsentManager="*uid://bd0oubguvhfwe"
 
 [display]
 

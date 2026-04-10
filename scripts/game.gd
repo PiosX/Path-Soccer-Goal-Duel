@@ -73,7 +73,7 @@ func _on_button_settings_pressed():
 	var board = get_node_or_null("ScrollContainer/BoardContainer")
 	if board:
 		board._popup_open = true
-		popup.tree_exited.connect(func(): board._popup_open = false)
+		popup.tree_exiting.connect(func(): board._popup_open = false)
 
 func _on_button_settings_mouse_entered():
 	_scale_button(btn_settings, 0.9)

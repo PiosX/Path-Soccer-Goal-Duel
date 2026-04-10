@@ -6,10 +6,10 @@ const LEADERBOARD_NAME = "rating_score"
 const PAGE_SIZE = 100
 
 # ————— WĘZŁY —————
-@onready var vbox_players = $MarginContainer/ScrollContainer/VBoxContainer_Players
-@onready var label_subtitle = $Panel_Subtitle/Label_Subtitle
-@onready var btn_prev = $HBoxContainer_Nav2/TextureButton_Previous
-@onready var btn_next = $HBoxContainer_Nav2/TextureButton_Next
+@onready var vbox_players = $TextureRect_BG/MarginContainer/MarginContainer/ScrollContainer/VBoxContainer_Players
+@onready var label_subtitle = $TextureRect_BG/MarginContainer/Panel_Subtitle/Label_Subtitle
+@onready var btn_prev = $TextureRect_BG/MarginContainer/HBoxContainer_Nav2/TextureButton_Previous
+@onready var btn_next = $TextureRect_BG/MarginContainer/HBoxContainer_Nav2/TextureButton_Next
 @onready var sound_click = $"../SoundClick"
 
 const BAR_WIDTH = 98.0

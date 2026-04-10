@@ -2,28 +2,28 @@ extends CanvasLayer
 
 # ————— ISTNIEJĄCE —————
 @onready var sound_click = $MarginContainer/Control/SoundClick
-@onready var btn_privacy = $MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Privacy
-@onready var btn_terms = $MarginContainer/Control/ScrollContainer/VBoxContainer/TextureButton_Terms
+@onready var btn_privacy = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/TextureButton_Privacy
+@onready var btn_terms = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/TextureButton_Terms
 
 # ————— FORMULARZE —————
-@onready var register   = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register
-@onready var registered = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered
+@onready var register   = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register
+@onready var registered = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered
 
 # ————— REGISTER (gość) —————
-@onready var reg_login_input    = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Login/Login_Input
-@onready var reg_email_input    = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Email/Email_Input
-@onready var reg_password_input = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password/Password_Input
-@onready var reg_label_error    = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password/Label_Error
-@onready var btn_register       = $MarginContainer/Control/ScrollContainer/VBoxContainer/Register/TextureButton_Register
+@onready var reg_login_input    = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/VBoxContainer_Login/Login_Input
+@onready var reg_email_input    = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/VBoxContainer_Email/Email_Input
+@onready var reg_password_input = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password/Password_Input
+@onready var reg_label_error    = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/VBoxContainer_Password/Label_Error
+@onready var btn_register       = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/TextureButton_Register
 
 # ————— REGISTERED (ma konto) —————
-@onready var regd_login_input = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Login/Login_Input
-@onready var regd_email_input = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Email/Email_Input
-@onready var btn_logout       = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout
-@onready var btn_delete       = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Delete
-@onready var vbox_confirm     = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm
-@onready var confirm_input    = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm/Confirmation_Input
-@onready var confirm_error    = $MarginContainer/Control/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm/Label_Error
+@onready var regd_login_input = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Login/Login_Input
+@onready var regd_email_input = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/VBoxContainer_Email/Email_Input
+@onready var btn_logout       = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout
+@onready var btn_delete       = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Delete
+@onready var vbox_confirm     = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm
+@onready var confirm_input    = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm/Confirmation_Input
+@onready var confirm_error    = $MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/VBoxContainer_Confirm/Label_Error
 
 # ————— PLAYFAB —————
 const PLAYFAB_TITLE_ID = "139617"

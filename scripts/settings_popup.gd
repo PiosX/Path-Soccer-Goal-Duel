@@ -46,7 +46,12 @@ func _run_intro():
 
 func _on_close_pressed():
 	sound_click.play()
+	# Znajdź board i odblokuj
+	var board = get_tree().root.find_child("BoardContainer", true, false)
+	if board:
+		board._popup_open = false
 	queue_free()
+	
 func _on_close_mouse_entered(): _scale_button(btn_close, 0.9)
 func _on_close_mouse_exited():  _scale_button(btn_close, 1.0)
 

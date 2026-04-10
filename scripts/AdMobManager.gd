@@ -10,7 +10,7 @@ const InterstitialAdLoadCallbackClass = preload("res://addons/admob/src/api/list
 const FullScreenContentCallbackClass  = preload("res://addons/admob/src/api/listeners/FullScreenContentCallback.gd")
 
 # ===== TWOJE ID — WSTAW PO UTWORZENIU W ADMOB =====
-const INTERSTITIAL_ID = "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"  # <-- zmień
+const INTERSTITIAL_ID = "ca-app-pub-1542056164177824/7625751912"  # <-- zmień
 
 const TEST_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"
 
@@ -32,6 +32,10 @@ func _ready():
 	if ads_disabled:
 		return
 	MobileAdsClass.initialize()
+	# Załaduj od razu — ConsentManager i tak może załadować ponownie
+	await get_tree().create_timer(1.5).timeout
+	if not ads_disabled:
+		_load_interstitial()
 
 func _check_ads_disabled():
 	var cfg = ConfigFile.new()
@@ -60,7 +64,6 @@ func show_interstitial():
 		_interstitial_ad.full_screen_content_callback = cb
 		_interstitial_ad.show()
 	else:
-		# Nie gotowy — emituj od razu żeby gra nie utknęła
 		interstitial_closed.emit()
 		_load_interstitial()
 
