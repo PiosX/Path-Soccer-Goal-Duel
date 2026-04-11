@@ -12,7 +12,7 @@ signal purchase_cancelled
 signal restore_completed(restored_count: int)
 
 # ===== PRODUKTY — uzupełnij ID gdy utworzysz w Google Play Console =====
-const PRODUCTS = {
+var PRODUCTS = {
 	"no_ads": {
 		"type": "non_consumable",
 		"title": "Remove Ads Forever",
@@ -63,16 +63,11 @@ func _ready():
 		billing_client.connected.connect(_on_billing_connected)
 		billing_client.disconnected.connect(_on_billing_disconnected)
 		billing_client.connect_error.connect(_on_billing_connect_error)
-		if billing_client.has_signal("on_purchases_updated"):
-			billing_client.on_purchases_updated.connect(_on_purchases_updated)
-		if billing_client.has_signal("query_purchases_response"):
-			billing_client.query_purchases_response.connect(_on_query_purchases)
-		if billing_client.has_signal("product_details_query_completed"):
-			billing_client.product_details_query_completed.connect(_on_product_details_completed)
-		if billing_client.has_signal("purchase_acknowledged"):
-			billing_client.purchase_acknowledged.connect(_on_purchase_acknowledged)
-		if billing_client.has_signal("purchase_consumed"):
-			billing_client.purchase_consumed.connect(_on_purchase_consumed)
+		billing_client.on_purchase_updated.connect(_on_purchases_updated)
+		billing_client.query_purchases_response.connect(_on_query_purchases)
+		billing_client.query_product_details_response.connect(_on_product_details_completed)
+		billing_client.acknowledge_purchase_response.connect(_on_purchase_acknowledged)
+		billing_client.consume_purchase_response.connect(_on_purchase_consumed)
 		billing_client.start_connection()
 	else:
 		print("IAP skipped - not on Android")
@@ -129,45 +124,60 @@ func _on_product_details_completed(result: Dictionary):
 			PRODUCTS[sku]["price"] = detail.get("price", "")
 
 func purchase_product(product_id: String):
+	print("=== purchase_product wywołane: ", product_id)
 	if not is_ready or not billing_client:
+		print("=== ODRZUCONO - billing nie gotowy")
 		purchase_failed.emit("Billing system not ready")
 		return
 	if not PRODUCTS.has(product_id):
+		print("=== ODRZUCONO - nieznany produkt")
 		purchase_failed.emit("Unknown product")
 		return
 	if PRODUCTS[product_id].type == "non_consumable" and owns_product(product_id):
+		print("=== ODRZUCONO - już posiadany")
 		purchase_failed.emit("Already owned")
 		return
+	print("=== wywołuję billing_client.purchase")
 	billing_client.purchase(product_id)
 
-func _on_purchase_acknowledged(purchase_token: String):
-	pass
+func _on_purchase_acknowledged(response: Dictionary):
+	print("=== acknowledged: ", response)
 
-func _on_purchase_consumed(purchase_token: String):
-	pass
+func _on_purchase_consumed(response: Dictionary):
+	print("=== consumed: ", response)
 
 func handle_new_purchase(purchase: Dictionary):
+	print("=== handle_new_purchase: ", purchase)
 	var product_id = purchase.get("product_ids", [""])[0]
+	print("=== product_id: ", product_id)
 	var purchase_token = purchase.get("purchase_token", "")
-	if purchase.get("purchase_state", 0) != 1: return
-	if not PRODUCTS.has(product_id): return
+	var purchase_state = purchase.get("purchase_state", 0)
+	print("=== purchase_state: ", purchase_state)
+	if purchase.get("purchase_state", 0) != 1: 
+		print("=== ODRZUCONO - purchase_state nie jest 1")
+		return
+	if not PRODUCTS.has(product_id): 
+		print("=== ODRZUCONO - nieznany produkt: ", product_id)
+		return
 
 	var product = PRODUCTS[product_id]
+	print("=== typ produktu: ", product.type)
 
 	if product.type == "non_consumable":
 		if product_id == "no_ads":
+			print("=== no_ads kupione!")
 			var admob = get_node_or_null("/root/AdMobManager")
+			print("=== admob node: ", admob)
 			if admob:
 				admob.disable_ads()
 				var cfg2 = ConfigFile.new()
 				cfg2.load("user://session.cfg")
-				cfg2.set_value("session", "no_ads", true)
+				cfg2.set_value("iap", "no_ads", true)
 				cfg2.save("user://session.cfg")
 		billing_client.acknowledge_purchase(purchase_token)
 
 	elif product.type == "consumable":
 		var amount = product.get("amount", 0)
-		# Dodaj gold do PlayerData
 		PlayerData.add_gold(amount)
 		billing_client.consume_purchase(purchase_token)
 
@@ -180,7 +190,7 @@ func handle_owned_product(product_id: String):
 			admob.disable_ads()
 			var cfg2 = ConfigFile.new()
 			cfg2.load("user://session.cfg")
-			cfg2.set_value("session", "no_ads", true)
+			cfg2.set_value("iap", "no_ads", true)
 			cfg2.save("user://session.cfg")
 
 func restore_purchases():

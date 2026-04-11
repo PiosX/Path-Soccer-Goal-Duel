@@ -6,28 +6,29 @@ class_name WarningPopup
 @onready var popup      = $Control_Popup
 @onready var btn_yes    = $Control_Popup/HBoxContainer/TextureButton_Yes
 @onready var btn_no     = $Control_Popup/HBoxContainer/TextureButton_No
-@onready var sound_click = $SoundClick
+@onready var sound_click = $"../SoundClick"
 
 # ————— DANE —————
 # Ustawiane przez wywołującego przed dodaniem do sceny
 var product_id: String = ""
 
 func _ready():
+	if has_meta("product_id"):
+		product_id = get_meta("product_id")
 	overlay.modulate.a = 0.0
 	popup.scale = Vector2(0.0, 0.0)
-
+	
 	await get_tree().process_frame
 	popup.pivot_offset = popup.size / 2
 	btn_yes.pivot_offset = btn_yes.size / 2
 	btn_no.pivot_offset  = btn_no.size / 2
-
+	
 	_run_intro()
 
 func _run_intro():
 	var tween1 = create_tween()
 	tween1.tween_property(overlay, "modulate:a", 0.7, 0.3)
 	await tween1.finished
-
 	var tween2 = create_tween()
 	tween2.tween_property(popup, "scale", Vector2(1.0, 1.0), 0.5)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

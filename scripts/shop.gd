@@ -149,31 +149,16 @@ func _load_skin_states():
 	skin_states.clear()
 	for i in range(TOTAL_SKINS):
 		skin_states.append(0)
-
-	# Skin 1 zawsze odblokowany
 	skin_states[0] = 1
-
+	
 	var cfg = ConfigFile.new()
 	if cfg.load("user://session.cfg") != OK:
 		skin_states[0] = 2
 		active_skin_index = 0
 		return
 
-	# Wczytaj kupione skiny
 	var owned_str: String = cfg.get_value("session", "owned_skins", "0")
-	for part in owned_str.split(","):
-		var idx = int(part.strip_edges())
-		if idx >= 0 and idx < TOTAL_SKINS:
-			skin_states[idx] = 1
-
-	# Wczytaj aktywny skin
 	var equipped = cfg.get_value("session", "equipped_skin", 0)
-	if equipped >= 0 and equipped < TOTAL_SKINS and skin_states[equipped] >= 1:
-		active_skin_index = equipped
-		skin_states[equipped] = 2
-	else:
-		active_skin_index = 0
-		skin_states[0] = 2
 
 # ————— SETUP GRIDU —————
 
@@ -506,13 +491,25 @@ func _setup_premium_grid():
 	var grid = get_node_or_null("Control_Premium/GridContainer_Premium")
 	if not grid:
 		return
+	
+	# Sprawdź czy no_ads już kupione
+	var cfg = ConfigFile.new()
+	var no_ads_owned = false
+	if cfg.load("user://session.cfg") == OK:
+		no_ads_owned = cfg.get_value("iap", "no_ads", false)
+	
 	for i in range(grid.get_child_count()):
 		var item = grid.get_child(i)
 		item.pivot_offset = item.size / 2
 
-		# Przypisz product_id
 		if i < PREMIUM_PRODUCT_IDS.size():
 			item.set_meta("product_id", PREMIUM_PRODUCT_IDS[i])
+
+		if i < PREMIUM_PRODUCT_IDS.size() and PREMIUM_PRODUCT_IDS[i] == "no_ads" and no_ads_owned:
+			var btn = item.get_node_or_null("TextureButton_Buy")
+			if btn:
+				btn.disabled = true
+				btn.visible = false
 
 		var rays = item.get_node_or_null("Control_Icon/TextureRect_Rays")
 		if rays:
@@ -549,9 +546,12 @@ func _on_premium_buy_pressed(item: Control):
 
 	if is_guest:
 		var warning = WARNING_SCENE.instantiate()
-		warning.product_id = product_id
-		get_tree().current_scene.add_child(warning)
+		warning.set_meta("product_id", product_id)
+		get_tree().root.add_child(warning)
 	else:
+		print("=== IAP available: ", IAPManager.is_available())
+		print("=== billing_client: ", IAPManager.billing_client)
+		print("=== is_ready: ", IAPManager.is_ready)
 		if IAPManager.is_available():
 			IAPManager.purchase_product(product_id)
 

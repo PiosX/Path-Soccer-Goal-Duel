@@ -249,7 +249,6 @@ mouse_filter = 2
 script = ExtResource("7_5lclc")
 
 [node name="Control_Collection" type="Control" parent="MarginContainer/Control/Control_Shop" unique_id=1634763437]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1237,6 +1236,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("16_lrmib")
 
 [node name="Control_Premium" type="Control" parent="MarginContainer/Control/Control_Shop" unique_id=829123320]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

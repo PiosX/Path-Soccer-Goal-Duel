@@ -280,6 +280,11 @@ func _on_texture_button_login_login_pressed():
 	var session_ticket = result.get("SessionTicket", "")
 	var nick = login_input.text.strip_edges()
 	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true)
+
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	await PlayerData._fetch_and_sync_player_data(session_ticket, cfg)
+
 	_set_busy(false)
 	SceneTransition.go_to("res://scenes/play.tscn")
 
@@ -409,16 +414,16 @@ func _init_player_data(session_ticket: String):
 #  LOKALNY ZAPIS SESJI
 # ═══════════════════════════════════════════
 
-func _save_session(playfab_id: String, ticket: String, nick: String, has_account: bool):
+func _save_session(playfab_id: String, ticket: String, nick: String, has_account: bool, email: String = ""):
 	var cfg = ConfigFile.new()
-	# Zachowaj istniejące wartości gold/score/wins/losses jeśli już są
 	cfg.load("user://session.cfg")
 	cfg.set_value("session", "playfab_id",  playfab_id)
 	cfg.set_value("session", "ticket",      ticket)
 	cfg.set_value("session", "nick",        nick)
 	cfg.set_value("session", "has_account", has_account)
 	cfg.set_value("session", "device_id",   OS.get_unique_id())
-	# Domyślne gold przy pierwszym logowaniu (PlayFab ustawi prawdziwą wartość w tle)
+	if email != "":
+		cfg.set_value("session", "email", email)
 	if not cfg.has_section_key("session", "gold"):
 		cfg.set_value("session", "gold", 20)
 	cfg.save("user://session.cfg")

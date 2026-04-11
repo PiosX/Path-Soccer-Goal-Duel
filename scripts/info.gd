@@ -39,7 +39,7 @@ func _ready():
 	for btn in [btn_privacy, btn_terms, btn_register, btn_logout, btn_delete]:
 		if btn:
 			btn.pivot_offset = btn.size / 2
-
+	
 	# Inputy tylko do odczytu
 	reg_login_input.editable    = false
 	reg_login_input.modulate.a  = 0.6
@@ -52,28 +52,57 @@ func _ready():
 	confirm_error.visible   = false
 	vbox_confirm.visible    = false
 
+	await get_tree().process_frame
+	await get_tree().process_frame
 	_load_session()
 
 func _load_session():
 	var cfg = ConfigFile.new()
 	if cfg.load("user://session.cfg") != OK:
-		register.visible   = false
-		registered.visible = false
 		return
-
 	var nick        = cfg.get_value("session", "nick", "")
 	var has_account = cfg.get_value("session", "has_account", false)
 	var email       = cfg.get_value("session", "email", "")
 
 	if has_account:
-		register.visible      = false
-		registered.visible    = true
+		register.visible   = false
+		registered.visible = true
 		regd_login_input.text = nick
 		regd_email_input.text = email
+		if email == "":
+			var ticket = cfg.get_value("session", "ticket", "")
+			if ticket != "":
+				_fetch_email_from_playfab(ticket)
 	else:
-		register.visible     = true
-		registered.visible   = false
+		register.visible   = true
+		registered.visible = false
 		reg_login_input.text = nick
+
+func _fetch_email_from_playfab(ticket: String) -> void:
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request("https://139617.playfabapi.com/Client/GetAccountInfo",
+		headers, HTTPClient.METHOD_POST, JSON.stringify({}))
+	var response = await http.request_completed
+	http.queue_free()
+	if response[1] != 200:
+		return
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK:
+		return
+	var parsed = json.get_data()
+	var email = parsed.get("data", {}).get("AccountInfo", {}).get("PrivateInfo", {}).get("Email", "")
+	if email != "":
+		regd_email_input.text = email
+		var cfg = ConfigFile.new()
+		cfg.load("user://session.cfg")
+		cfg.set_value("session", "email", email)
+		cfg.save("user://session.cfg")
 
 # ═══════════════════════════════════════════
 #  REGISTER

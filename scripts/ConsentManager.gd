@@ -56,8 +56,8 @@ func _on_form_dismissed(_error: FormError):
 	_start_ads()
 
 func _on_consent_error(error: FormError):
-	print("ConsentManager: błąd UMP: ", error.get_message())
-	_start_ads()  # błąd = nie blokuj reklam
+	print("ConsentManager: błąd UMP: ", error.message)
+	_start_ads()
 
 func _start_ads():
 	var admob = get_node_or_null("/root/AdMobManager")

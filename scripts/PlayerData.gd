@@ -90,17 +90,28 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	var equipped_str     = data.get("equipped_skin", {}).get("Value", "")
 
 	# Aktualizuj session.cfg danymi z PlayFab (PlayFab = źródło prawdy)
-	if gold_str   != "": cfg.set_value("session", "gold",          int(gold_str))
-	if score_str  != "": cfg.set_value("session", "score",         int(score_str))
-	if wins_str   != "": cfg.set_value("session", "wins",          int(wins_str))
-	if losses_str != "": cfg.set_value("session", "losses",        int(losses_str))
+	if gold_str != "": cfg.set_value("session", "gold", int(gold_str))
+	else: cfg.set_value("session", "gold", 20)
+		
+	if score_str  != "": cfg.set_value("session", "score",  int(score_str))
+	else: cfg.set_value("session", "score", 0)
+	
+	if wins_str   != "": cfg.set_value("session", "wins",   int(wins_str))
+	else: cfg.set_value("session", "wins", 0)
+
+	if losses_str != "": cfg.set_value("session", "losses", int(losses_str))
+	else: cfg.set_value("session", "losses", 0)
+
 	if level_str  != "": cfg.set_value("session", "current_level", int(level_str))
+	else: cfg.set_value("session", "current_level", 1)
 
 	# Skiny — PlayFab przechowuje jako "0,1,5" (indeksy posiadanych skinów)
 	if owned_skins_str != "":
-		cfg.set_value("session", "owned_skins", owned_skins_str)
+		if owned_skins_str.begins_with("["):
+			cfg.set_value("session", "owned_skins", "0")
+		else:
+			cfg.set_value("session", "owned_skins", owned_skins_str)
 	else:
-		# Nowy gracz — skin 0 zawsze odblokowany
 		if cfg.get_value("session", "owned_skins", "") == "":
 			cfg.set_value("session", "owned_skins", "0")
 
@@ -511,3 +522,20 @@ func _push_to_playfab(ticket: String, gold: int, score: int,
 		headers, HTTPClient.METHOD_POST, JSON.stringify(stat_body))
 	await http2.request_completed
 	http2.queue_free()
+	
+func add_gold(amount: int) -> void:
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	var gold = cfg.get_value("session", "gold", 0)
+	gold += amount
+	cfg.set_value("session", "gold", gold)
+	cfg.save("user://session.cfg")
+	# Zapisz też na PlayFab
+	var ticket = get_ticket()
+	if ticket != "":
+		var score = cfg.get_value("session", "score", 0)
+		var wins = cfg.get_value("session", "wins", 0)
+		var losses = cfg.get_value("session", "losses", 0)
+		var rating = _calc_rating(wins, losses, score)
+		var level = get_current_level()
+		_push_to_playfab(ticket, gold, score, wins, losses, rating, level)
