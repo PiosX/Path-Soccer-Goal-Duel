@@ -1,9 +1,7 @@
 extends Control
 
 # ————— WĘZŁY —————
-@onready var tex_red = $TextureRect_Red
-@onready var tex_blue = $TextureRect_Blue
-@onready var panel_line = $Panel_Line
+@onready var tex_bg = $TextureRect
 @onready var panel_vs = $Panel_VS
 @onready var ctrl1 = $Control_Player1
 @onready var ctrl2 = $Control_Player2
@@ -13,18 +11,10 @@ extends Control
 @onready var label_rank2 = $Control_Player2/VBoxContainer/Label_Rank2
 @onready var sound_intro = $AudioStreamPlayer_Intro
 
-const SCREEN_H = 1280.0
-
-# Ile sekund przed końcem animacji wjazdowej odpala się dźwięk.
-# Animacja trwa 0.7s. intro.mp3 = 4.05s.
-# Ustaw 0.0 żeby odpalał się dokładnie gdy tła się stykają,
-# wartość ujemna = wcześniej (np. -0.15 = 150ms przed zetknięciem).
-const INTRO_SOUND_OFFSET: float = -0.17
+const INTRO_SOUND_OFFSET: float = 0.1
 
 func _ready():
-	tex_red.position.y = -SCREEN_H
-	tex_blue.position.y = SCREEN_H + 432.0
-	panel_line.modulate.a = 0.0
+	tex_bg.modulate.a = 0.0
 	panel_vs.modulate.a = 0.0
 	panel_vs.scale = Vector2(0.0, 0.0)
 	ctrl1.modulate.a = 0.0
@@ -60,60 +50,50 @@ func _ready():
 	_run_intro()
 
 func _run_intro():
-	var slide_duration = 0.7
+	var fade_duration = 0.7
 
 	# Jeśli INTRO_SOUND_OFFSET < 0 — odpal dźwięk wcześniej, przed startem animacji
 	if INTRO_SOUND_OFFSET < 0.0 and sound_intro:
 		sound_intro.play()
 		await get_tree().create_timer(-INTRO_SOUND_OFFSET).timeout
 
-	# KROK 1 — tła wjeżdżają
+	# KROK 1 — tło fade in
 	var tween1 = create_tween()
-	tween1.set_parallel(true)
-	tween1.tween_property(tex_red,  "position:y", 0.0,   slide_duration)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween1.tween_property(tex_blue, "position:y", 432.0, slide_duration)\
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween1.tween_property(tex_bg, "modulate:a", 1.0, fade_duration)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
-	# Odpal dźwięk z offsetem względem momentu zetknięcia (INTRO_SOUND_OFFSET = 0 → dokładnie po zetknięciu)
 	if INTRO_SOUND_OFFSET >= 0.0:
 		tween1.tween_callback(func():
 			if sound_intro:
 				sound_intro.play()
-		).set_delay(slide_duration + INTRO_SOUND_OFFSET)
+		).set_delay(fade_duration + INTRO_SOUND_OFFSET)
 
 	await tween1.finished
 
-	# KROK 2 — linia
+	# KROK 2 — VS wyskakuje
 	var tween2 = create_tween()
-	tween2.tween_property(panel_line, "modulate:a", 1.0, 0.25)\
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween2.set_parallel(true)
+	tween2.tween_property(panel_vs, "modulate:a", 1.0, 0.2)
+	tween2.tween_property(panel_vs, "scale", Vector2(1.0, 1.0), 0.4)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await tween2.finished
 
-	# KROK 3 — VS wyskakuje
-	var tween3 = create_tween()
-	tween3.set_parallel(true)
-	tween3.tween_property(panel_vs, "modulate:a", 1.0, 0.2)
-	tween3.tween_property(panel_vs, "scale", Vector2(1.0, 1.0), 0.4)\
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	await tween3.finished
-
-	# KROK 4 — gracze wjeżdżają z boków
+	# KROK 3 — gracze wjeżdżają z boków
 	var p1_target_x = ctrl1.position.x
 	ctrl1.position.x = -400.0
 	var p2_target_x = ctrl2.position.x
 	ctrl2.position.x = 1200.0
 
-	var tween4 = create_tween()
-	tween4.set_parallel(true)
-	tween4.tween_property(ctrl1, "modulate:a", 1.0, 0.4)
-	tween4.tween_property(ctrl1, "position:x", p1_target_x, 0.4)\
+	var tween3 = create_tween()
+	tween3.set_parallel(true)
+	tween3.tween_property(ctrl1, "modulate:a", 1.0, 0.4)
+	tween3.tween_property(ctrl1, "position:x", p1_target_x, 0.4)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween4.tween_property(ctrl2, "modulate:a", 1.0, 0.4)
-	tween4.tween_property(ctrl2, "position:x", p2_target_x, 0.4)\
+	tween3.tween_property(ctrl2, "modulate:a", 1.0, 0.4)
+	tween3.tween_property(ctrl2, "position:x", p2_target_x, 0.4)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	await tween4.finished
+	await tween3.finished
 
-	# KROK 5 — pauza i przejście do gry
+	# KROK 4 — pauza i przejście do gry
 	await get_tree().create_timer(1.2).timeout
 	SceneTransition.go_to("res://scenes/game.tscn")

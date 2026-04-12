@@ -4,6 +4,7 @@ extends Node
 const PLAYFAB_URL = "https://139617.playfabapi.com"
 const PLAYFAB_TITLE_ID = "139617"
 const LEADERBOARD_NAME = "rating_score"
+var _my_moves_cache: Array = []
 
 # ————— TICKET W PAMIĘCI (aktualny, odświeżony) —————
 var _cached_ticket: String = ""
@@ -49,6 +50,13 @@ func refresh_session(cfg: ConfigFile) -> void:
 	if new_ticket != "":
 		_cached_ticket = new_ticket
 		cfg.set_value("session", "ticket", new_ticket)
+		# ← DODAJ entity_token
+		var entity_token = parsed.get("data", {}).get("EntityToken", {}).get("EntityToken", "")
+		var entity_id = parsed.get("data", {}).get("EntityToken", {}).get("Entity", {}).get("Id", "")
+		if entity_token != "":
+			cfg.set_value("session", "entity_token", entity_token)
+		if entity_id != "":
+			cfg.set_value("session", "entity_id", entity_id)
 		cfg.save("user://session.cfg")
 		await _fetch_and_sync_player_data(new_ticket, cfg)
 	else:
@@ -90,6 +98,8 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	var equipped_str     = data.get("equipped_skin", {}).get("Value", "")
 
 	# Aktualizuj session.cfg danymi z PlayFab (PlayFab = źródło prawdy)
+	# Jeśli gold nie istnieje w PlayFab — nowe konto, zainicjalizuj dane
+	var is_new_account = (gold_str == "")
 	if gold_str != "": cfg.set_value("session", "gold", int(gold_str))
 	else: cfg.set_value("session", "gold", 20)
 		
@@ -123,9 +133,37 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 
 	cfg.save("user://session.cfg")
 
+	# Nowe konto — wyślij domyślne dane do PlayFab
+	if is_new_account and ticket != "":
+		await _init_default_player_data(ticket)
+
 # ——————————————————————————————————————————
 #  POBIERZ AKTUALNY TICKET
 # ——————————————————————————————————————————
+func _init_default_player_data(ticket: String) -> void:
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var body = {
+		"Data": {
+			"gold":          "20",
+			"score":         "0",
+			"wins":          "0",
+			"losses":        "0",
+			"current_level": "1",
+			"owned_skins":   "0",
+			"equipped_skin": "0"
+		}
+	}
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
+		headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	await http.request_completed
+	http.queue_free()
+
 func get_ticket() -> String:
 	if _cached_ticket != "":
 		return _cached_ticket
@@ -246,14 +284,26 @@ func launch_online_duel() -> void:
 #  MATCHMAKING
 # ——————————————————————————————————————————
 func start_matchmaking() -> bool:
-	var ticket = get_ticket()
-	if ticket == "":
+	var entity_token = get_entity_token()
+	print("=== entity_token: '", entity_token, "'")
+	
+	# Brak tokenu — spróbuj odświeżyć sesję
+	if entity_token == "":
+		print("=== brak entity_token, odświeżam sesję...")
+		var cfg = ConfigFile.new()
+		if cfg.load("user://session.cfg") == OK:
+			await refresh_session(cfg)
+			entity_token = get_entity_token()
+			print("=== entity_token po refresh: '", entity_token, "'")
+	
+	if entity_token == "":
 		return false
+	
 	_matchmaking_active = true
 	_matchmaking_ticket_id = ""
 	online_opponent_name = ""
 	online_opponent_rank = ""
-	_create_matchmaking_ticket(ticket)
+	_create_matchmaking_ticket(entity_token)
 	return true
 
 func stop_matchmaking() -> void:
@@ -269,22 +319,33 @@ func _create_matchmaking_ticket(ticket: String) -> void:
 	var headers = [
 		"Content-Type: application/json",
 		"Accept-Encoding: identity",
-		"X-Authorization: " + ticket
+		"X-EntityToken: " + ticket
 	]
+	var entity_id = get_entity_id()
+	var cfg2 = ConfigFile.new()
+	cfg2.load("user://session.cfg")
+	var my_playfab_id = cfg2.get_value("session", "playfab_id", "")
+
 	var body = {
 		"Creator": {
-			"Entity": { "Type": "title_player_account" },
-			"Attributes": { "DataObject": { "nick": nick, "rank": my_rank } }
+			"Entity": { "Type": "title_player_account", "Id": entity_id },
+			"Attributes": { "DataObject": { 
+				"nick": nick, 
+				"rank": my_rank,
+				"playfab_id": my_playfab_id  # ← DODAJ
+			}}
 		},
 		"GiveUpAfterSeconds": int(MATCHMAKING_TIMEOUT),
 		"QueueName": MATCHMAKING_QUEUE
 	}
 	var http = HTTPRequest.new()
 	add_child(http)
+	print("=== matchmaking body: ", JSON.stringify(body))
 	http.request(PLAYFAB_URL + "/Match/CreateMatchmakingTicket",
 		headers, HTTPClient.METHOD_POST, JSON.stringify(body))
 	var response = await http.request_completed
 	http.queue_free()
+	print("=== matchmaking response: ", response[3].get_string_from_utf8())
 
 	if not _matchmaking_active:
 		return
@@ -312,23 +373,29 @@ func _create_matchmaking_ticket(ticket: String) -> void:
 func _poll_matchmaking(auth_ticket: String) -> void:
 	var elapsed = 0.0
 	while _matchmaking_active and _matchmaking_ticket_id != "":
-		await get_tree().create_timer(3.0).timeout
+		await get_tree().create_timer(6.0).timeout
 		if not _matchmaking_active: return
 		elapsed += 3.0
 		var headers = [
 			"Content-Type: application/json",
 			"Accept-Encoding: identity",
-			"X-Authorization: " + auth_ticket
+			"X-EntityToken: " + auth_ticket
 		]
 		var http = HTTPRequest.new()
 		add_child(http)
 		http.request(
-			PLAYFAB_URL + "/Match/GetMatchmakingTicket?TicketId=" + _matchmaking_ticket_id + "&QueueName=" + MATCHMAKING_QUEUE,
-			headers, HTTPClient.METHOD_GET, "")
+			PLAYFAB_URL + "/Match/GetMatchmakingTicket",
+			headers, HTTPClient.METHOD_POST,
+			JSON.stringify({
+				"TicketId": _matchmaking_ticket_id,
+				"QueueName": MATCHMAKING_QUEUE
+			}))
 		var response = await http.request_completed
 		http.queue_free()
 		if not _matchmaking_active: return
 		if response[1] != 200:
+			print("=== poll błąd HTTP: ", response[1])
+			print("=== body: ", response[3].get_string_from_utf8())
 			if elapsed >= MATCHMAKING_TIMEOUT:
 				_matchmaking_active = false
 				matchmaking_timeout.emit()
@@ -337,17 +404,43 @@ func _poll_matchmaking(auth_ticket: String) -> void:
 		if json.parse(response[3].get_string_from_utf8()) != OK: continue
 		var data = json.get_data().get("data", {})
 		var status = data.get("Status", "")
+		print("=== matchmaking status: ", status)
+		print("=== full data: ", data)
 		if status == "Matched":
-			var members = data.get("Members", [])
-			var cfg = ConfigFile.new()
-			cfg.load("user://session.cfg")
-			var my_id = cfg.get_value("session", "playfab_id", "")
-			for member in members:
-				if member.get("Entity", {}).get("Id", "") != my_id:
-					var attrs = member.get("Attributes", {}).get("DataObject", {})
-					online_opponent_name = attrs.get("nick", "Rival")
-					online_opponent_rank = attrs.get("rank", "#0")
-					break
+			var match_id = data.get("MatchId", "")
+			print("=== MatchId: ", match_id)
+			# Pobierz szczegóły meczu
+			var match_http = HTTPRequest.new()
+			add_child(match_http)
+			match_http.request(
+				PLAYFAB_URL + "/Match/GetMatch",
+				headers, HTTPClient.METHOD_POST,
+				JSON.stringify({
+					"MatchId": match_id,
+					"QueueName": MATCHMAKING_QUEUE,
+					"ReturnMemberAttributes": true
+				}))
+			var match_response = await match_http.request_completed
+			match_http.queue_free()
+			print("=== GetMatch response: ", match_response[3].get_string_from_utf8())
+			var match_json = JSON.new()
+			if match_json.parse(match_response[3].get_string_from_utf8()) == OK:
+				var match_data = match_json.get_data().get("data", {})
+				var match_members = match_data.get("Members", [])
+				var my_id_cfg = ConfigFile.new()
+				my_id_cfg.load("user://session.cfg")
+				var my_entity_id = my_id_cfg.get_value("session", "entity_id", "")
+				for member in match_members:
+					var member_id = member.get("Entity", {}).get("Id", "")
+					if member_id != my_entity_id:
+						var attrs = member.get("Attributes", {}).get("DataObject", {})
+						online_opponent_name = attrs.get("nick", "Rival")
+						online_opponent_rank = attrs.get("rank", "#0")
+						var opponent_playfab_id = attrs.get("playfab_id", "")
+						my_id_cfg.set_value("session", "opponent_playfab_id", opponent_playfab_id)
+						my_id_cfg.save("user://session.cfg")
+						online_match_id = match_id
+						break
 			_matchmaking_active = false
 			matchmaking_found.emit()
 			return
@@ -539,3 +632,192 @@ func add_gold(amount: int) -> void:
 		var rating = _calc_rating(wins, losses, score)
 		var level = get_current_level()
 		_push_to_playfab(ticket, gold, score, wins, losses, rating, level)
+
+func get_entity_token() -> String:
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") == OK:
+		var token = cfg.get_value("session", "entity_token", "")
+		print("=== get_entity_token: '", token.substr(0, 20), "...'")
+		return token
+	return ""
+
+func get_entity_id() -> String:
+	var cfg = ConfigFile.new()
+	if cfg.load("user://session.cfg") == OK:
+		return cfg.get_value("session", "entity_id", "")
+	return ""
+
+# ══════════════════════════════════════════
+#  ONLINE GAME SYNC
+# ══════════════════════════════════════════
+
+var online_match_id: String = ""
+var online_move_index: int = 0  # ile ruchów już zaaplikowałem od przeciwnika
+
+func _get_my_move_key() -> String:
+	var role = "p1" if player1_is_me else "p2"
+	return "m" + online_match_id.replace("-", "").left(16) + "_" + role
+
+func _get_opponent_move_key() -> String:
+	var role = "p2" if player1_is_me else "p1"
+	return "m" + online_match_id.replace("-", "").left(16) + "_" + role
+
+func push_online_move(from: Vector2i, to: Vector2i) -> void:
+	var ticket = get_ticket()
+	if ticket == "" or online_match_id == "": return
+	var key = _get_my_move_key()
+	print("=== push_online_move key: ", key, " from: ", from, " to: ", to)
+	
+	_my_moves_cache.append({
+		"fx": from.x, "fy": from.y,
+		"tx": to.x, "ty": to.y
+	})
+	
+	# Trzymaj tylko ostatnie 50 ruchów
+	if _my_moves_cache.size() > 50:
+		_my_moves_cache = _my_moves_cache.slice(_my_moves_cache.size() - 50)
+	
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"Data": {key: JSON.stringify(_my_moves_cache)}, "Permission": "Public"}))
+	await http.request_completed
+	http.queue_free()
+
+func _get_my_moves() -> Array:
+	var ticket = get_ticket()
+	if ticket == "": return []
+	var key = _get_my_move_key()
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/GetUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"Keys": [key]}))
+	var response = await http.request_completed
+	http.queue_free()
+	if response[1] != 200: return []
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK: return []
+	var val = json.get_data().get("data", {}).get("Data", {}).get(key, {}).get("Value", "")
+	if val == "": return []
+	var json2 = JSON.new()
+	if json2.parse(val) != OK: return []
+	return json2.get_data()
+
+func poll_opponent_moves() -> Array:
+	var ticket = get_ticket()
+	if ticket == "" or online_match_id == "": return []
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	var opponent_id = cfg.get_value("session", "opponent_playfab_id", "")
+	if opponent_id == "": return []
+	var key = _get_opponent_move_key()
+	print("=== polling opponent key: ", key, " opponent_id: ", opponent_id)
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	# Prawidłowy endpoint do pobierania publicznych danych innego gracza
+	http.request(PLAYFAB_URL + "/Client/GetUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({
+			"PlayFabId": opponent_id,
+			"Keys": [key]
+		}))
+	var response = await http.request_completed
+	http.queue_free()
+	print("=== poll response: ", response[1], " body: ", response[3].get_string_from_utf8().left(200))
+	if response[1] != 200: return []
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK: return []
+	var val = json.get_data().get("data", {}).get("Data", {}).get(key, {}).get("Value", "")
+	if val == "": return []
+	var json2 = JSON.new()
+	if json2.parse(val) != OK: return []
+	var all_moves: Array = json2.get_data()
+	if online_move_index > all_moves.size():
+		online_move_index = all_moves.size()
+		return []
+	var new_moves = all_moves.slice(online_move_index)
+	online_move_index = all_moves.size()
+	return new_moves
+
+func reset_online_game(match_id: String) -> void:
+	online_match_id = match_id
+	online_move_index = 0
+	_my_moves_cache = []
+	# Nie czyść natychmiast — zamiast tego zapisz pusty array tylko raz
+	# żeby przeciwnik wiedział że jesteś gotowy
+	var ticket = get_ticket()
+	if ticket == "": return
+	var key = _get_my_move_key()
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"Data": {key: "[]"}, "Permission": "Public"}))
+	await http.request_completed
+	http.queue_free()
+	print("=== reset_online_game done, key: ", key)
+
+func push_forfeit() -> void:
+	var ticket = get_ticket()
+	if ticket == "" or online_match_id == "": return
+	var key = _get_my_move_key() + "_quit"
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"Data": {key: "1"}, "Permission": "Public"}))
+	await http.request_completed
+	http.queue_free()
+
+func poll_opponent_forfeit() -> bool:
+	var ticket = get_ticket()
+	if ticket == "" or online_match_id == "": return false
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	var opponent_id = cfg.get_value("session", "opponent_playfab_id", "")
+	if opponent_id == "": return false
+	var key = _get_opponent_move_key() + "_quit"
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/GetUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"PlayFabId": opponent_id, "Keys": [key]}))
+	var response = await http.request_completed
+	http.queue_free()
+	if response[1] != 200: return false
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK: return false
+	var val = json.get_data().get("data", {}).get("Data", {}).get(key, {}).get("Value", "")
+	return val == "1"

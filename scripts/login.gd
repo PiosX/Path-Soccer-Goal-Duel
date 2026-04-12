@@ -240,7 +240,9 @@ func _on_texture_button_play_pressed():
 	if newly_created:
 		await _init_player_data(session_ticket)
 
-	_save_session(result.get("PlayFabId", ""), session_ticket, nick, false)
+	var entity_token = result.get("EntityToken", {}).get("EntityToken", "")
+	var entity_id = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
+	_save_session(result.get("PlayFabId", ""), session_ticket, nick, false, "", entity_token, entity_id)
 	_set_busy(false)
 	SceneTransition.go_to("res://scenes/play.tscn")
 
@@ -279,7 +281,9 @@ func _on_texture_button_login_login_pressed():
 
 	var session_ticket = result.get("SessionTicket", "")
 	var nick = login_input.text.strip_edges()
-	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true)
+	var entity_token = result.get("EntityToken", {}).get("EntityToken", "")
+	var entity_id = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
+	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, nick, entity_token, entity_id)
 
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
@@ -414,7 +418,7 @@ func _init_player_data(session_ticket: String):
 #  LOKALNY ZAPIS SESJI
 # ═══════════════════════════════════════════
 
-func _save_session(playfab_id: String, ticket: String, nick: String, has_account: bool, email: String = ""):
+func _save_session(playfab_id: String, ticket: String, nick: String, has_account: bool, email: String = "", entity_token: String = "", entity_id: String = ""):
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
 	cfg.set_value("session", "playfab_id",  playfab_id)
@@ -424,6 +428,10 @@ func _save_session(playfab_id: String, ticket: String, nick: String, has_account
 	cfg.set_value("session", "device_id",   OS.get_unique_id())
 	if email != "":
 		cfg.set_value("session", "email", email)
+	if entity_token != "":
+		cfg.set_value("session", "entity_token", entity_token)
+	if entity_id != "":
+		cfg.set_value("session", "entity_id", entity_id)
 	if not cfg.has_section_key("session", "gold"):
 		cfg.set_value("session", "gold", 20)
 	cfg.save("user://session.cfg")

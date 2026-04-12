@@ -150,7 +150,7 @@ func _process(delta):
 		if _queue_poll_timer >= QUEUE_POLL_INTERVAL:
 			_queue_poll_timer = 0.0
 			_fetch_queue_count()
-		label_searching.text = "Players in queue: %d" % queue_count
+		label_searching.text = "Take on real opponents"
 
 # ————— STRZAŁKI PANELI —————
 
@@ -324,7 +324,7 @@ func _on_find_game_pressed():
 	PlayerData.matchmaking_found.connect(_on_match_found, CONNECT_ONE_SHOT)
 	PlayerData.matchmaking_timeout.connect(_on_match_timeout, CONNECT_ONE_SHOT)
 
-	var ok = PlayerData.start_matchmaking()
+	var ok = await PlayerData.start_matchmaking()
 	if not ok:
 		await get_tree().create_timer(1.0).timeout
 		_on_match_timeout()

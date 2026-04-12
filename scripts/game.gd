@@ -36,7 +36,14 @@ func _update_ui():
 		# Losuj kto jest Player1 (niebieski, zaczyna) — 50/50
 		# Zapisz wynik w PlayerData żeby board i match_intro mogły go użyć
 		if not PlayerData.player1_decided:
-			PlayerData.player1_is_me = (randi() % 2 == 0)
+			if PlayerData.online_mode and PlayerData.online_opponent_name != "":
+				# Deterministycznie — mniejsze PlayFabId = Player1
+				cfg.load("user://session.cfg")
+				var my_id = cfg.get_value("session", "playfab_id", "")
+				var opp_id = cfg.get_value("session", "opponent_playfab_id", "")
+				PlayerData.player1_is_me = (my_id < opp_id)
+			else:
+				PlayerData.player1_is_me = (randi() % 2 == 0)
 			PlayerData.player1_decided = true
 
 		var me_is_p1 = PlayerData.player1_is_me

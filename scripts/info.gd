@@ -133,13 +133,18 @@ func _on_texture_button_register_pressed():
 	var nick   = cfg.get_value("session", "nick", "")
 
 	var body = {
+		"TitleId":  PLAYFAB_TITLE_ID,
 		"Email":    email,
 		"Password": passw,
 		"Username": nick
 	}
 
-	var result = await _playfab_post_auth("/Client/AddUsernamePassword", body, ticket)
-	if result == null:
+	var result     = await _playfab_post_auth_full("/Client/AddUsernamePassword", body, ticket)
+	var data       = result.get("data", null)
+	var error_code = result.get("errorCode", 0)
+
+	# 1011 = AccountAlreadyLinked
+	if data == null and error_code != 1011:
 		_show_error(reg_label_error, "Email already in use or connection error.")
 		_set_busy(false)
 		return
@@ -214,6 +219,11 @@ func _on_texture_button_delete_pressed():
 # ═══════════════════════════════════════════
 
 func _playfab_post_auth(endpoint: String, body: Dictionary, ticket: String):
+	var r = await _playfab_post_auth_full(endpoint, body, ticket)
+	return r.get("data", null)
+
+# Zwraca słownik z kluczami "data" (lub null) i "errorCode"
+func _playfab_post_auth_full(endpoint: String, body: Dictionary, ticket: String) -> Dictionary:
 	var url = PLAYFAB_URL + endpoint
 	var headers = [
 		"Content-Type: application/json",
@@ -227,19 +237,19 @@ func _playfab_post_auth(endpoint: String, body: Dictionary, ticket: String):
 	http.queue_free()
 
 	var status_code = response[1]
-	var body_raw    = response[3]
-	if status_code != 200:
-		return null
+	var body_str    = response[3].get_string_from_utf8()
 
 	var json = JSON.new()
-	if json.parse(body_raw.get_string_from_utf8()) != OK:
-		return null
+	if json.parse(body_str) != OK:
+		return { "data": null, "errorCode": 0 }
 
 	var parsed = json.get_data()
-	if parsed.get("code", 0) != 200:
-		return null
+	var error_code = parsed.get("errorCode", 0)
 
-	return parsed.get("data", null)
+	if status_code != 200 or parsed.get("code", 0) != 200:
+		return { "data": null, "errorCode": error_code }
+
+	return { "data": parsed.get("data", null), "errorCode": 0 }
 
 # ═══════════════════════════════════════════
 #  UI HELPERS

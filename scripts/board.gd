@@ -64,6 +64,7 @@ var move_history: Array = []       # [{from, to, edge_key, player, line_node}]
 var score: int = 0                 # aktualny wynik gracza
 var combo_count: int = 0           # ile ruchów z rzędu w tej turze
 var combo_label: Label = null      # etykieta COMBO nad piłką
+var _applying_opponent_move: bool = false
 
 # ————— TRYB GRY —————
 var VS_AI: bool = true
@@ -328,15 +329,12 @@ func is_wall_edge(a: Vector2i, b: Vector2i) -> bool:
 			# Ruch wzdłuż lewej ściany boiska
 			if a.x == 0:
 				var mn = mini(a.y, b.y); var mx = maxi(a.y, b.y)
-				var in_blue = (GOAL_COL_START_BLUE == 0 and mn >= GOAL_COL_START_BLUE and mx <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE + 1)
-				var in_red  = (GOAL_COL_START_RED  == 0 and mn >= GOAL_COL_START_RED  and mx <= GOAL_COL_START_RED  + GOAL_COLS_RED  + 1)
-				if not in_blue and not in_red: return true
+				# Bramka przy lewej ścianie pionowej nie istnieje — zawsze blokuj
+				# (bramki są tylko na y=0 i y=ROWS w orientacji pionowej)
+				return true
 			# Ruch wzdłuż prawej ściany boiska
 			elif a.x == COLS:
-				var mn = mini(a.y, b.y); var mx = maxi(a.y, b.y)
-				var in_blue = (GOAL_COL_START_BLUE + GOAL_COLS_BLUE == COLS and mn >= GOAL_COL_START_BLUE and mx <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE + 1)
-				var in_red  = (GOAL_COL_START_RED  + GOAL_COLS_RED  == COLS and mn >= GOAL_COL_START_RED  and mx <= GOAL_COL_START_RED  + GOAL_COLS_RED  + 1)
-				if not in_blue and not in_red: return true
+				return true
 			# Ruch wzdłuż granicy obstacle (nie na ścianie)
 			else:
 				var lft_t = _cell_is_wall(mini(a.y, b.y),     a.x - 1)
@@ -453,6 +451,8 @@ func _ready():
 		level_data = {}
 		VS_AI = (PlayerData.online_opponent_name == "")
 		_ai_is_player1 = VS_AI and not PlayerData.player1_is_me
+		PlayerData.reset_online_game(PlayerData.online_match_id)
+		_start_opponent_polling()
 	elif level_data.is_empty() and not PlayerData.current_level_data.is_empty():
 		level_data = PlayerData.current_level_data
 		VS_AI = PlayerData.vs_ai
@@ -1042,7 +1042,8 @@ func _try_move(local_pos: Vector2):
 func _do_move(target: Vector2i):
 	var from = ball_grid_pos
 	var ek = edge_key(from, target)
-
+	if PlayerData.online_mode and not _applying_opponent_move:
+		PlayerData.push_online_move(from, target)
 	# Zablokuj krawędź
 	used_edges[ek] = true
 
@@ -2639,3 +2640,38 @@ func _is_teleport_node_c(gx: int, gy: int) -> bool:
 	for n in teleport_c_nodes:
 		if n.x == gx and n.y == gy: return true
 	return false
+
+func _start_opponent_polling():
+	var forfeit_check_counter = 0
+	while PlayerData.online_mode and not _game_ended:
+		await get_tree().create_timer(0.8).timeout
+		if _game_ended or not PlayerData.online_mode: return
+		
+		# Sprawdź forfeit co 5 iteracji (co ~4 sekundy)
+		forfeit_check_counter += 1
+		if forfeit_check_counter >= 5:
+			forfeit_check_counter = 0
+			var forfeited = await PlayerData.poll_opponent_forfeit()
+			if forfeited and not _game_ended:
+				print("=== przeciwnik wyszedł — wygrana!")
+				_show_popup_win()
+				return
+		
+		if _is_my_turn(): continue
+		var new_moves = await PlayerData.poll_opponent_moves()
+		for move_data in new_moves:
+			if _game_ended: return
+			var from = Vector2i(int(move_data["fx"]), int(move_data["fy"]))
+			var to   = Vector2i(int(move_data["tx"]), int(move_data["ty"]))
+			print("=== aplikuję ruch przeciwnika: ", from, "->", to, " piłka na: ", ball_grid_pos)
+			if ball_grid_pos == from:
+				_apply_opponent_move(from, to)
+				await get_tree().create_timer(0.3).timeout
+			else:
+				print("=== desync! ignoruję")
+
+func _apply_opponent_move(from: Vector2i, to: Vector2i):
+	if ball_grid_pos != from: return
+	_applying_opponent_move = true
+	_do_move(to)
+	_applying_opponent_move = false

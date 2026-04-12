@@ -74,6 +74,10 @@ func _on_music_mouse_exited():  _scale_button(btn_music, 1.0)
 func _on_shop_pressed():
 	sound_click.play()
 	await sound_click.finished
+	if PlayerData.online_mode:
+		await PlayerData.push_forfeit()
+		PlayerData.save_game_result(false, 0, 0, false)
+		PlayerData.online_mode = false
 	SceneTransition.go_to("res://scenes/shop.tscn")
 func _on_shop_mouse_entered(): _scale_button(btn_shop, 0.9)
 func _on_shop_mouse_exited():  _scale_button(btn_shop, 1.0)
@@ -96,6 +100,7 @@ func _on_leave_pressed():
 	sound_click.play()
 	await sound_click.finished
 	if PlayerData.online_mode:
+		await PlayerData.push_forfeit()
 		PlayerData.save_game_result(false, 0, 0, false)
 		PlayerData.online_mode = false
 	SceneTransition.go_to("res://scenes/play.tscn")

@@ -1,13 +1,9 @@
 [gd_scene format=3 uid="uid://br4ktlwxwvm74"]
 
 [ext_resource type="Script" uid="uid://7t8chrxs1xim" path="res://scripts/match_intro.gd" id="1_gjy6u"]
-[ext_resource type="Texture2D" uid="uid://dgkh5jyrs6vie" path="res://ui/common/im-red.png" id="1_ugvww"]
-[ext_resource type="Texture2D" uid="uid://dxk3i6uq6beeb" path="res://ui/common/im-blue.png" id="2_6pml4"]
+[ext_resource type="Texture2D" uid="uid://160rjs81c6ej" path="res://ui/common/bg-intro.png" id="2_6pml4"]
 [ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="3_rd7p5"]
 [ext_resource type="AudioStream" uid="uid://c86e0rdlam4mm" path="res://sounds/intro.mp3" id="5_rd7p5"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xop33"]
-bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q1ab2"]
 bg_color = Color(1, 1, 1, 1)
@@ -27,38 +23,14 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gjy6u")
 
-[node name="TextureRect_Red" type="TextureRect" parent="Control" unique_id=1927525499]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-texture = ExtResource("1_ugvww")
-
-[node name="TextureRect_Blue" type="TextureRect" parent="Control" unique_id=498326219]
+[node name="TextureRect" type="TextureRect" parent="Control" unique_id=1927525499]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -360.0
-offset_top = -848.0
-offset_right = 360.0
 grow_horizontal = 2
-grow_vertical = 0
+grow_vertical = 2
 texture = ExtResource("2_6pml4")
-
-[node name="Panel_Line" type="Panel" parent="Control" unique_id=615785943]
-custom_minimum_size = Vector2(2000, 20)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -1090.0
-offset_right = 910.0
-offset_bottom = 20.0
-grow_horizontal = 2
-rotation = 0.523599
-theme_override_styles/panel = SubResource("StyleBoxFlat_xop33")
 
 [node name="Panel_VS" type="Panel" parent="Control" unique_id=139819074]
 layout_mode = 1
@@ -165,3 +137,4 @@ horizontal_alignment = 2
 
 [node name="AudioStreamPlayer_Intro" type="AudioStreamPlayer" parent="Control" unique_id=1433053124]
 stream = ExtResource("5_rd7p5")
+bus = &"Sound"
