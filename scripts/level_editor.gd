@@ -45,6 +45,7 @@ var last_cell: Vector2i = Vector2i(-1,-1)
 
 var orientation: String = "vertical"
 var gen_obstacles: bool = false
+var goal_switch_interval: int = 0  # 0 = wyłączone, >0 = co ile ruchów
 var current_level_id: int = 1
 
 var root_control: Control
@@ -57,6 +58,8 @@ var status_label: Label
 var btn_modes: Array = []
 var btn_orient_v: Button
 var btn_orient_h: Button
+var goal_switch_spin: SpinBox
+var goal_switch_cb: CheckBox
 
 # ══════════════════════════════════════════════════════════════════
 func _ready():
@@ -404,7 +407,8 @@ func _save_level():
 	var data = {
 		"id": id, "cols": cols, "rows": rows,
 		"orientation": orientation, "grid": [],
-		"teleport_a": tp_a_data, "teleport_b": tp_b_data, "teleport_c": tp_c_data
+		"teleport_a": tp_a_data, "teleport_b": tp_b_data, "teleport_c": tp_c_data,
+		"goal_switch_interval": goal_switch_interval
 	}
 	for row in grid:
 		data["grid"].append(row.duplicate())
@@ -454,6 +458,9 @@ func _load_level():
 	teleport_nodes_c = []
 	for t in parsed.get("teleport_c", []):
 		teleport_nodes_c.append(Vector2i(int(t.get("gx",0)), int(t.get("gy",0))))
+	goal_switch_interval = int(parsed.get("goal_switch_interval", 0))
+	goal_switch_spin.set_value_no_signal(maxi(goal_switch_interval, 1))
+	goal_switch_cb.set_pressed_no_signal(goal_switch_interval > 0)
 	cols_spin.set_value_no_signal(cols)
 	rows_spin.set_value_no_signal(rows)
 	_update_orient_buttons()
@@ -576,6 +583,24 @@ func _build_ui():
 		vbox.add_child(btn)
 		btn_modes.append(btn)
 	_update_mode_buttons()
+
+	_add_separator(vbox)
+	_add_label(vbox, "Zmiana polow:", 13)
+	goal_switch_cb = _make_checkbox("Wlacz zmiane polow", goal_switch_interval > 0, func(v):
+		if v:
+			goal_switch_interval = int(goal_switch_spin.value) if goal_switch_interval == 0 else goal_switch_interval
+		else:
+			goal_switch_interval = 0
+	)
+	vbox.add_child(goal_switch_cb)
+	_add_label(vbox, "Co ile ruchow:", 12, Color(0.7, 0.7, 0.7))
+	goal_switch_spin = _make_spinbox(1, 30, 5)
+	goal_switch_spin.custom_minimum_size = Vector2(0, 32)
+	goal_switch_spin.value_changed.connect(func(v):
+		if goal_switch_cb.button_pressed:
+			goal_switch_interval = int(v)
+	)
+	vbox.add_child(goal_switch_spin)
 
 	_add_separator(vbox)
 	_add_label(vbox, "Generator losowy:", 13)

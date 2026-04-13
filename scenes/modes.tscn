@@ -199,7 +199,6 @@ mouse_filter = 2
 script = ExtResource("7_jf2v4")
 
 [node name="Control_Main" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=1496968861]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1275,6 +1274,1030 @@ theme_override_fonts/font = ExtResource("9_r2yq1")
 theme_override_font_sizes/font_size = 62
 text = "40"
 
+[node name="GridContainer_Page3" type="GridContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=445502917]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -278.0
+offset_top = -295.0
+offset_right = 278.0
+offset_bottom = 167.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 5
+
+[node name="Lvl41" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=38400141]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("15_o0tdl")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl41" unique_id=444048596]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.0352941, 0.541176, 0.933333, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "41"
+
+[node name="Lvl42" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1566433788]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("16_0x07n")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl42" unique_id=3324284]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.427451, 0.764706, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "42"
+
+[node name="Lvl43" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=689490231]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl43" unique_id=569072663]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "43"
+
+[node name="Lvl44" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1651719604]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl44" unique_id=1445180608]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "44"
+
+[node name="Lvl45" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=793664305]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl45" unique_id=1292077062]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "45"
+
+[node name="Lvl46" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=2007837208]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl46" unique_id=1975595686]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "46"
+
+[node name="Lvl47" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=2007506545]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl47" unique_id=1378108795]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "47"
+
+[node name="Lvl48" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=371728994]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl48" unique_id=655986260]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "48"
+
+[node name="Lvl49" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=49069177]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl49" unique_id=1961138347]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "49"
+
+[node name="Lvl50" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1894298601]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl50" unique_id=1706487148]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "50"
+
+[node name="Lvl51" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1543898863]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl51" unique_id=2073081542]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "51"
+
+[node name="Lvl52" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1132819122]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl52" unique_id=1449138322]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "52"
+
+[node name="Lvl53" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=689329955]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl53" unique_id=40981436]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "53"
+
+[node name="Lvl54" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=949909270]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl54" unique_id=2117702388]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "54"
+
+[node name="Lvl55" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1069826630]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl55" unique_id=463337052]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "55"
+
+[node name="Lvl56" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=1895357753]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl56" unique_id=383946723]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "56"
+
+[node name="Lvl57" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=814978780]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl57" unique_id=127969010]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "57"
+
+[node name="Lvl58" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=2117428469]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl58" unique_id=647508020]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "58"
+
+[node name="Lvl59" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=2030523729]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl59" unique_id=598796532]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "59"
+
+[node name="Lvl60" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3" unique_id=366218459]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page3/Lvl60" unique_id=73637824]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "60"
+
+[node name="GridContainer_Page4" type="GridContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=156475027]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -278.0
+offset_top = -295.0
+offset_right = 278.0
+offset_bottom = 167.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 5
+
+[node name="Lvl61" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=671491281]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("15_o0tdl")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl61" unique_id=1434539040]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.0352941, 0.541176, 0.933333, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "61"
+
+[node name="Lvl62" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=2067921453]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("16_0x07n")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl62" unique_id=775696389]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.427451, 0.764706, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "62"
+
+[node name="Lvl63" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=968310538]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl63" unique_id=1329948105]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "63"
+
+[node name="Lvl64" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=326268370]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl64" unique_id=1838672598]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "64"
+
+[node name="Lvl65" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=966286044]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl65" unique_id=370055785]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "65"
+
+[node name="Lvl66" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1070649564]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl66" unique_id=1548464050]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "66"
+
+[node name="Lvl67" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=124221946]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl67" unique_id=1611663708]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "67"
+
+[node name="Lvl68" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1573011329]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl68" unique_id=913613293]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "68"
+
+[node name="Lvl69" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1338789716]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl69" unique_id=1056891773]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "69"
+
+[node name="Lvl70" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=2046412426]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl70" unique_id=441069469]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "70"
+
+[node name="Lvl71" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=5944560]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl71" unique_id=1270016604]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "71"
+
+[node name="Lvl72" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1371845984]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl72" unique_id=1933669009]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "72"
+
+[node name="Lvl73" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=903312172]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl73" unique_id=1384953587]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "73"
+
+[node name="Lvl74" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1329681980]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl74" unique_id=1371663246]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "74"
+
+[node name="Lvl75" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=993460197]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl75" unique_id=1292010642]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "75"
+
+[node name="Lvl76" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=877683308]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl76" unique_id=1231106844]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "76"
+
+[node name="Lvl77" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1176452815]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl77" unique_id=634178302]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "77"
+
+[node name="Lvl78" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=387920666]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl78" unique_id=883094856]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "78"
+
+[node name="Lvl79" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=1037429462]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl79" unique_id=69922176]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "79"
+
+[node name="Lvl80" type="TextureButton" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4" unique_id=498113024]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("17_xgm05")
+
+[node name="Label" type="Label" parent="MarginContainer/Control/Control_Modes/Control_Main/GridContainer_Page4/Lvl80" unique_id=741318054]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.5
+offset_top = -39.5
+offset_right = 5.5
+offset_bottom = 23.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.498039, 0.498039, 0.498039, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_r2yq1")
+theme_override_font_sizes/font_size = 62
+text = "80"
+
 [node name="HBoxContainer_Nav2" type="HBoxContainer" parent="MarginContainer/Control/Control_Modes/Control_Main" unique_id=774234035]
 layout_mode = 1
 anchors_preset = 8
@@ -1301,6 +2324,7 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("17_xglpk")
 
 [node name="Control_Online" type="Control" parent="MarginContainer/Control/Control_Modes" unique_id=218878556]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

@@ -75,6 +75,11 @@ var ai_thinking: bool = false
 var _game_ended: bool = false
 var _popup_open: bool = false
 
+# ————— ZMIANA POŁÓW —————
+var _goal_switch_interval: int = 0  # 0 = wyłączone
+var _goal_switch_counter: int = 0   # licznik ruchów od ostatniej zmiany
+var _goals_swapped: bool = false    # czy bramki są aktualnie zamienione
+
 func _is_my_turn() -> bool:
 	# W trybie VS AI lub kampanii — zawsze tura gracza (AI jest blokowane przez ai_thinking)
 	if not PlayerData.online_mode:
@@ -657,6 +662,10 @@ func _apply_level_data():
 
 func _setup_game():
 	_kill_all_tweens()
+	# Wczytaj parametr zmiany połów
+	_goal_switch_interval = int(level_data.get("goal_switch_interval", 0))
+	_goal_switch_counter = 0
+	_goals_swapped = false
 	# ScrollContainer już znaleziony w _ready / _reload_board
 	if not _scroll_container:
 		_scroll_container = _find_scroll_parent()
@@ -1072,6 +1081,9 @@ func _do_move(target: Vector2i):
 	# Zapisz historię
 	move_history.append({"from": from, "to": target, "ek": ek, "player": current_player, "line": trail_line})
 
+	# Licznik ruchów dla zmiany połów (każdy ruch, nie tylko zmiana tury)
+	_check_goal_switch()
+
 	# Sprawdź gol przed animacją
 	var scored = _check_goal(target)
 
@@ -1305,6 +1317,44 @@ func _game_over(winner: int):
 		_show_popup_win()
 	else:
 		_show_popup_fail()
+
+func _check_goal_switch():
+	if _goal_switch_interval <= 0 or _game_ended: return
+	_goal_switch_counter += 1
+	if _goal_switch_counter >= _goal_switch_interval:
+		_goal_switch_counter = 0
+		_swap_goals()
+
+func _swap_goals():
+	_goals_swapped = not _goals_swapped
+	# Zbierz pozycje i typy wszystkich kafelków bramek
+	var to_swap: Array = []
+	for child in get_children():
+		if child.has_meta("goal_type"):
+			to_swap.append({"pos": child.position, "type": child.get_meta("goal_type")})
+			child.queue_free()
+	# Postaw nowe kafelki z zamienionymi kolorami
+	for entry in to_swap:
+		var new_type = "blue" if entry["type"] == "red" else "red"
+		var new_scene = quad_f3 if new_type == "blue" else quad_f4
+		_place_quad_type(entry["pos"], new_scene, new_type)
+	# Przelicz logiczne parametry bramek (zamień RED<->BLUE)
+	var tmp_col  = GOAL_COL_START_RED;  GOAL_COL_START_RED  = GOAL_COL_START_BLUE;  GOAL_COL_START_BLUE  = tmp_col
+	var tmp_cols = GOAL_COLS_RED;       GOAL_COLS_RED       = GOAL_COLS_BLUE;       GOAL_COLS_BLUE       = tmp_cols
+	_flash_goal_switch()
+
+func _flash_goal_switch():
+	# Błysk białego overlay na chwilę — sygnalizuje zmianę połów
+	var overlay = ColorRect.new()
+	overlay.color = Color(1, 1, 1, 0.0)
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 50
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
+	var tw = create_tween()
+	tw.tween_property(overlay, "color:a", 0.35, 0.12)
+	tw.tween_property(overlay, "color:a", 0.0,  0.25)
+	tw.tween_callback(overlay.queue_free)
 
 func _show_popup_win():
 	ai_thinking = true
@@ -2235,7 +2285,8 @@ func _build_board():
 				px = step + inner + COLS * step  # prawa bramka
 			var py = inner + gc["row"] * step
 			var quad_scene = quad_f4 if gc["type"] == 3 else quad_f3
-			_place_quad_type(Vector2(px, py), quad_scene)
+			var gt = "red" if gc["type"] == 3 else "blue"
+			_place_quad_type(Vector2(px, py), quad_scene, gt)
 	else:
 		# Orientacja pionowa (oryginalna)
 		goal_h = step
@@ -2255,7 +2306,7 @@ func _build_board():
 		_add_field_bg(board_w)
 
 		for i in range(GOAL_COLS_RED):
-			_place_quad_type(Vector2(goal_quad_x_red + i * step, inner), quad_f4)
+			_place_quad_type(Vector2(goal_quad_x_red + i * step, inner), quad_f4, "red")
 
 		for row in range(ROWS):
 			for col in range(COLS):
@@ -2268,16 +2319,18 @@ func _build_board():
 
 		var bot_quad_y = goal_h + inner + ROWS * step
 		for i in range(GOAL_COLS_BLUE):
-			_place_quad_type(Vector2(goal_quad_x_blue + i * step, bot_quad_y), quad_f3)
+			_place_quad_type(Vector2(goal_quad_x_blue + i * step, bot_quad_y), quad_f3, "blue")
 
 func _place_quad(pos: Vector2, use_f2: bool):
 	var quad = quad_f2.instantiate() if use_f2 else quad_f1.instantiate()
 	quad.position = pos
 	add_child(quad)
 
-func _place_quad_type(pos: Vector2, quad_scene) -> void:
+func _place_quad_type(pos: Vector2, quad_scene, goal_type: String = "") -> void:
 	var quad = quad_scene.instantiate()
 	quad.position = pos
+	if goal_type != "":
+		quad.set_meta("goal_type", goal_type)
 	add_child(quad)
 
 func _add_field_bg(_board_w: float):

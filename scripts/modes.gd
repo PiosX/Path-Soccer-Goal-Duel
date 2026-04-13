@@ -14,9 +14,11 @@ extends Control
 @onready var label_searching = $Control_Online/Label_Searching
 @onready var btn_cancel = $Control_Online/Control_Search/TextureButton_Cancel
 
-# ————— POZIOMY — 2 gridy —————
+# ————— POZIOMY — 4 gridy —————
 @onready var grid_page1 = $Control_Main/GridContainer_Page1
 @onready var grid_page2 = $Control_Main/GridContainer_Page2
+@onready var grid_page3 = $Control_Main/GridContainer_Page3
+@onready var grid_page4 = $Control_Main/GridContainer_Page4
 @onready var btn_prev = $Control_Main/HBoxContainer_Nav2/TextureButton_Previous
 @onready var btn_next = $Control_Main/HBoxContainer_Nav2/TextureButton_Next
 
@@ -38,7 +40,7 @@ const COLOR_FONT = Color.WHITE
 var current_panel = 0
 var current_page = 0
 const LEVELS_PER_PAGE = 20
-const TOTAL_LEVELS = 40
+const TOTAL_LEVELS = 80
 
 var level_states = []
 var search_timer: float = 0.0
@@ -67,7 +69,7 @@ func _ready():
 	await get_tree().process_frame
 	if btn_cancel: btn_cancel.pivot_offset = btn_cancel.size / 2
 
-	for btn in grid_page1.get_children() + grid_page2.get_children():
+	for btn in grid_page1.get_children() + grid_page2.get_children() + grid_page3.get_children() + grid_page4.get_children():
 		btn.pivot_offset = btn.size / 2
 		btn.mouse_entered.connect(_on_level_mouse_entered.bind(btn))
 		btn.mouse_exited.connect(_on_level_mouse_exited.bind(btn))
@@ -78,6 +80,8 @@ func _ready():
 	search_panel.visible = false
 	label_searching.visible = true
 	grid_page2.visible = false
+	grid_page3.visible = false
+	grid_page4.visible = false
 
 	_update_dots()
 	_update_nav_buttons()
@@ -229,22 +233,38 @@ func _on_level_pressed(btn: TextureButton):
 		_cancel_search()
 	var level_index: int
 	var idx_in_page1 = grid_page1.get_children().find(btn)
+	var idx_in_page2 = grid_page2.get_children().find(btn)
+	var idx_in_page3 = grid_page3.get_children().find(btn)
 	if idx_in_page1 != -1:
 		level_index = idx_in_page1 + 1
+	elif idx_in_page2 != -1:
+		level_index = LEVELS_PER_PAGE + idx_in_page2 + 1
+	elif idx_in_page3 != -1:
+		level_index = LEVELS_PER_PAGE * 2 + idx_in_page3 + 1
 	else:
-		level_index = LEVELS_PER_PAGE + grid_page2.get_children().find(btn) + 1
+		level_index = LEVELS_PER_PAGE * 3 + grid_page4.get_children().find(btn) + 1
 	await get_tree().create_timer(0.1).timeout
 	PlayerData.launch_level(level_index)
 
 func _apply_level_states():
 	var all1 = grid_page1.get_children()
 	var all2 = grid_page2.get_children()
+	var all3 = grid_page3.get_children()
+	var all4 = grid_page4.get_children()
 	for i in range(all1.size()):
 		_apply_state_to_button(all1[i], level_states[i])
 	for i in range(all2.size()):
 		var li = LEVELS_PER_PAGE + i
 		if li < TOTAL_LEVELS:
 			_apply_state_to_button(all2[i], level_states[li])
+	for i in range(all3.size()):
+		var li = LEVELS_PER_PAGE * 2 + i
+		if li < TOTAL_LEVELS:
+			_apply_state_to_button(all3[i], level_states[li])
+	for i in range(all4.size()):
+		var li = LEVELS_PER_PAGE * 3 + i
+		if li < TOTAL_LEVELS:
+			_apply_state_to_button(all4[i], level_states[li])
 
 func _apply_state_to_button(btn: TextureButton, state: int):
 	var label = btn.get_node_or_null("Label")
@@ -271,22 +291,26 @@ func _apply_state_to_button(btn: TextureButton, state: int):
 func _update_nav_buttons():
 	btn_prev.disabled = (current_page == 0)
 	btn_prev.modulate = Color(0.5, 0.5, 0.5, 1) if current_page == 0 else Color(1, 1, 1, 1)
-	btn_next.disabled = (current_page == 1)
-	btn_next.modulate = Color(0.5, 0.5, 0.5, 1) if current_page == 1 else Color(1, 1, 1, 1)
+	btn_next.disabled = (current_page == 3)
+	btn_next.modulate = Color(0.5, 0.5, 0.5, 1) if current_page == 3 else Color(1, 1, 1, 1)
 
 # ————— PREV / NEXT GRID —————
 
 func _on_previous_pressed():
 	if current_page == 0: return
 	sound_click.play()
-	current_page = 0
-	_slide_grids(grid_page2, grid_page1, 1)
+	var grids = [grid_page1, grid_page2, grid_page3, grid_page4]
+	var old_page = current_page
+	current_page -= 1
+	_slide_grids(grids[old_page], grids[current_page], 1)
 
 func _on_next_pressed():
-	if current_page == 1: return
+	if current_page == 3: return
 	sound_click.play()
-	current_page = 1
-	_slide_grids(grid_page1, grid_page2, -1)
+	var grids = [grid_page1, grid_page2, grid_page3, grid_page4]
+	var old_page = current_page
+	current_page += 1
+	_slide_grids(grids[old_page], grids[current_page], -1)
 
 func _slide_grids(grid_out: Control, grid_in: Control, direction: int):
 	var target_pos = grid_in.position
