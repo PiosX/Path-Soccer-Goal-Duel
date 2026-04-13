@@ -324,6 +324,9 @@ func _on_find_game_pressed():
 	PlayerData.matchmaking_found.connect(_on_match_found, CONNECT_ONE_SHOT)
 	PlayerData.matchmaking_timeout.connect(_on_match_timeout, CONNECT_ONE_SHOT)
 
+	# Pobierz aktualną rangę przed matchmakingiem — żeby przeciwnik ją zobaczył
+	await PlayerData.fetch_my_rank()
+
 	var ok = await PlayerData.start_matchmaking()
 	if not ok:
 		await get_tree().create_timer(1.0).timeout

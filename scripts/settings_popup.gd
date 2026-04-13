@@ -88,7 +88,9 @@ func _on_restart_pressed():
 	queue_free()
 	# Restart aktualnego poziomu — tak samo jak PlayerData.launch_level
 	if PlayerData.online_mode:
-		# W trybie online restart = wróć do modes
+		# W trybie online restart = forfeit + wróć do modes
+		await PlayerData.push_forfeit()
+		PlayerData.save_game_result(false, 0, 0, false)
 		PlayerData.online_mode = false
 		SceneTransition.go_to("res://scenes/modes.tscn")
 	else:

@@ -450,8 +450,17 @@ func _ready():
 	if PlayerData.online_mode:
 		level_data = {}
 		VS_AI = (PlayerData.online_opponent_name == "")
+		# Ustal role deterministycznie (mniejszy playfab_id = P1) zanim zapiszemy klucze
+		if not PlayerData.player1_decided or PlayerData.online_opponent_name != "":
+			var _cfg = ConfigFile.new()
+			_cfg.load("user://session.cfg")
+			var _my_id  = _cfg.get_value("session", "playfab_id", "")
+			var _opp_id = _cfg.get_value("session", "opponent_playfab_id", "")
+			if _my_id != "" and _opp_id != "":
+				PlayerData.player1_is_me = (_my_id < _opp_id)
+				PlayerData.player1_decided = true
 		_ai_is_player1 = VS_AI and not PlayerData.player1_is_me
-		PlayerData.reset_online_game(PlayerData.online_match_id)
+		await PlayerData.reset_online_game(PlayerData.online_match_id)
 		_start_opponent_polling()
 	elif level_data.is_empty() and not PlayerData.current_level_data.is_empty():
 		level_data = PlayerData.current_level_data
@@ -469,6 +478,11 @@ func _ready():
 
 	# ————— DŹWIĘKI — szukaj węzłów po załadowaniu sceny —————
 	_start_sound_init()
+
+	# ————— ONLINE READY HANDSHAKE —————
+	# Timer zatrzymany do czasu aż obaj gracze załadują planszę
+	if PlayerData.online_mode and PlayerData.online_opponent_name != "":
+		call_deferred("_online_ready_handshake")
 
 func _update_level_label():
 	var p = get_parent()
@@ -912,6 +926,11 @@ func _refresh_active_dots():
 		call_deferred("_auto_rollback")
 		return
 
+	# W trybie online ukryj kropki gdy to tura przeciwnika
+	if PlayerData.online_mode and not _is_my_turn():
+		_hide_active_dots()
+		return
+
 	for entry in dot_nodes:
 		var gpos = Vector2i(entry["gx"], entry["gy"])
 		var is_active = gpos in active_moves
@@ -1071,10 +1090,18 @@ func _do_move(target: Vector2i):
 		_hide_combo()
 		score += 500
 		var player_scored: bool
-		if level_data.get("orientation", "vertical") == "horizontal":
-			player_scored = (ball_grid_pos.x < 0)
+		if PlayerData.online_mode:
+			if level_data.get("orientation", "vertical") == "horizontal":
+				# x<0 = lewa bramka (RED/AI) — P1 strzela tam = wygrana P1
+				player_scored = (PlayerData.player1_is_me and ball_grid_pos.x < 0) or (not PlayerData.player1_is_me and ball_grid_pos.x > COLS)
+			else:
+				# y<0 = bramka RED (góra) — P1 strzela tam = wygrana P1
+				player_scored = (PlayerData.player1_is_me and ball_grid_pos.y < 0) or (not PlayerData.player1_is_me and ball_grid_pos.y > ROWS)
 		else:
-			player_scored = (ball_grid_pos.y < 0)
+			if level_data.get("orientation", "vertical") == "horizontal":
+				player_scored = (ball_grid_pos.x < 0)
+			else:
+				player_scored = (ball_grid_pos.y < 0)
 		await get_tree().create_timer(0.25).timeout
 		if player_scored:
 			_show_popup_win()
@@ -1254,17 +1281,12 @@ func _on_goal_anim():
 	_hide_combo()
 	var player_scored: bool
 	if PlayerData.online_mode:
-		# W online: Player1 atakuje dolną bramkę (y>ROWS), Player2 atakuje górną (y<0)
 		if level_data.get("orientation", "vertical") == "horizontal":
-			if PlayerData.player1_is_me:
-				player_scored = (ball_grid_pos.x < 0)   # ja=P1, lewa=bramka AI = moja wygrana
-			else:
-				player_scored = (ball_grid_pos.x > COLS) # ja=P2, prawa=bramka AI = moja wygrana
+			# x<0 = lewa bramka (RED/AI) — P1 strzela tam = wygrana P1
+			player_scored = (PlayerData.player1_is_me and ball_grid_pos.x < 0) or (not PlayerData.player1_is_me and ball_grid_pos.x > COLS)
 		else:
-			if PlayerData.player1_is_me:
-				player_scored = (ball_grid_pos.y > ROWS)  # ja=P1, strzelam do dołu = wygrana
-			else:
-				player_scored = (ball_grid_pos.y < 0)     # ja=P2, strzelam do góry = wygrana
+			# y<0 = bramka RED (góra) — P1 strzela tam = wygrana P1
+			player_scored = (PlayerData.player1_is_me and ball_grid_pos.y < 0) or (not PlayerData.player1_is_me and ball_grid_pos.y > ROWS)
 	else:
 		if level_data.get("orientation", "vertical") == "horizontal":
 			player_scored = (ball_grid_pos.x < 0)
@@ -1363,9 +1385,11 @@ func _do_move_silent(target: Vector2i):
 		var player_scored: bool
 		if PlayerData.online_mode:
 			if level_data.get("orientation", "vertical") == "horizontal":
+				# x<0 = lewa bramka (RED/AI) — P1 strzela tam = wygrana P1
 				player_scored = (PlayerData.player1_is_me and ball_grid_pos.x < 0) or (not PlayerData.player1_is_me and ball_grid_pos.x > COLS)
 			else:
-				player_scored = (PlayerData.player1_is_me and ball_grid_pos.y > ROWS) or (not PlayerData.player1_is_me and ball_grid_pos.y < 0)
+				# y<0 = bramka RED (góra) — P1 strzela tam = wygrana P1
+				player_scored = (PlayerData.player1_is_me and ball_grid_pos.y < 0) or (not PlayerData.player1_is_me and ball_grid_pos.y > ROWS)
 		else:
 			if level_data.get("orientation", "vertical") == "horizontal":
 				player_scored = (ball_grid_pos.x < 0)
@@ -1802,13 +1826,23 @@ func _init_timer_ui():
 	if use_timer:
 		if ui_panel_timer: ui_panel_timer.get_parent().visible = true
 		if ui_turn_label: ui_turn_label.visible = true
-		# Nie startuj timera jeśli bot jest Player1 — on zacznie, a timer odpali się po jego ruchu
-		if not (VS_AI and _ai_is_player1):
+		# W online z graczem — timer startuje dopiero po ready handshake
+		if PlayerData.online_mode and PlayerData.online_opponent_name != "":
+			pass  # _online_ready_handshake odpali timer
+		elif not (VS_AI and _ai_is_player1):
 			_start_turn_timer()
 	else:
 		if ui_panel_timer: ui_panel_timer.get_parent().visible = false
 		if ui_turn_label: ui_turn_label.visible = false
 		timer_running = false
+
+func _online_ready_handshake():
+	# Wyślij "gotowy" i czekaj na przeciwnika — timer startuje po synchronizacji
+	await PlayerData.push_board_ready()
+	await PlayerData.wait_for_opponent_board_ready()
+	# Obaj gotowi — startuj timer
+	if not _game_ended:
+		_start_turn_timer()
 
 func _start_sound_init():
 	await get_tree().create_timer(0.1).timeout

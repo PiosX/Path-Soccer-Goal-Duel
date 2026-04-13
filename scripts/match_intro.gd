@@ -52,7 +52,6 @@ func _ready():
 func _run_intro():
 	var fade_duration = 0.7
 
-	# Jeśli INTRO_SOUND_OFFSET < 0 — odpal dźwięk wcześniej, przed startem animacji
 	if INTRO_SOUND_OFFSET < 0.0 and sound_intro:
 		sound_intro.play()
 		await get_tree().create_timer(-INTRO_SOUND_OFFSET).timeout

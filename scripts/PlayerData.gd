@@ -821,3 +821,60 @@ func poll_opponent_forfeit() -> bool:
 	if json.parse(response[3].get_string_from_utf8()) != OK: return false
 	var val = json.get_data().get("data", {}).get("Data", {}).get(key, {}).get("Value", "")
 	return val == "1"
+
+# ── READY HANDSHAKE ─────────────────────────────────
+# Każdy gracz wysyła "gotowy" gdy board jest załadowany.
+# Timer startuje dopiero gdy obaj są gotowi.
+
+func push_board_ready() -> void:
+	var ticket = get_ticket()
+	if ticket == "" or online_match_id == "": return
+	var role = "p1" if player1_is_me else "p2"
+	var key = "m" + online_match_id.replace("-", "").left(16) + "_boardready_" + role
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
+		headers, HTTPClient.METHOD_POST,
+		JSON.stringify({"Data": {key: "1"}, "Permission": "Public"}))
+	await http.request_completed
+	http.queue_free()
+
+# Zwraca true gdy przeciwnik jest gotowy (lub timeout 15s)
+func wait_for_opponent_board_ready() -> void:
+	var ticket = get_ticket()
+	if ticket == "" or online_match_id == "": return
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	var opponent_id = cfg.get_value("session", "opponent_playfab_id", "")
+	if opponent_id == "": return  # bot — od razu
+	var opp_role = "p2" if player1_is_me else "p1"
+	var key = "m" + online_match_id.replace("-", "").left(16) + "_boardready_" + opp_role
+	var headers = [
+		"Content-Type: application/json",
+		"Accept-Encoding: identity",
+		"X-Authorization: " + ticket
+	]
+	var elapsed = 0.0
+	const TIMEOUT = 15.0
+	const INTERVAL = 0.8
+	while elapsed < TIMEOUT:
+		await get_tree().create_timer(INTERVAL).timeout
+		elapsed += INTERVAL
+		var http = HTTPRequest.new()
+		add_child(http)
+		http.request(PLAYFAB_URL + "/Client/GetUserData",
+			headers, HTTPClient.METHOD_POST,
+			JSON.stringify({"PlayFabId": opponent_id, "Keys": [key]}))
+		var response = await http.request_completed
+		http.queue_free()
+		if response[1] != 200: continue
+		var json = JSON.new()
+		if json.parse(response[3].get_string_from_utf8()) != OK: continue
+		var val = json.get_data().get("data", {}).get("Data", {}).get(key, {}).get("Value", "")
+		if val == "1": return
+	push_warning("wait_for_opponent_board_ready: timeout — startujemy mimo to")
