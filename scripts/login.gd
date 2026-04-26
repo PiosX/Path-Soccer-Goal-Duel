@@ -11,7 +11,9 @@ extends CanvasLayer
 @onready var rich_text_terms   = $MarginContainer/Control/Control_Guest/VBoxContainer/HBoxContainer/RichTextLabel
 @onready var label_error_guest = $MarginContainer/Control/Control_Guest/VBoxContainer/Label_Error
 @onready var btn_play          = $MarginContainer/Control/Control_Guest/TextureButton_Play
-@onready var btn_to_login      = $MarginContainer/Control/Control_Guest/TextureButton_Login
+@onready var btn_to_login      = $MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Login
+# NOWY — przycisk Google w panelu Guest (HBoxContainer pod btn_to_login)
+@onready var btn_google_guest  = $MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Google
 
 # ————— LOGIN —————
 @onready var login_input       = $MarginContainer/Control/Control_Login/VBoxContainer_Login/Login_Input
@@ -20,6 +22,8 @@ extends CanvasLayer
 @onready var link_forgot       = $MarginContainer/Control/Control_Login/VBoxContainer_Password/HBoxContainer/LinkButton
 @onready var btn_guest         = $MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Guest
 @onready var btn_login         = $MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login
+# NOWY — przycisk Google w panelu Login (HBoxContainer2)
+@onready var btn_google_login  = $MarginContainer/Control/Control_Login/HBoxContainer2/LoginGoogle
 
 # ————— FORGOT —————
 @onready var forgot_email_input = $MarginContainer/Control/Control_Forgot/VBoxContainer_Email/Email_Input
@@ -42,6 +46,11 @@ const PANEL_W  = 416.0
 const PLAYFAB_TITLE_ID = "139617"
 const PLAYFAB_URL      = "https://139617.playfabapi.com"
 
+# ————— GOOGLE SIGN-IN —————
+const GOOGLE_WEB_CLIENT_ID = "44684728695-2o53p259cks5cmqq46o9gr1tjat6h8dt.apps.googleusercontent.com"
+var _gsi = null
+var _google_pending_nick := ""
+
 var _busy    := false
 var _base_ol := 0.0
 var _base_or := 0.0
@@ -49,13 +58,14 @@ var _base_or := 0.0
 # ═══════════════════════════════════════════
 func _ready():
 	await get_tree().process_frame
-	await get_tree().process_frame  # drugi frame — layout musi się policzyć zanim size będzie niezerowy
+	await get_tree().process_frame
 
 	_base_ol = ctrl_guest.offset_left
 	_base_or = ctrl_guest.offset_right
 
-	# Pivoty — teraz size jest już prawidłowe
-	for btn in [btn_play, btn_to_login, btn_guest, btn_login,
+	# Pivoty
+	for btn in [btn_play, btn_to_login, btn_google_guest,
+				btn_guest, btn_login, btn_google_login,
 				btn_forgot_send, btn_forgot_guest, btn_forgot_login]:
 		if btn:
 			btn.pivot_offset = btn.size / 2
@@ -92,12 +102,20 @@ func _ready():
 
 	_clear_errors()
 
+	# ————— GOOGLE SIGN-IN INIT —————
+	if Engine.has_singleton("GodotGoogleSignIn"):
+		_gsi = Engine.get_singleton("GodotGoogleSignIn")
+		_gsi.initialize(GOOGLE_WEB_CLIENT_ID)
+		_gsi.sign_in_success.connect(_on_gsi_sign_in_success)
+		_gsi.sign_in_failed.connect(_on_gsi_sign_in_failed)
+	else:
+		print("GodotGoogleSignIn plugin not available")
+
 # ═══════════════════════════════════════════
 #  ANIMACJE PANELI
 # ═══════════════════════════════════════════
 
 func _slide_to(panel_in: Control, panel_out: Control, direction: int):
-	# direction: 1 = panel_in wjeżdża z prawej, -1 = z lewej
 	panel_in.offset_left  = _base_ol + PANEL_W * direction
 	panel_in.offset_right = _base_or + PANEL_W * direction
 	panel_in.modulate.a   = 0.0
@@ -235,28 +253,156 @@ func _on_texture_button_play_pressed():
 
 	var session_ticket = result.get("SessionTicket", "")
 	await _set_display_name(session_ticket, nick)
-
-	var newly_created = result.get("NewlyCreated", false)
-	if newly_created:
-		await _init_player_data(session_ticket)
+	await _init_player_data(session_ticket)
 
 	var entity_token = result.get("EntityToken", {}).get("EntityToken", "")
 	var entity_id = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
-	_save_session(result.get("PlayFabId", ""), session_ticket, nick, false, "", entity_token, entity_id)
+	_save_session(result.get("PlayFabId", ""), session_ticket, nick, false, nick, entity_token, entity_id)
+
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	await PlayerData._fetch_and_sync_player_data(session_ticket, cfg)
+
 	_set_busy(false)
 	SceneTransition.go_to("res://scenes/play.tscn")
 
 # ═══════════════════════════════════════════
-#  LOGIN (nick + hasło)
+#  GOOGLE — GUEST (wymaga nicku + zgody)
+# ═══════════════════════════════════════════
+
+func _on_texture_button_google_guest_pressed():
+	sound_click.play()
+	var nick = guest_input.text.strip_edges()
+
+	if not checkbox_terms.button_pressed:
+		_show_error(label_error_guest, "Please accept the Terms & Privacy Policy.")
+		_shake(ctrl_guest)
+		return
+
+	if nick.length() < MIN_NICK:
+		_show_error(label_error_guest, "Username must be at least %d characters." % MIN_NICK)
+		_shake(ctrl_guest)
+		return
+
+	if _gsi == null:
+		_show_error(label_error_guest, "Google Sign-In not available on this device.")
+		return
+
+	_google_pending_nick = nick
+	_set_busy(true)
+	_gsi.signInWithGoogleButton()
+
+func _on_gsi_sign_in_success(id_token: String, email: String, display_name: String):
+	print("=== GSI SUCCESS ===")
+	print("email: ", email)
+	print("display_name: ", display_name)
+	print("id_token length: ", id_token.length())
+	print("id_token preview: ", id_token.left(80))
+	if _google_pending_nick != "":
+		await _login_with_google_token(id_token, _google_pending_nick)
+		_google_pending_nick = ""
+	else:
+		await _login_with_google_existing(id_token)
+
+func _on_gsi_sign_in_failed(error: String):
+	_set_busy(false)
+	if _google_pending_nick != "":
+		_show_error(label_error_guest, "Google sign-in failed: " + error)
+		_google_pending_nick = ""
+	else:
+		_show_error(label_error_login, "Google sign-in failed: " + error)
+
+func _login_with_google_token(id_token: String, nick: String):
+	_set_busy(true)
+	label_error_guest.text = ""
+
+	var body = {
+		"TitleId": PLAYFAB_TITLE_ID,
+		"ServerAuthCode": id_token,
+		"CreateAccount": true
+	}
+
+	var result = await _playfab_post("/Client/LoginWithGoogleAccount", body)
+	if result == null:
+		_show_error(label_error_guest, "Google login failed. Try again.")
+		_set_busy(false)
+		return
+
+	var session_ticket = result.get("SessionTicket", "")
+	var entity_token   = result.get("EntityToken", {}).get("EntityToken", "")
+	var entity_id      = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
+
+	var taken = await _is_display_name_taken(nick)
+	if not taken:
+		await _set_display_name(session_ticket, nick)
+
+	var display_nick = result.get("InfoResultPayload", {}).get("PlayerProfile", {}).get("DisplayName", nick)
+	await _init_player_data(session_ticket)
+	_save_session(result.get("PlayFabId", ""), session_ticket, display_nick, true, "", entity_token, entity_id)
+
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	await PlayerData._fetch_and_sync_player_data(session_ticket, cfg)
+
+	_set_busy(false)
+	SceneTransition.go_to("res://scenes/play.tscn")
+
+# ═══════════════════════════════════════════
+#  GOOGLE — LOGIN (istniejące konto)
+# ═══════════════════════════════════════════
+
+func _on_login_google_pressed():
+	sound_click.play()
+
+	if _gsi == null:
+		_show_error(label_error_login, "Google Sign-In not available on this device.")
+		return
+
+	_google_pending_nick = ""
+	_set_busy(true)
+	_gsi.signInWithGoogleButton()
+
+func _login_with_google_existing(id_token: String):
+	_set_busy(true)
+	label_error_login.text = ""
+
+	var body = {
+		"TitleId": PLAYFAB_TITLE_ID,
+		"ServerAuthCode": id_token,
+		"CreateAccount": false
+	}
+
+	var result = await _playfab_post("/Client/LoginWithGoogleAccount", body)
+	if result == null:
+		_show_error(label_error_login, "Google login failed. Try again.")
+		_set_busy(false)
+		return
+
+	var session_ticket = result.get("SessionTicket", "")
+	var entity_token   = result.get("EntityToken", {}).get("EntityToken", "")
+	var entity_id      = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
+	var nick = result.get("InfoResultPayload", {}).get("PlayerProfile", {}).get("DisplayName", "Player")
+
+	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, "", entity_token, entity_id)
+
+	var cfg = ConfigFile.new()
+	cfg.load("user://session.cfg")
+	await PlayerData._fetch_and_sync_player_data(session_ticket, cfg)
+
+	_set_busy(false)
+	SceneTransition.go_to("res://scenes/play.tscn")
+
+# ═══════════════════════════════════════════
+#  LOGIN (email/hasło)
 # ═══════════════════════════════════════════
 
 func _on_texture_button_login_login_pressed():
 	sound_click.play()
-	var uname = login_input.text.strip_edges()
+	var user  = login_input.text.strip_edges()
 	var passw = password_input.text.strip_edges()
 
-	if uname.length() < MIN_NICK:
-		_show_error(label_error_login, "Username must be at least %d characters." % MIN_NICK)
+	if user.length() < MIN_NICK:
+		_show_error(label_error_login, "Enter your username.")
 		_shake(ctrl_login)
 		return
 	if passw.length() < MIN_PASS:
@@ -269,21 +415,24 @@ func _on_texture_button_login_login_pressed():
 
 	var body = {
 		"TitleId":  PLAYFAB_TITLE_ID,
-		"Username": uname,
-		"Password": passw
+		"Username": user,
+		"Password": passw,
+		"InfoRequestParameters": { "GetPlayerProfile": true }
 	}
 
 	var result = await _playfab_post("/Client/LoginWithPlayFab", body)
 	if result == null:
 		_show_error(label_error_login, "Invalid username or password.")
+		_shake(ctrl_login)
 		_set_busy(false)
 		return
 
 	var session_ticket = result.get("SessionTicket", "")
-	var nick = login_input.text.strip_edges()
-	var entity_token = result.get("EntityToken", {}).get("EntityToken", "")
-	var entity_id = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
-	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, nick, entity_token, entity_id)
+	var entity_token   = result.get("EntityToken", {}).get("EntityToken", "")
+	var entity_id      = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
+	var nick = result.get("InfoResultPayload", {}).get("PlayerProfile", {}).get("DisplayName", user)
+
+	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, user, entity_token, entity_id)
 
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
@@ -320,7 +469,6 @@ func _on_texture_button_send_pressed():
 		_show_error(forgot_label_error, "Email not found or connection error.")
 		return
 
-	# Sukces — pokaż info i wróć do loginu po chwili
 	_show_error(forgot_label_error, "Recovery email sent! Check your inbox.")
 	await get_tree().create_timer(2.0).timeout
 	_slide_forgot_to_login()
@@ -340,6 +488,8 @@ func _playfab_post(endpoint: String, body: Dictionary):
 
 	var status_code = response[1]
 	var body_raw    = response[3]
+	print("=== PLAYFAB STATUS: ", status_code)
+	print("=== PLAYFAB BODY: ", body_raw.get_string_from_utf8().left(300))
 	if status_code != 200:
 		return null
 
@@ -354,10 +504,6 @@ func _playfab_post(endpoint: String, body: Dictionary):
 	return parsed.get("data", null)
 
 func _is_display_name_taken(nick: String) -> bool:
-	# Sprawdź czy nick istnieje próbując zalogowania z niemożliwym hasłem.
-	# PlayFab zwróci "InvalidUsernameOrPassword" (1001) jeśli konto istnieje,
-	# albo "AccountNotFound" (1001) jeśli nie — w obu przypadkach result == null,
-	# więc ta metoda jest zawodna. Używamy GetPlayerProfile zamiast tego.
 	var body = {
 		"TitleId":  PLAYFAB_TITLE_ID,
 		"Username": nick,
@@ -374,11 +520,10 @@ func _is_display_name_taken(nick: String) -> bool:
 		var json = JSON.new()
 		if json.parse(response[3].get_string_from_utf8()) == OK:
 			var parsed = json.get_data()
-			# errorCode 1001 = AccountNotFound (nick wolny), inne = konto istnieje
 			var err_code = parsed.get("errorCode", 0)
 			return err_code != 1001
 		return false
-	return true  # zalogował się poprawnie = nick zajęty
+	return true
 
 func _set_display_name(session_ticket: String, nick: String):
 	var headers = [
@@ -443,12 +588,17 @@ func _save_session(playfab_id: String, ticket: String, nick: String, has_account
 func _set_busy(busy: bool):
 	_busy = busy
 	for btn in [btn_play, btn_login, btn_to_login, btn_guest,
+				btn_google_guest, btn_google_login,
 				btn_forgot_send, btn_forgot_guest, btn_forgot_login]:
 		if btn:
 			btn.disabled = busy
 	btn_play.modulate.a        = 0.5 if busy else 1.0
 	btn_login.modulate.a       = 0.5 if busy else 1.0
 	btn_forgot_send.modulate.a = 0.5 if busy else 1.0
+	if btn_google_guest:
+		btn_google_guest.modulate.a = 0.5 if busy else 1.0
+	if btn_google_login:
+		btn_google_login.modulate.a = 0.5 if busy else 1.0
 
 func _show_error(label: Label, msg: String):
 	label.text       = msg
@@ -463,7 +613,6 @@ func _clear_errors():
 
 func _shake(ctrl: Control):
 	var ol  = ctrl.offset_left
-	var orr = ctrl.offset_right
 	var tw = create_tween()
 	tw.tween_property(ctrl, "offset_left", ol + 10, 0.05)
 	tw.tween_property(ctrl, "offset_left", ol - 10, 0.05)
@@ -509,6 +658,18 @@ func _on_texture_button_forgot_login_mouse_entered():
 	_scale_button(btn_forgot_login, 0.9)
 func _on_texture_button_forgot_login_mouse_exited():
 	_scale_button(btn_forgot_login, 1.0)
+
+# NOWE — hover Google (Guest)
+func _on_texture_button_google_guest_mouse_entered():
+	_scale_button(btn_google_guest, 0.9)
+func _on_texture_button_google_guest_mouse_exited():
+	_scale_button(btn_google_guest, 1.0)
+
+# NOWE — hover Google (Login)
+func _on_login_google_mouse_entered():
+	_scale_button(btn_google_login, 0.9)
+func _on_login_google_mouse_exited():
+	_scale_button(btn_google_login, 1.0)
 
 func _scale_button(btn: Control, target_scale: float):
 	if btn == null:

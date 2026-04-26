@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://bsg565fqkie6l" path="res://ui/info/open.png" id="9_sii4c"]
 [ext_resource type="Texture2D" uid="uid://cjus10k0t7cfw" path="res://ui/info/logout.png" id="10_d0uon"]
 [ext_resource type="Texture2D" uid="uid://d2iddynkp277x" path="res://ui/info/title-contact.png" id="10_ro675"]
+[ext_resource type="Texture2D" uid="uid://dif1dufq8k2dm" path="res://ui/login/google.png" id="10_uaugt"]
 [ext_resource type="Texture2D" uid="uid://cihmp1c11ujed" path="res://ui/info/title-credits.png" id="11_h3pe7"]
 [ext_resource type="Texture2D" uid="uid://bxpg1aow8qxa7" path="res://ui/info/delete-account.png" id="11_sjvpb"]
 [ext_resource type="Texture2D" uid="uid://12cl4jjlt24b" path="res://ui/common/settings.png" id="12_7btgp"]
@@ -247,7 +248,6 @@ size_flags_horizontal = 3
 mouse_filter = 2
 
 [node name="Register" type="VBoxContainer" parent="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1320848600]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 20
 
@@ -358,12 +358,24 @@ text = "Invalid username or password"
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="TextureButton_Register" type="TextureButton" parent="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register" unique_id=259710481]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register" unique_id=353292254]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="TextureButton_Register" type="TextureButton" parent="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer" unique_id=259710481]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("9_oq0du")
+
+[node name="TextureButton_Google" type="TextureButton" parent="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer" unique_id=943963563]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("10_uaugt")
 
 [node name="Registered" type="VBoxContainer" parent="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer" unique_id=822735378]
 visible = false
@@ -730,9 +742,12 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("19_hr3he")
 
-[connection signal="mouse_entered" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/TextureButton_Register" to="." method="_on_texture_button_register_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/TextureButton_Register" to="." method="_on_texture_button_register_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/TextureButton_Register" to="." method="_on_texture_button_register_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer/TextureButton_Register" to="." method="_on_texture_button_register_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer/TextureButton_Register" to="." method="_on_texture_button_register_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer/TextureButton_Register" to="." method="_on_texture_button_register_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer/TextureButton_Google" to="." method="_on_texture_button_google_register_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer/TextureButton_Google" to="." method="_on_texture_button_google_register_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Register/HBoxContainer/TextureButton_Google" to="." method="_on_texture_button_google_register_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout" to="." method="_on_texture_button_logout_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout" to="." method="_on_texture_button_logout_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/MarginContainer/ScrollContainer/VBoxContainer/Registered/HBoxContainer/TextureButton_Logout" to="." method="_on_texture_button_logout_pressed"]

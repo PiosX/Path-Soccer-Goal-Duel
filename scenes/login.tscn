@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://deb355gfcvawf" path="res://ui/login/login.png" id="8_wlyqo"]
 [ext_resource type="Texture2D" uid="uid://d2lqm7nf1qclx" path="res://ui/login/guest.png" id="9_1u3ka"]
 [ext_resource type="FontFile" uid="uid://b5ranuuts55ej" path="res://fonts/Digitalt.ttf" id="9_qxpir"]
+[ext_resource type="Texture2D" uid="uid://dif1dufq8k2dm" path="res://ui/login/google.png" id="11_ngwtj"]
 [ext_resource type="Texture2D" uid="uid://bheiujv5dc3my" path="res://ui/common/title.png" id="11_rk01l"]
 [ext_resource type="Texture2D" uid="uid://cdgauvbo2vl0k" path="res://ui/login/send.png" id="12_47vyr"]
 
@@ -85,6 +86,7 @@ mouse_filter = 2
 texture = ExtResource("11_rk01l")
 
 [node name="Control_Guest" type="Control" parent="MarginContainer/Control" unique_id=1338723509]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -224,21 +226,28 @@ grow_vertical = 0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("7_1u3ka")
 
-[node name="TextureButton_Login" type="TextureButton" parent="MarginContainer/Control/Control_Guest" unique_id=436496558]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Control/Control_Guest" unique_id=147068248]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -92.0
 offset_top = -157.0
-offset_right = 92.0
 offset_bottom = -75.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="TextureButton_Login" type="TextureButton" parent="MarginContainer/Control/Control_Guest/HBoxContainer" unique_id=436496558]
+layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("8_wlyqo")
+
+[node name="TextureButton_Google" type="TextureButton" parent="MarginContainer/Control/Control_Guest/HBoxContainer" unique_id=1413718455]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("11_ngwtj")
 
 [node name="Label_Info" type="Label" parent="MarginContainer/Control/Control_Guest" unique_id=992027035]
 layout_mode = 1
@@ -256,12 +265,11 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
 theme_override_fonts/font = ExtResource("9_qxpir")
 theme_override_font_sizes/font_size = 20
-text = "Want to create an account? 
-You can do it later in the game settings."
+text = "Prefer not to use Google? 
+You can sign up later in settings."
 horizontal_alignment = 1
 
 [node name="Control_Login" type="Control" parent="MarginContainer/Control" unique_id=580293291]
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -442,25 +450,32 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("8_wlyqo")
 
-[node name="Label_Info" type="Label" parent="MarginContainer/Control/Control_Login" unique_id=80888659]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/Control/Control_Login" unique_id=1416299798]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -176.0
-offset_top = -62.0
-offset_right = 176.0
-offset_bottom = -17.0
+offset_left = -160.0
+offset_top = -52.0
+offset_right = 160.0
+offset_bottom = -22.0
 grow_horizontal = 2
 grow_vertical = 0
+size_flags_vertical = 4
+
+[node name="LoginGoogle" type="LinkButton" parent="MarginContainer/Control/Control_Login/HBoxContainer2" unique_id=1621974579]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_colors/font_focus_color = Color(0.3764706, 0.8117647, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.18431373, 0.5019608, 0.92941177, 1)
+theme_override_colors/font_hover_color = Color(0.18431373, 0.5019608, 0.92941177, 1)
 theme_override_fonts/font = ExtResource("9_qxpir")
 theme_override_font_sizes/font_size = 20
-text = "Want to create an account? 
-You can do it later in the game settings."
-horizontal_alignment = 1
+text = "Log in with Google"
 
 [node name="Control_Forgot" type="Control" parent="MarginContainer/Control" unique_id=224445482]
 visible = false
@@ -619,9 +634,12 @@ texture_normal = ExtResource("12_47vyr")
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Guest/TextureButton_Play" to="." method="_on_texture_button_play_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Guest/TextureButton_Play" to="." method="_on_texture_button_play_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Guest/TextureButton_Play" to="." method="_on_texture_button_play_pressed"]
-[connection signal="mouse_entered" from="MarginContainer/Control/Control_Guest/TextureButton_Login" to="." method="_on_texture_button_login_mouse_entered"]
-[connection signal="mouse_exited" from="MarginContainer/Control/Control_Guest/TextureButton_Login" to="." method="_on_texture_button_login_mouse_exited"]
-[connection signal="pressed" from="MarginContainer/Control/Control_Guest/TextureButton_Login" to="." method="_on_texture_button_login_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Google" to="." method="_on_texture_button_google_guest_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Google" to="." method="_on_texture_button_google_guest_mouse_exited"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Guest/HBoxContainer/TextureButton_Google" to="." method="_on_texture_button_google_guest_pressed"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Login/VBoxContainer_Password/HBoxContainer/LinkButton" to="." method="_on_link_button_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_guest_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_guest_mouse_exited"]
@@ -629,6 +647,7 @@ texture_normal = ExtResource("12_47vyr")
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_login_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_login_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Login/HBoxContainer/TextureButton_Login" to="." method="_on_texture_button_login_login_pressed"]
+[connection signal="pressed" from="MarginContainer/Control/Control_Login/HBoxContainer2/LoginGoogle" to="." method="_on_login_google_pressed"]
 [connection signal="mouse_entered" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_forgot_guest_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_forgot_guest_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/Control/Control_Forgot/HBoxContainer/TextureButton_Guest" to="." method="_on_texture_button_forgot_guest_pressed"]
