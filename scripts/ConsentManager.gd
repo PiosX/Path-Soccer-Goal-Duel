@@ -1,9 +1,8 @@
 extends Node
 # ConsentManager - GDPR / UMP
-# Autoload: Project Settings → Autoload → "ConsentManager"
-# Kolejność autoloadów:
-#   1. AdMobManager
-#   2. ConsentManager  ← odpala reklamy po zgodzie
+# Autoload kolejność:
+#   1. AdMobManager  (initialize AdMob)
+#   2. ConsentManager  (po zgodzie ładuje reklamę)
 
 var _consent_form: ConsentForm
 
@@ -15,6 +14,7 @@ func _ready():
 func request_consent():
 	if OS.get_name() != "Android":
 		print("ConsentManager: nie Android, pomijam UMP")
+		# Na PC/edytorze: poczekaj na init AdMob i załaduj reklamę
 		_start_ads()
 		return
 
@@ -35,10 +35,12 @@ func _on_consent_info_updated():
 	print("ConsentManager: status = ", status)
 
 	if not UserMessagingPlatform.consent_information.get_is_consent_form_available():
+		print("ConsentManager: brak formularza — startuje reklamy")
 		_start_ads()
 		return
 
 	if status == UserMessagingPlatform.consent_information.ConsentStatus.OBTAINED:
+		print("ConsentManager: zgoda już udzielona — startuje reklamy")
 		_start_ads()
 		return
 
@@ -56,15 +58,33 @@ func _on_form_dismissed(_error: FormError):
 	_start_ads()
 
 func _on_consent_error(error: FormError):
-	print("ConsentManager: błąd UMP: ", error.message)
+	print("ConsentManager: blad UMP: ", error.message, " — startuje reklamy mimo to")
 	_start_ads()
 
 func _start_ads():
 	var admob = get_node_or_null("/root/AdMobManager")
 	if not admob or admob.ads_disabled:
 		return
-	await get_tree().create_timer(1.0).timeout
-	admob._load_interstitial()
+	# Jeśli AdMob już zainicjalizowany — ładuj od razu
+	if admob._initialized:
+		print("ConsentManager: AdMob gotowy, ładuję reklamę")
+		admob._load_interstitial()
+		return
+	# Jeśli jeszcze nie gotowy — poczekaj na sygnał przez polling
+	print("ConsentManager: czekam na inicjalizację AdMob...")
+	_wait_for_admob_init(admob)
+
+func _wait_for_admob_init(admob) -> void:
+	var timeout = 10.0
+	var elapsed = 0.0
+	while not admob._initialized and elapsed < timeout:
+		await get_tree().create_timer(0.3).timeout
+		elapsed += 0.3
+	if admob._initialized:
+		print("ConsentManager: AdMob gotowy po czekaniu, ładuję reklamę")
+		admob._load_interstitial()
+	else:
+		print("ConsentManager: timeout czekania na AdMob init")
 
 func show_privacy_options():
 	if _consent_form:

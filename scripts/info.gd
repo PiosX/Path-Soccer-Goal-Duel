@@ -39,7 +39,6 @@ var _busy := false
 func _ready():
 	await get_tree().process_frame
 	MusicManager.play_music("res://sounds/music.mp3")
-
 	for btn in [btn_privacy, btn_terms, btn_register, btn_logout, btn_delete, btn_google_register]:
 		if btn:
 			btn.pivot_offset = btn.size / 2
@@ -173,6 +172,7 @@ func _on_texture_button_register_pressed():
 # ————— GOOGLE SIGN-IN —————
 const GOOGLE_WEB_CLIENT_ID = "44684728695-2o53p259cks5cmqq46o9gr1tjat6h8dt.apps.googleusercontent.com"
 var _gsi = null
+var _gsi_signing_in_after_signout: bool = false
 
 func _init_google_sign_in():
 	if Engine.has_singleton("GodotGoogleSignIn"):
@@ -180,6 +180,7 @@ func _init_google_sign_in():
 		_gsi.initialize(GOOGLE_WEB_CLIENT_ID)
 		_gsi.sign_in_success.connect(_on_gsi_success)
 		_gsi.sign_in_failed.connect(_on_gsi_failed)
+		_gsi.sign_out_complete.connect(_on_gsi_sign_out_complete)
 
 func _on_gsi_success(id_token: String, email: String, display_name: String):
 	await _link_google_account(id_token)
@@ -194,7 +195,8 @@ func _on_texture_button_google_register_pressed():
 		_show_error(reg_label_error, "Google Sign-In not available on this device.")
 		return
 	_set_busy(true)
-	_gsi.signInWithGoogleButton()
+	_gsi_signing_in_after_signout = true
+	_gsi.signOut()
 
 func _link_google_account(id_token: String):
 	_set_busy(true)
@@ -391,3 +393,8 @@ func _scale_button(btn: Control, target_scale: float):
 	tween.tween_property(btn, "scale", Vector2(target_scale, target_scale), 0.1)\
 		.set_trans(Tween.TRANS_BACK)\
 		.set_ease(Tween.EASE_OUT)
+
+func _on_gsi_sign_out_complete():
+	if _gsi_signing_in_after_signout:
+		_gsi_signing_in_after_signout = false
+		_gsi.signInWithGoogleButton()

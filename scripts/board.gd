@@ -1001,39 +1001,49 @@ func _kill_all_tweens():
 func _input(event: InputEvent):
 	if _popup_open: return
 	# ── Touch drag boiska ──────────────────────────────────────────────────
-	if _scroll_container:
-		var is_touch      = event is InputEventScreenTouch
-		var is_drag_touch = event is InputEventScreenDrag
+	# Touch działa tak samo jak drag myszą — przesuwa position.x planszy bezpośrednio
+	var is_touch      = event is InputEventScreenTouch
+	var is_drag_touch = event is InputEventScreenDrag
 
-		if is_touch and event.pressed:
-			_drag_active = true
-			_touch_moved = false
-			_drag_start_mouse = event.position
-			_drag_start_scroll = Vector2(_scroll_container.scroll_horizontal, _scroll_container.scroll_vertical)
-			get_viewport().set_input_as_handled()
-			return
-		if is_drag_touch and _drag_active:
-			var delta = _drag_start_mouse - event.position
-			if delta.length() > 8.0:
-				_touch_moved = true
-			_scroll_container.scroll_horizontal = int(_drag_start_scroll.x + delta.x)
-			_scroll_container.scroll_vertical   = int(_drag_start_scroll.y + delta.y)
-			get_viewport().set_input_as_handled()
-			return
-		if is_touch and not event.pressed:
-			_drag_active = false
-			if not _touch_moved and not ai_thinking and _is_my_turn():
-				_try_move(get_global_transform().affine_inverse() * event.position)
-			_touch_moved = false
-			get_viewport().set_input_as_handled()
-			return
+	if is_touch and event.pressed:
+		_drag_active = true
+		_touch_moved = false
+		_drag_start_mouse = event.position
+		_drag_start_scroll = position
+		get_viewport().set_input_as_handled()
+		return
 
+	if is_drag_touch and _drag_active:
+		var delta_x = event.position.x - _drag_start_mouse.x
+		var new_x = _drag_start_scroll.x + delta_x
+		# Ogranicz żeby plansza nie wyjechała poza ekran
+		var parent_global_x = global_position.x - position.x
+		var left_edge = parent_global_x + new_x
+		var right_edge = left_edge + size.x
+		var viewport_w = get_viewport_rect().size.x
+		var pad = 30.0
+		if left_edge > pad:
+			new_x -= left_edge - pad
+		if right_edge < viewport_w - pad:
+			new_x += (viewport_w - pad) - right_edge
+		position.x = new_x
+		if abs(delta_x) > 8.0:
+			_touch_moved = true
+		get_viewport().set_input_as_handled()
+		return
+
+	if is_touch and not event.pressed:
+		_drag_active = false
+		if not _touch_moved and not ai_thinking and _is_my_turn():
+			_try_move(get_global_transform().affine_inverse() * event.position)
+		_touch_moved = false
+		get_viewport().set_input_as_handled()
+		return
+
+	# ── Klik myszą (LPM) ──────────────────────────────────────────────────
 	var pressed = false
 	var click_pos = Vector2.ZERO
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		pressed = true
-		click_pos = event.position
-	elif event is InputEventScreenTouch and event.pressed and not _scroll_container:
 		pressed = true
 		click_pos = event.position
 	if not pressed: return
@@ -1399,6 +1409,8 @@ func _show_popup_fail():
 
 func _ai_take_turn():
 	if _game_ended: return
+	await get_tree().process_frame
+	await get_tree().process_frame
 	# Minimax bez wątku — używamy call_deferred żeby nie blokować animacji
 	var best = _minimax_root(ball_grid_pos, used_edges.duplicate(), _get_ai_player(), AI_DEPTH)
 	if best == null:
@@ -1493,6 +1505,10 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 	var moves = _get_moves_pure(pos, edges)
 	if moves.is_empty():
 		return null
+		
+	for move in moves:
+		if _is_goal_pure(move):
+			return move
 
 	# Rozdziel ruchy na: bezpieczne (po nich są dalsze ruchy) i zaułki
 	var safe_moves = []
@@ -2731,19 +2747,22 @@ func _is_teleport_node_c(gx: int, gy: int) -> bool:
 func _start_opponent_polling():
 	var forfeit_check_counter = 0
 	while PlayerData.online_mode and not _game_ended:
-		await get_tree().create_timer(0.8).timeout
+		# Szybszy polling gdy czekamy na ruch przeciwnika, wolniejszy gdy to nasza tura
+		var interval = 0.3 if not _is_my_turn() else 0.8
+		await get_tree().create_timer(interval).timeout
 		if _game_ended or not PlayerData.online_mode: return
-		
-		# Sprawdź forfeit co 5 iteracji (co ~4 sekundy)
+
+		# Sprawdź forfeit co ~5 sekund (niezależnie od interwału)
 		forfeit_check_counter += 1
-		if forfeit_check_counter >= 5:
+		var forfeit_threshold = 6 if not _is_my_turn() else 6  # ~5s przy 0.8s, ~1.8s przy 0.3s — uśredniamy
+		if forfeit_check_counter >= forfeit_threshold:
 			forfeit_check_counter = 0
 			var forfeited = await PlayerData.poll_opponent_forfeit()
 			if forfeited and not _game_ended:
 				print("=== przeciwnik wyszedł — wygrana!")
 				_show_popup_win()
 				return
-		
+
 		if _is_my_turn(): continue
 		var new_moves = await PlayerData.poll_opponent_moves()
 		for move_data in new_moves:

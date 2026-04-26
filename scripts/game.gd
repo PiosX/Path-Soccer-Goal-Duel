@@ -82,6 +82,20 @@ func _on_button_settings_pressed():
 		board._popup_open = true
 		popup.tree_exiting.connect(func(): board._popup_open = false)
 
+func _unhandled_input(event: InputEvent):
+	# Przycisk Back na Androidzie — traktuj jak forfeit/wyjście
+	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		var board = get_node_or_null("ScrollContainer/BoardContainer")
+		if board and not board._game_ended:
+			if PlayerData.online_mode and not PlayerData.vs_ai:
+				# Online — forfeit i pokaż lose popup
+				PlayerData.mark_forfeit()
+				board._show_popup_fail()
+			else:
+				# Kampania — wyjdź bez kary
+				PlayerData.leave_game()
+
 func _on_button_settings_mouse_entered():
 	_scale_button(btn_settings, 0.9)
 

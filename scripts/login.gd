@@ -50,6 +50,7 @@ const PLAYFAB_URL      = "https://139617.playfabapi.com"
 const GOOGLE_WEB_CLIENT_ID = "44684728695-2o53p259cks5cmqq46o9gr1tjat6h8dt.apps.googleusercontent.com"
 var _gsi = null
 var _google_pending_nick := ""
+var _gsi_signing_in_after_signout: bool = false
 
 var _busy    := false
 var _base_ol := 0.0
@@ -59,7 +60,7 @@ var _base_or := 0.0
 func _ready():
 	await get_tree().process_frame
 	await get_tree().process_frame
-
+	
 	_base_ol = ctrl_guest.offset_left
 	_base_or = ctrl_guest.offset_right
 
@@ -108,6 +109,7 @@ func _ready():
 		_gsi.initialize(GOOGLE_WEB_CLIENT_ID)
 		_gsi.sign_in_success.connect(_on_gsi_sign_in_success)
 		_gsi.sign_in_failed.connect(_on_gsi_sign_in_failed)
+		_gsi.sign_out_complete.connect(_on_gsi_sign_out_complete)
 	else:
 		print("GodotGoogleSignIn plugin not available")
 
@@ -231,7 +233,7 @@ func _on_texture_button_play_pressed():
 	_set_busy(true)
 	label_error_guest.text = ""
 
-	var device_id = OS.get_unique_id()
+	var device_id = _get_guest_device_id()
 	var body = {
 		"TitleId":  PLAYFAB_TITLE_ID,
 		"CustomId": device_id,
@@ -261,6 +263,9 @@ func _on_texture_button_play_pressed():
 
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
+	# Nowe konto gościa zawsze startuje od poziomu 1
+	cfg.set_value("session", "current_level", 1)
+	cfg.save("user://session.cfg")
 	await PlayerData._fetch_and_sync_player_data(session_ticket, cfg)
 
 	_set_busy(false)
@@ -290,7 +295,8 @@ func _on_texture_button_google_guest_pressed():
 
 	_google_pending_nick = nick
 	_set_busy(true)
-	_gsi.signInWithGoogleButton()
+	_gsi_signing_in_after_signout = true
+	_gsi.signOut()
 
 func _on_gsi_sign_in_success(id_token: String, email: String, display_name: String):
 	print("=== GSI SUCCESS ===")
@@ -360,7 +366,8 @@ func _on_login_google_pressed():
 
 	_google_pending_nick = ""
 	_set_busy(true)
-	_gsi.signInWithGoogleButton()
+	_gsi_signing_in_after_signout = true
+	_gsi.signOut()
 
 func _login_with_google_existing(id_token: String):
 	_set_busy(true)
@@ -678,3 +685,21 @@ func _scale_button(btn: Control, target_scale: float):
 	var tween = create_tween()
 	tween.tween_property(btn, "scale", Vector2(target_scale, target_scale), 0.1)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _get_guest_device_id() -> String:
+	var cfg = ConfigFile.new()
+	# Jeśli już mamy zapisany guest_id — użyj go
+	if cfg.load("user://guest_id.cfg") == OK:
+		var saved = cfg.get_value("guest", "id", "")
+		if saved != "":
+			return saved
+	# Pierwsze uruchomienie — wygeneruj nowy unikalny ID
+	var new_id = OS.get_unique_id() + "_" + str(randi_range(100000, 999999))
+	cfg.set_value("guest", "id", new_id)
+	cfg.save("user://guest_id.cfg")
+	return new_id
+
+func _on_gsi_sign_out_complete():
+	if _gsi_signing_in_after_signout:
+		_gsi_signing_in_after_signout = false
+		_gsi.signInWithGoogleButton()

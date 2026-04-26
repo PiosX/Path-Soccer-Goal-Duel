@@ -667,28 +667,28 @@ func push_online_move(from: Vector2i, to: Vector2i) -> void:
 	if ticket == "" or online_match_id == "": return
 	var key = _get_my_move_key()
 	print("=== push_online_move key: ", key, " from: ", from, " to: ", to)
-	
+
 	_my_moves_cache.append({
 		"fx": from.x, "fy": from.y,
 		"tx": to.x, "ty": to.y
 	})
-	
+
 	# Trzymaj tylko ostatnie 50 ruchów
 	if _my_moves_cache.size() > 50:
 		_my_moves_cache = _my_moves_cache.slice(_my_moves_cache.size() - 50)
-	
+
 	var headers = [
 		"Content-Type: application/json",
 		"Accept-Encoding: identity",
 		"X-Authorization: " + ticket
 	]
+	# Fire and forget — nie blokujemy UI, gracz może działać dalej natychmiast
 	var http = HTTPRequest.new()
 	add_child(http)
+	http.request_completed.connect(func(_r, _c, _h, _b): http.queue_free(), CONNECT_ONE_SHOT)
 	http.request(PLAYFAB_URL + "/Client/UpdateUserData",
 		headers, HTTPClient.METHOD_POST,
 		JSON.stringify({"Data": {key: JSON.stringify(_my_moves_cache)}, "Permission": "Public"}))
-	await http.request_completed
-	http.queue_free()
 
 func _get_my_moves() -> Array:
 	var ticket = get_ticket()
@@ -740,7 +740,6 @@ func poll_opponent_moves() -> Array:
 		}))
 	var response = await http.request_completed
 	http.queue_free()
-	print("=== poll response: ", response[1], " body: ", response[3].get_string_from_utf8().left(200))
 	if response[1] != 200: return []
 	var json = JSON.new()
 	if json.parse(response[3].get_string_from_utf8()) != OK: return []
@@ -861,7 +860,7 @@ func wait_for_opponent_board_ready() -> void:
 	]
 	var elapsed = 0.0
 	const TIMEOUT = 15.0
-	const INTERVAL = 0.8
+	const INTERVAL = 0.4
 	while elapsed < TIMEOUT:
 		await get_tree().create_timer(INTERVAL).timeout
 		elapsed += INTERVAL

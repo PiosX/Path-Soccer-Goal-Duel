@@ -67,13 +67,29 @@ func _animate_counter(label: Label, from: int, to: int, duration: float):
 
 # ————— PRZYCISKI —————
 
-func _on_replay_pressed():
+func _stop_sounds():
 	if sound_lose and sound_lose.playing:
 		sound_lose.stop()
 	if sound_lose2 and sound_lose2.playing:
 		sound_lose2.stop()
+
+func _on_replay_pressed():
+	_stop_sounds()
 	sound_click.play()
 	await sound_click.finished
+	btn_replay.disabled = true
+	btn_exit.disabled   = true
+	var admob = get_node_or_null("/root/AdMobManager")
+	if admob and not admob.ads_disabled:
+		admob.interstitial_closed.connect(_on_replay_ad_closed, CONNECT_ONE_SHOT)
+		admob.show_interstitial()
+	else:
+		_do_replay()
+
+func _on_replay_ad_closed():
+	_do_replay()
+
+func _do_replay():
 	queue_free()
 	if is_online_mode:
 		PlayerData.online_mode = false
@@ -88,12 +104,22 @@ func _on_replay_mouse_exited():
 	_scale_button(btn_replay, 1.0)
 
 func _on_exit_pressed():
-	if sound_lose and sound_lose.playing:
-		sound_lose.stop()
-	if sound_lose2 and sound_lose2.playing:
-		sound_lose2.stop()
+	_stop_sounds()
 	sound_click.play()
 	await sound_click.finished
+	btn_replay.disabled = true
+	btn_exit.disabled   = true
+	var admob = get_node_or_null("/root/AdMobManager")
+	if admob and not admob.ads_disabled:
+		admob.interstitial_closed.connect(_on_exit_ad_closed, CONNECT_ONE_SHOT)
+		admob.show_interstitial()
+	else:
+		_do_exit()
+
+func _on_exit_ad_closed():
+	_do_exit()
+
+func _do_exit():
 	PlayerData.online_mode = false
 	SceneTransition.go_to("res://scenes/play.tscn")
 
