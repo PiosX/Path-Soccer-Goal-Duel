@@ -142,6 +142,9 @@ func _ready():
 	IAPManager.purchase_completed.connect(_on_iap_completed)
 	IAPManager.purchase_failed.connect(_on_iap_failed)
 	IAPManager.purchase_cancelled.connect(_on_iap_cancelled)
+	if IAPManager.owns_product("no_ads"):
+		await get_tree().process_frame  # poczekaj aż grid się zbuduje
+		_hide_no_ads_button()
 
 # ————— WCZYTAJ STANY SKINÓW —————
 
@@ -505,7 +508,7 @@ func _setup_premium_grid():
 		if i < PREMIUM_PRODUCT_IDS.size():
 			item.set_meta("product_id", PREMIUM_PRODUCT_IDS[i])
 
-		if i < PREMIUM_PRODUCT_IDS.size() and PREMIUM_PRODUCT_IDS[i] == "no_ads" and no_ads_owned:
+		if i < PREMIUM_PRODUCT_IDS.size() and PREMIUM_PRODUCT_IDS[i] == "no_ads" and (no_ads_owned or IAPManager.owns_product("no_ads")):
 			var btn = item.get_node_or_null("TextureButton_Buy")
 			if btn:
 				btn.disabled = true
@@ -563,12 +566,27 @@ func _squish_item(item: Control):
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _on_iap_completed(product_id: String):
-	# Jeśli coins — odśwież gold label (PlayerData.add_gold już to zrobił w IAPManager)
 	var cfg = ConfigFile.new()
 	if cfg.load("user://session.cfg") == OK:
 		player_gold = cfg.get_value("session", "gold", player_gold)
 	_refresh_gold_label()
 	_apply_skin_states()
+	# Jeśli kupiono no_ads — ukryj przycisk
+	if product_id == "no_ads":
+		_hide_no_ads_button()
+		
+func _hide_no_ads_button():
+	var grid = get_node_or_null("Control_Premium/GridContainer_Premium")
+	if not grid:
+		return
+	for i in range(grid.get_child_count()):
+		var item = grid.get_child(i)
+		if item.get_meta("product_id", "") == "no_ads":
+			var btn = item.get_node_or_null("TextureButton_Buy")
+			if btn:
+				btn.disabled = true
+				btn.visible = false
+			break
 
 func _on_iap_failed(error: String):
 	var err = get_node_or_null("../Error_Purchase")

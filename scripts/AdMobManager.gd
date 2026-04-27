@@ -32,12 +32,14 @@ func _ready():
 	_check_ads_disabled()
 	if ads_disabled:
 		print("AdMobManager: reklamy wyłączone (IAP)")
+		_initialized = true
 		return
 	print("AdMobManager: inicjalizuje MobileAds...")
 	MobileAdsClass.initialize()
 	await get_tree().create_timer(1.0).timeout
-	print("AdMobManager: ładuję interstitial...")
-	_load_interstitial()
+	# NIE ładuj tu reklamy — ConsentManager zrobi to po sprawdzeniu zgody
+	_initialized = true
+	print("AdMobManager: SDK gotowe, czekam na ConsentManager")
 
 func _check_ads_disabled():
 	var cfg = ConfigFile.new()
@@ -96,10 +98,23 @@ func disable_ads():
 	if _interstitial_ad:
 		_interstitial_ad.destroy()
 		_interstitial_ad = null
-	var cfg = ConfigFile.new()
-	cfg.load("user://session.cfg")
-	cfg.set_value("iap", "no_ads", true)
-	cfg.save("user://session.cfg")
+		
+	var ticket = PlayerData.get_ticket()
+	if ticket != "":
+		var headers = [
+			"Content-Type: application/json",
+			"Accept-Encoding: identity",
+			"X-Authorization: " + ticket
+		]
+		var http = HTTPRequest.new()
+		add_child(http)
+		http.request(
+			"https://139617.playfabapi.com/Client/UpdateUserData",
+			headers, HTTPClient.METHOD_POST,
+			JSON.stringify({"Data": {"no_ads": "true"}})
+		)
+		await http.request_completed
+		http.queue_free()
 
 func is_initialized() -> bool:
 	return _initialized

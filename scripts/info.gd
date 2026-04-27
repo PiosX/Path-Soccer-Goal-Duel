@@ -183,7 +183,7 @@ func _init_google_sign_in():
 		_gsi.sign_out_complete.connect(_on_gsi_sign_out_complete)
 
 func _on_gsi_success(id_token: String, email: String, display_name: String):
-	await _link_google_account(id_token)
+	await _link_google_account(id_token, email)
 
 func _on_gsi_failed(error: String):
 	_set_busy(false)
@@ -198,7 +198,7 @@ func _on_texture_button_google_register_pressed():
 	_gsi_signing_in_after_signout = true
 	_gsi.signOut()
 
-func _link_google_account(id_token: String):
+func _link_google_account(id_token: String, google_email: String = ""):
 	_set_busy(true)
 	reg_label_error.visible = false
 
@@ -226,12 +226,15 @@ func _link_google_account(id_token: String):
 		return
 
 	cfg.set_value("session", "has_account", true)
+	if google_email != "":
+		cfg.set_value("session", "email", google_email)
 	cfg.save("user://session.cfg")
 
 	_set_busy(false)
 	register.visible      = false
 	registered.visible    = true
 	regd_login_input.text = nick
+	regd_email_input.text = google_email
 
 # ═══════════════════════════════════════════
 #  LOGOUT
@@ -242,6 +245,8 @@ func _on_texture_button_logout_pressed():
 	var dir = DirAccess.open("user://")
 	if dir:
 		dir.remove("session.cfg")
+		dir.remove("guest_id.cfg")
+		dir.remove("iap.cfg")
 	SceneTransition.go_to("res://scenes/login.tscn")
 
 # ═══════════════════════════════════════════
@@ -277,11 +282,14 @@ func _on_texture_button_delete_pressed():
 		return
 
 	var ticket = cfg.get_value("session", "ticket", "")
+	await _playfab_post_auth("/Client/RemoveContactEmail", {}, ticket)
 	await _playfab_post_auth("/Client/DeletePlayer", {}, ticket)
 
 	var dir = DirAccess.open("user://")
 	if dir:
 		dir.remove("session.cfg")
+		dir.remove("guest_id.cfg")
+		dir.remove("iap.cfg")
 
 	_set_busy(false)
 	SceneTransition.go_to("res://scenes/login.tscn")

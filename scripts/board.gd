@@ -1456,7 +1456,12 @@ func _do_move_silent(target: Vector2i):
 			if level_data.get("orientation", "vertical") == "horizontal":
 				player_scored = (ball_grid_pos.x < 0)
 			else:
-				player_scored = (ball_grid_pos.y < 0)
+				# y<0 = bramka RED. Gracz strzelił gdy piłka jest w bramce AI (RED).
+				# Po _swap_goals GOAL_COL_START_RED już wskazuje na aktualną bramkę AI.
+				var in_red = (ball_grid_pos.y < 0 and ball_grid_pos.x >= GOAL_COL_START_RED and ball_grid_pos.x <= GOAL_COL_START_RED + GOAL_COLS_RED)
+				var in_blue = (ball_grid_pos.y > ROWS and ball_grid_pos.x >= GOAL_COL_START_BLUE and ball_grid_pos.x <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE)
+				# Gracz strzelił gdy AI (player 2) wpadło do swojej własnej bramki lub gracz strzelił do bramki AI
+				player_scored = in_red if current_player == 1 else in_blue
 		await get_tree().create_timer(0.25).timeout
 		if player_scored:
 			_show_popup_win()
@@ -1568,11 +1573,9 @@ func _minimax_root(pos: Vector2i, edges: Dictionary, player: int, depth: int) ->
 func _minimax(pos: Vector2i, edges: Dictionary, player: int, depth: int, alpha: float, beta: float, maximizing: bool) -> float:
 	# Sprawdź terminal: gol
 	if level_data.get("orientation", "vertical") == "horizontal":
-		# Lewa bramka (x<0) = bramka AI (RED) = GOL GRACZA = źle dla AI
-		if pos.x < 0 and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+		if pos.x < 0 and pos.y >= GOAL_ROW_START_LEFT and pos.y <= GOAL_ROW_START_LEFT + GOAL_ROWS_LEFT:
 			return -10000.0 - depth
-		# Prawa bramka (x>COLS) = bramka gracza (BLUE) = GOL AI = świetnie dla AI
-		if pos.x > COLS and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+		if pos.x > COLS and pos.y >= GOAL_ROW_START_RIGHT and pos.y <= GOAL_ROW_START_RIGHT + GOAL_ROWS_RIGHT:
 			return 10000.0 + depth
 	else:
 		if pos.y < 0 and pos.x >= GOAL_COL_START_RED and pos.x <= GOAL_COL_START_RED + GOAL_COLS_RED:
@@ -1756,9 +1759,9 @@ func _node_has_trail_pure(pos: Vector2i, edges: Dictionary) -> bool:
 
 func _is_goal_pure(pos: Vector2i) -> bool:
 	if level_data.get("orientation", "vertical") == "horizontal":
-		if pos.x < 0 and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+		if pos.x < 0 and pos.y >= GOAL_ROW_START_LEFT and pos.y <= GOAL_ROW_START_LEFT + GOAL_ROWS_LEFT:
 			return true
-		if pos.x > COLS and pos.y >= GOAL_ROW_START and pos.y <= GOAL_ROW_START + GOAL_ROWS:
+		if pos.x > COLS and pos.y >= GOAL_ROW_START_RIGHT and pos.y <= GOAL_ROW_START_RIGHT + GOAL_ROWS_RIGHT:
 			return true
 	else:
 		if pos.y < 0 and pos.x >= GOAL_COL_START_RED and pos.x <= GOAL_COL_START_RED + GOAL_COLS_RED:

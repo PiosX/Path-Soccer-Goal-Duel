@@ -253,9 +253,14 @@ func _on_texture_button_play_pressed():
 		_set_busy(false)
 		return
 
+	# Usuń stary plik sesji — PlayFab zawsze będzie źródłem prawdy
+	var dir_guest = DirAccess.open("user://")
+	if dir_guest:
+		dir_guest.remove("session.cfg")
+		dir_guest.remove("guest_id.cfg")
+
 	var session_ticket = result.get("SessionTicket", "")
 	await _set_display_name(session_ticket, nick)
-	await _init_player_data(session_ticket)
 
 	var entity_token = result.get("EntityToken", {}).get("EntityToken", "")
 	var entity_id = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
@@ -296,7 +301,7 @@ func _on_texture_button_google_guest_pressed():
 	_google_pending_nick = nick
 	_set_busy(true)
 	_gsi_signing_in_after_signout = true
-	_gsi.signOut()
+	_gsi.signInWithGoogleButton()
 
 func _on_gsi_sign_in_success(id_token: String, email: String, display_name: String):
 	print("=== GSI SUCCESS ===")
@@ -305,10 +310,10 @@ func _on_gsi_sign_in_success(id_token: String, email: String, display_name: Stri
 	print("id_token length: ", id_token.length())
 	print("id_token preview: ", id_token.left(80))
 	if _google_pending_nick != "":
-		await _login_with_google_token(id_token, _google_pending_nick)
+		await _login_with_google_token(id_token, _google_pending_nick, email)
 		_google_pending_nick = ""
 	else:
-		await _login_with_google_existing(id_token)
+		await _login_with_google_existing(id_token, email)
 
 func _on_gsi_sign_in_failed(error: String):
 	_set_busy(false)
@@ -318,21 +323,28 @@ func _on_gsi_sign_in_failed(error: String):
 	else:
 		_show_error(label_error_login, "Google sign-in failed: " + error)
 
-func _login_with_google_token(id_token: String, nick: String):
+func _login_with_google_token(id_token: String, nick: String, email: String = ""):
 	_set_busy(true)
 	label_error_guest.text = ""
 
 	var body = {
 		"TitleId": PLAYFAB_TITLE_ID,
-		"ServerAuthCode": id_token,
+		"ConnectionId": "google",
+		"IdToken": id_token,
 		"CreateAccount": true
 	}
-
-	var result = await _playfab_post("/Client/LoginWithGoogleAccount", body)
+	var result = await _playfab_post("/Client/LoginWithOpenIdConnect", body)
 	if result == null:
 		_show_error(label_error_guest, "Google login failed. Try again.")
 		_set_busy(false)
 		return
+
+	# ← NOWE: wyczyść stary session.cfg przed zapisem nowego konta
+	var dir = DirAccess.open("user://")
+	if dir:
+		dir.remove("session.cfg")
+		dir.remove("guest_id.cfg")
+		dir.remove("iap.cfg")
 
 	var session_ticket = result.get("SessionTicket", "")
 	var entity_token   = result.get("EntityToken", {}).get("EntityToken", "")
@@ -343,8 +355,7 @@ func _login_with_google_token(id_token: String, nick: String):
 		await _set_display_name(session_ticket, nick)
 
 	var display_nick = result.get("InfoResultPayload", {}).get("PlayerProfile", {}).get("DisplayName", nick)
-	await _init_player_data(session_ticket)
-	_save_session(result.get("PlayFabId", ""), session_ticket, display_nick, true, "", entity_token, entity_id)
+	_save_session(result.get("PlayFabId", ""), session_ticket, display_nick, true, email, entity_token, entity_id)
 
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
@@ -367,21 +378,21 @@ func _on_login_google_pressed():
 	_google_pending_nick = ""
 	_set_busy(true)
 	_gsi_signing_in_after_signout = true
-	_gsi.signOut()
+	_gsi.signInWithGoogleButton()
 
-func _login_with_google_existing(id_token: String):
+func _login_with_google_existing(id_token: String, email: String = ""):
 	_set_busy(true)
 	label_error_login.text = ""
 
 	var body = {
 		"TitleId": PLAYFAB_TITLE_ID,
-		"ServerAuthCode": id_token,
+		"ConnectionId": "google",
+		"IdToken": id_token,
 		"CreateAccount": false
 	}
-
-	var result = await _playfab_post("/Client/LoginWithGoogleAccount", body)
+	var result = await _playfab_post("/Client/LoginWithOpenIdConnect", body)
 	if result == null:
-		_show_error(label_error_login, "Google login failed. Try again.")
+		_show_error(label_error_login, "No account found. Please register first.")
 		_set_busy(false)
 		return
 
@@ -390,7 +401,14 @@ func _login_with_google_existing(id_token: String):
 	var entity_id      = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
 	var nick = result.get("InfoResultPayload", {}).get("PlayerProfile", {}).get("DisplayName", "Player")
 
-	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, "", entity_token, entity_id)
+	# Usuń stary plik sesji — PlayFab zawsze będzie źródłem prawdy
+	var dir_google = DirAccess.open("user://")
+	if dir_google:
+		dir_google.remove("session.cfg")
+		dir_google.remove("guest_id.cfg")
+		dir_google.remove("iap.cfg")
+
+	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, email, entity_token, entity_id)
 
 	var cfg = ConfigFile.new()
 	cfg.load("user://session.cfg")
@@ -438,6 +456,13 @@ func _on_texture_button_login_login_pressed():
 	var entity_token   = result.get("EntityToken", {}).get("EntityToken", "")
 	var entity_id      = result.get("EntityToken", {}).get("Entity", {}).get("Id", "")
 	var nick = result.get("InfoResultPayload", {}).get("PlayerProfile", {}).get("DisplayName", user)
+
+	# Usuń stary plik sesji — PlayFab zawsze będzie źródłem prawdy
+	var dir_login = DirAccess.open("user://")
+	if dir_login:
+		dir_login.remove("session.cfg")
+		dir_login.remove("guest_id.cfg")
+		dir_login.remove("iap.cfg")
 
 	_save_session(result.get("PlayFabId", ""), session_ticket, nick, true, user, entity_token, entity_id)
 
@@ -700,6 +725,4 @@ func _get_guest_device_id() -> String:
 	return new_id
 
 func _on_gsi_sign_out_complete():
-	if _gsi_signing_in_after_signout:
-		_gsi_signing_in_after_signout = false
-		_gsi.signInWithGoogleButton()
+	_gsi_signing_in_after_signout = false

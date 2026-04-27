@@ -19,6 +19,7 @@ func refresh_session(cfg: ConfigFile) -> void:
 		_cached_ticket = cfg.get_value("session", "ticket", "")
 		return
 
+	# Najpierw spróbuj zalogować istniejące konto
 	var body = {
 		"TitleId":  PLAYFAB_TITLE_ID,
 		"CustomId": device_id,
@@ -32,8 +33,10 @@ func refresh_session(cfg: ConfigFile) -> void:
 	var response = await http.request_completed
 	http.queue_free()
 
+	# Jeśli konto nie istnieje (nowy device_id) - utwórz je
 	if response[1] != 200:
-		_cached_ticket = cfg.get_value("session", "ticket", "")
+		print("Konto nie istnieje, tworzę nowe...")
+		await _create_new_account(cfg, device_id)
 		return
 
 	var json = JSON.new()
@@ -43,20 +46,23 @@ func refresh_session(cfg: ConfigFile) -> void:
 
 	var parsed = json.get_data()
 	if parsed.get("code", 0) != 200:
-		_cached_ticket = cfg.get_value("session", "ticket", "")
+		# Konto nie istnieje - utwórz nowe
+		await _create_new_account(cfg, device_id)
 		return
 
 	var new_ticket = parsed.get("data", {}).get("SessionTicket", "")
 	if new_ticket != "":
 		_cached_ticket = new_ticket
 		cfg.set_value("session", "ticket", new_ticket)
-		# ← DODAJ entity_token
+		
+		# Store entity info
 		var entity_token = parsed.get("data", {}).get("EntityToken", {}).get("EntityToken", "")
 		var entity_id = parsed.get("data", {}).get("EntityToken", {}).get("Entity", {}).get("Id", "")
 		if entity_token != "":
 			cfg.set_value("session", "entity_token", entity_token)
 		if entity_id != "":
 			cfg.set_value("session", "entity_id", entity_id)
+		
 		cfg.save("user://session.cfg")
 		await _fetch_and_sync_player_data(new_ticket, cfg)
 	else:
@@ -65,13 +71,37 @@ func refresh_session(cfg: ConfigFile) -> void:
 # ——————————————————————————————————————————
 #  SYNC DANYCH Z PLAYFAB (gold, current_level, skiny)
 # ——————————————————————————————————————————
+
+func _init_fresh_data(cfg: ConfigFile) -> void:
+	print("=== _init_fresh_data: resetowanie lokalnych danych ===")
+	
+	# Reset all session data to defaults
+	cfg.set_value("session", "gold", 20)
+	cfg.set_value("session", "score", 0)
+	cfg.set_value("session", "wins", 0)
+	cfg.set_value("session", "losses", 0)
+	cfg.set_value("session", "current_level", 1)
+	cfg.set_value("session", "owned_skins", "0")
+	cfg.set_value("session", "equipped_skin", 0)
+	
+	# Reset IAP data
+	cfg.set_value("iap", "no_ads", false)
+	
+	# Disable ads locally
+	var admob = get_node_or_null("/root/AdMobManager")
+	if admob:
+		admob.ads_disabled = false
+	
+	cfg.save("user://session.cfg")
+	print("=== _init_fresh_data: dane zresetowane pomyślnie ===")
+
 func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	var headers = [
 		"Content-Type: application/json",
 		"Accept-Encoding: identity",
 		"X-Authorization: " + ticket
 	]
-	var body = { "Keys": ["gold", "score", "wins", "losses", "current_level", "owned_skins", "equipped_skin"] }
+	var body = { "Keys": ["gold", "score", "wins", "losses", "current_level", "owned_skins", "equipped_skin", "no_ads"] }
 	var http = HTTPRequest.new()
 	add_child(http)
 	http.request(PLAYFAB_URL + "/Client/GetUserData",
@@ -96,10 +126,9 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	var level_str        = data.get("current_level", {}).get("Value", "")
 	var owned_skins_str  = data.get("owned_skins",   {}).get("Value", "")
 	var equipped_str     = data.get("equipped_skin", {}).get("Value", "")
+	var no_ads_str       = data.get("no_ads", {}).get("Value", "")
 
-	# Aktualizuj session.cfg danymi z PlayFab (PlayFab = źródło prawdy)
-	# Jeśli gold nie istnieje w PlayFab — nowe konto, zainicjalizuj dane
-	var is_new_account = (gold_str == "")
+	# Aktualizuj session.cfg danymi z PlayFab
 	if gold_str != "": cfg.set_value("session", "gold", int(gold_str))
 	else: cfg.set_value("session", "gold", 20)
 		
@@ -115,27 +144,28 @@ func _fetch_and_sync_player_data(ticket: String, cfg: ConfigFile) -> void:
 	if level_str  != "": cfg.set_value("session", "current_level", int(level_str))
 	else: cfg.set_value("session", "current_level", 1)
 
-	# Skiny — PlayFab przechowuje jako "0,1,5" (indeksy posiadanych skinów)
 	if owned_skins_str != "":
 		if owned_skins_str.begins_with("["):
 			cfg.set_value("session", "owned_skins", "0")
 		else:
 			cfg.set_value("session", "owned_skins", owned_skins_str)
 	else:
-		if cfg.get_value("session", "owned_skins", "") == "":
-			cfg.set_value("session", "owned_skins", "0")
+		cfg.set_value("session", "owned_skins", "0")
 
 	if equipped_str != "":
 		cfg.set_value("session", "equipped_skin", int(equipped_str))
 	else:
-		if cfg.get_value("session", "equipped_skin", -1) == -1:
-			cfg.set_value("session", "equipped_skin", 0)
+		cfg.set_value("session", "equipped_skin", 0)
+			
+	if no_ads_str == "true":
+		cfg.set_value("iap", "no_ads", true)
+		var admob = get_node_or_null("/root/AdMobManager")
+		if admob:
+			admob.disable_ads()
+	else:
+		cfg.set_value("iap", "no_ads", false)
 
 	cfg.save("user://session.cfg")
-
-	# Nowe konto — wyślij domyślne dane do PlayFab
-	if is_new_account and ticket != "":
-		await _init_default_player_data(ticket)
 
 # ——————————————————————————————————————————
 #  POBIERZ AKTUALNY TICKET
@@ -154,7 +184,8 @@ func _init_default_player_data(ticket: String) -> void:
 			"losses":        "0",
 			"current_level": "1",
 			"owned_skins":   "0",
-			"equipped_skin": "0"
+			"equipped_skin": "0",
+			"no_ads": "false"
 		}
 	}
 	var http = HTTPRequest.new()
@@ -877,3 +908,45 @@ func wait_for_opponent_board_ready() -> void:
 		var val = json.get_data().get("data", {}).get("Data", {}).get(key, {}).get("Value", "")
 		if val == "1": return
 	push_warning("wait_for_opponent_board_ready: timeout — startujemy mimo to")
+
+func _create_new_account(cfg: ConfigFile, device_id: String) -> void:
+	var body = {
+		"TitleId":  PLAYFAB_TITLE_ID,
+		"CustomId": device_id,
+		"CreateAccount": true
+	}
+	var headers = ["Content-Type: application/json", "Accept-Encoding: identity"]
+	var http = HTTPRequest.new()
+	add_child(http)
+	http.request(PLAYFAB_URL + "/Client/LoginWithCustomID",
+		headers, HTTPClient.METHOD_POST, JSON.stringify(body))
+	var response = await http.request_completed
+	http.queue_free()
+	
+	if response[1] != 200:
+		_cached_ticket = ""
+		return
+	
+	var json = JSON.new()
+	if json.parse(response[3].get_string_from_utf8()) != OK:
+		return
+	
+	var parsed = json.get_data()
+	if parsed.get("code", 0) != 200:
+		return
+	
+	var new_ticket = parsed.get("data", {}).get("SessionTicket", "")
+	if new_ticket != "":
+		_cached_ticket = new_ticket
+		cfg.set_value("session", "ticket", new_ticket)
+		
+		var entity_token = parsed.get("data", {}).get("EntityToken", {}).get("EntityToken", "")
+		var entity_id = parsed.get("data", {}).get("EntityToken", {}).get("Entity", {}).get("Id", "")
+		if entity_token != "":
+			cfg.set_value("session", "entity_token", entity_token)
+		if entity_id != "":
+			cfg.set_value("session", "entity_id", entity_id)
+		
+		cfg.save("user://session.cfg")
+		# Nowe konto - zainicjalizuj dane
+		await _init_default_player_data(new_ticket)

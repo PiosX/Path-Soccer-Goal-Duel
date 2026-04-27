@@ -47,10 +47,15 @@ func _close_popup():
 func _on_yes_pressed():
 	if sound_click:
 		sound_click.play()
+	
+	var pid = product_id
+	
+	# Trigger purchase BEFORE closing
+	if pid != "" and IAPManager.is_available():
+		IAPManager.purchase_product(pid)
+	
+	# Then close
 	await _close_popup()
-	# Uruchom zakup po zamknięciu popupa
-	if product_id != "" and IAPManager.is_available():
-		IAPManager.purchase_product(product_id)
 
 func _on_yes_mouse_entered():
 	_scale_button(btn_yes, 0.9)
