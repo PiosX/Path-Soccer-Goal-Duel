@@ -1091,11 +1091,11 @@ func _do_move(target: Vector2i):
 	# Zapisz historię
 	move_history.append({"from": from, "to": target, "ek": ek, "player": current_player, "line": trail_line})
 
-	# Licznik ruchów dla zmiany połów (każdy ruch, nie tylko zmiana tury)
-	_check_goal_switch()
-
 	# Sprawdź gol przed animacją
 	var scored = _check_goal(target)
+
+	# Licznik ruchów dla zmiany połów (każdy ruch, nie tylko zmiana tury)
+	_check_goal_switch()
 
 	# Animuj do celu
 	_animate_ball(target, false)
@@ -1121,9 +1121,9 @@ func _do_move(target: Vector2i):
 				player_scored = (PlayerData.player1_is_me and ball_grid_pos.y < 0) or (not PlayerData.player1_is_me and ball_grid_pos.y > ROWS)
 		else:
 			if level_data.get("orientation", "vertical") == "horizontal":
-				player_scored = (ball_grid_pos.x < 0)
+				player_scored = (ball_grid_pos.x < 0) != _goals_swapped
 			else:
-				player_scored = (ball_grid_pos.y < 0)
+				player_scored = (ball_grid_pos.y < 0) != _goals_swapped
 		await get_tree().create_timer(0.25).timeout
 		if player_scored:
 			_show_popup_win()
@@ -1304,16 +1304,19 @@ func _on_goal_anim():
 	var player_scored: bool
 	if PlayerData.online_mode:
 		if level_data.get("orientation", "vertical") == "horizontal":
-			# x<0 = lewa bramka (RED/AI) — P1 strzela tam = wygrana P1
 			player_scored = (PlayerData.player1_is_me and ball_grid_pos.x < 0) or (not PlayerData.player1_is_me and ball_grid_pos.x > COLS)
 		else:
-			# y<0 = bramka RED (góra) — P1 strzela tam = wygrana P1
 			player_scored = (PlayerData.player1_is_me and ball_grid_pos.y < 0) or (not PlayerData.player1_is_me and ball_grid_pos.y > ROWS)
 	else:
 		if level_data.get("orientation", "vertical") == "horizontal":
-			player_scored = (ball_grid_pos.x < 0)
+			# x<0 = lewa bramka, x>COLS = prawa bramka
+			# Bez zamiany: lewa = AI (gracz strzela w lewo → wygrana)
+			# Po zamianie: odwrotnie
+			player_scored = (ball_grid_pos.x < 0) != _goals_swapped
 		else:
-			player_scored = (ball_grid_pos.y < 0)  # górna bramka = bramka AI = gracz strzelił
+			# y<0 = górna bramka (RED/AI) — gracz strzela w górę → wygrana
+			# Po zamianie: odwrotnie
+			player_scored = (ball_grid_pos.y < 0) != _goals_swapped
 	if player_scored:
 		score += 500
 		_show_popup_win()
@@ -1456,12 +1459,10 @@ func _do_move_silent(target: Vector2i):
 			if level_data.get("orientation", "vertical") == "horizontal":
 				player_scored = (ball_grid_pos.x < 0)
 			else:
-				# y<0 = bramka RED. Gracz strzelił gdy piłka jest w bramce AI (RED).
-				# Po _swap_goals GOAL_COL_START_RED już wskazuje na aktualną bramkę AI.
-				var in_red = (ball_grid_pos.y < 0 and ball_grid_pos.x >= GOAL_COL_START_RED and ball_grid_pos.x <= GOAL_COL_START_RED + GOAL_COLS_RED)
-				var in_blue = (ball_grid_pos.y > ROWS and ball_grid_pos.x >= GOAL_COL_START_BLUE and ball_grid_pos.x <= GOAL_COL_START_BLUE + GOAL_COLS_BLUE)
-				# Gracz strzelił gdy AI (player 2) wpadło do swojej własnej bramki lub gracz strzelił do bramki AI
-				player_scored = in_red if current_player == 1 else in_blue
+				if level_data.get("orientation", "vertical") == "horizontal":
+					player_scored = (ball_grid_pos.x < 0) != _goals_swapped
+				else:
+					player_scored = (ball_grid_pos.y < 0) != _goals_swapped
 		await get_tree().create_timer(0.25).timeout
 		if player_scored:
 			_show_popup_win()

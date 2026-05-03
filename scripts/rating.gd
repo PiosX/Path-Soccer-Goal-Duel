@@ -45,7 +45,7 @@ func _on_yes_pressed():
 	if sound_click:
 		sound_click.play()
 	_save_rated(true)
-	# OS.shell_open("market://details?id=com.yourcompany.yourgame")
+	OS.shell_open("market://details?id=com.redmoongames.pathsoccer")
 	await _close_popup()
 
 func _on_yes_mouse_entered():
